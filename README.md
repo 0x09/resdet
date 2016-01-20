@@ -54,3 +54,8 @@ Note the solid black lines indicating zero-crossings 512px in from each dimensio
 ## Can the same method work for downsampling?
 
 There's no direct equivalent. Since downsampling loses information by definition it's likely not possible. Certain spectral features can appear as a result of typical downsampling operations, but the author is unaware of a way to reliably identify or exploit them in a meaningful way.
+
+## Source?
+Looking at too many spectrograms.  
+Specifically, this project was born out of a yet-unpublished image deduplication framework, while attempting to identify whether duplicates were scaled versions of one another.  
+While [some resources](http://anibin.blogspot.ca) doing similar things via unspecified methods exist, I don't know of any comparable algorithm to resdet or publication describing something like it (but would be glad to read if they exist).
