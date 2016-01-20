@@ -1,7 +1,7 @@
 include config.mak
 
 LIB=lib/libresdet.a
-TOOLS=$(addprefix tools/, resdet stat profile)
+TOOLS=resdet stat profile
 
 EXTRAFLAGS=
 ifneq ($(SHAREPREFIX),)
@@ -18,20 +18,20 @@ all: $(TOOLS)
 $(LIB): $(addprefix lib/, resdet.o image.o methods.o)
 	$(AR) rcs $@ $+
 
-tools/resdet: src/resdet.o $(LIB)
+resdet: src/resdet.o $(LIB)
 	$(CC) -o $@ $(LIBS) $+
 
-tools/profile: src/profile.o $(LIB)
+profile: src/profile.o $(LIB)
 	$(CC) -o $@ $(LIBS) $+
 
-tools/stat: src/stat.o $(LIB)
+stat: src/stat.o $(LIB)
 	$(CC) -o $@ $(LIBS) $+
 
 install-lib: $(LIB)
 	install include/resdet.h $(INCPREFIX)/
 	install $(LIB) $(LIBPREFIX)/
 
-install: tools/resdet
+install: resdet
 	install tools/resdet $(BINPREFIX)/
 ifneq ($(SHAREPREFIX),)
 	mkdir -p $(SHAREPREFIX)
