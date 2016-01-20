@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+
+CC="${CC:-cc}"
+AR="${AR:-ar}"
+PREFIX="${PREFIX:-/usr/local}"
+CFLAGS="-Ofast -march=native -mtune=native $CFLAGS"
+
+with_libjpeg=true
+with_libmagic=true
+with_libpng=true
+with_mjpegtools=true
+with_MagicWand=true
+
+function usage() {
+	echo "./configure --opt=arg"
+	echo ""
+	echo "   --cc           \"$CC\""
+	echo "   --ar           \"$AR\""
+	echo "   --cflags       \"$CFLAGS\""
+	echo "   --prefix       \"$PREFIX\""
+	echo "   --binprefix    \"$PREFIX/bin\""
+	echo "   --libprefix    \"$PREFIX/lib\""
+	echo "   --incprefix    \"$PREFIX/include\""
+	echo "   --shareprefix  \"$PREFIX/share/resdet\""
+	echo ""
+	echo "   --without-libmagic"
+	echo "   --without-libjpeg"
+	echo "   --without-libpng"
+	echo "   --without-mjpegtools"
+	echo "   --without-MagickWand"
+	echo ""
+	echo "   --default-range"
+	exit 0
+}
+
+for o; do
+	opt="${o%%=}"
+	arg="${o#=}"
+	case "$opt" in
+		--cc) CC="$arg";;
+		--ar) AR="$arg";;
+		--cflags) CFLAGS="$arg";;
+		--prefix) PREFIX="$arg";;
+		--binprefix)   BINPREFIX="$arg";;
+		--libprefix)   LIBPREFIX="$arg";;
+		--incprefix)   INCPREFIX="$arg";;
+		--shareprefix) SHAREPREFIX="$arg";;
+		--without-libmagic  ) with_libmagic=false;;
+		--without-libjpeg   ) with_libjpeg=false;;
+		--without-libpng    ) with_libpng=false;;
+		--without-mjpegtools) with_mjpegtools=false;;
+		--without-MagickWand) with_MagickWand=false;;
+		--default-range) default_range=$arg;;
+		--help) usage;;
+	esac
+done
+
+BINPREFIX="${BINPREFIX:-$PREFIX/bin}"
+LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
+INCPREFIX="${INCPREFIX:-$PREFIX/include}"
+SHAREPREFIX="${SHAREPREFIX:-$PREFIX/share/resdet}"
+
+function testinc() {
+	printf "Testing for $1..."
+	target=""
+	for arg; do target="-include $arg $target"; done
+	if $CC -xc -fsyntax-only $target - <<< "" &> /dev/null; then
+		printf " ok\n"
+		return 0
+	fi
+	printf " not found\n"
+	return 1
+}
+function testlib() {
+	printf "Testing for $1..."
+	target=""
+	for arg; do target="-l$arg $target"; done
+	if $CC -xc $target -o /dev/null - <<< "int main(void){};" &> /dev/null; then
+		printf " ok\n"
+		return 0
+	fi
+	printf " not found\n"
+	return 1
+}
+function testpc() {
+	printf "Testing for $1..."
+	if pkg-config --exists $1; then
+		printf " ok\n"
+		return 0
+	fi
+	printf " not found\n"
+	return 1
+}
+function define() {
+	echo "$1 is \"$2\""
+	echo "$1=$2" >> config.mak
+}
+
+rm -f config.mak
+
+define CC "$(which "$CC")"
+define CFLAGS "$CFLAGS"
+define AR "$(which "$AR")"
+define PREFIX "$PREFIX"
+define BINPREFIX "$BINPREFIX"
+define LIBPREFIX "$LIBPREFIX"
+define INCPREFIX "$INCPREFIX"
+define SHAREPREFIX "$SHAREPREFIX"
+if [ -n "$DEFAULT_RANGE" ]; then
+	define DEFAULT_RANGE "$DEFAULT_RANGE"
+fi
+
+echo
+
+if ! (testinc fftw3.h && testlib fftw3f); then
+	echo "Aborting"
+	exit 1
+fi
+DEFS=
+LIBS="$(pkg-config --libs fftw3f)"
+
+if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
+	echo "HAVE_LIBJPEG=1" >> config.mak
+	DEFS+=" -DHAVE_LIBJPEG"
+	LIBS+=" -ljpeg"
+fi
+
+if $with_libmagic && testinc magic.h && testlib magic; then
+	echo "HAVE_LIBMAGIC=1" >> config.mak
+	DEFS+=" -DHAVE_LIBMAGIC"
+	LIBS+=" -lmagic"
+fi
+
+for dep in libpng mjpegtools MagickWand; do
+	check=with_$dep
+	if ${!check} && testpc $dep; then
+		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep) $(pkg-config --cflags $dep)"
+		LIBS+=" $(pkg-config --libs $dep)"
+	fi
+done
+
+echo "DEFS=$DEFS" >> config.mak
+echo "LIBS=$LIBS" >> config.mak
