@@ -30,6 +30,10 @@ stat: src/stat.o $(LIB)
 install-lib: $(LIB)
 	install include/resdet.h $(INCPREFIX)/
 	install $(LIB) $(LIBPREFIX)/
+ifneq ($(PCPREFIX),)
+	mkdir -p $(PCPREFIX)
+	install lib/resdet.pc $(PCPREFIX)/
+endif
 
 install: resdet
 	install resdet $(BINPREFIX)/
@@ -41,6 +45,7 @@ endif
 uninstall:
 	rm -f $(BINPREFIX)/resdet
 	rm -f $(LIBPREFIX)/libresdet.a
+	rm -f $(PCPREFIX)/resdet.pc
 	rm -f $(INCPREFIX)/resdet.h
 	rm -f $(SHAREPREFIX)/magic
 	rmdir $(SHAREPREFIX) &> /dev/null

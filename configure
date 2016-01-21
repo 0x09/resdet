@@ -22,6 +22,7 @@ function usage() {
 	echo "   --libprefix    \"$PREFIX/lib\""
 	echo "   --incprefix    \"$PREFIX/include\""
 	echo "   --shareprefix  \"$PREFIX/share/resdet\""
+	echo "   --pcprefix     \"$PREFIX/lib/pkgconfig\""
 	echo ""
 	echo "   --without-libmagic"
 	echo "   --without-libjpeg"
@@ -59,6 +60,7 @@ BINPREFIX="${BINPREFIX:-$PREFIX/bin}"
 LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
 INCPREFIX="${INCPREFIX:-$PREFIX/include}"
 SHAREPREFIX="${SHAREPREFIX:-$PREFIX/share/resdet}"
+PCPREFIX="${PCPREFIX:-$PREFIX/lib/pkgconfig}"
 
 function abort() {
 	echo "Aborting"
@@ -99,6 +101,12 @@ function define() {
 	echo "$1 is \"$2\""
 	echo "$1=$2" >> config.mak
 }
+function expand() {
+	echo "Generating $2"
+	while read line; do
+		eval printf \"%s\\n\" \"$line\"
+	done < "$1" > "$2"
+}
 
 if ! command -v pkg-config &> /dev/null; then
 	echo "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
@@ -115,6 +123,7 @@ define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
 define INCPREFIX "$INCPREFIX"
 define SHAREPREFIX "$SHAREPREFIX"
+define PCPREFIX "$PCPREFIX"
 if [ -n "$DEFAULT_RANGE" ]; then
 	define DEFAULT_RANGE "$DEFAULT_RANGE"
 fi
@@ -125,7 +134,8 @@ if ! testpc fftw3f; then
 	abort
 fi
 DEFS=
-LIBS="$(pkg-config --libs fftw3f)"
+LIBS=
+PCDEPS="fftw3f"
 
 if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
 	echo "HAVE_LIBJPEG=1" >> config.mak
@@ -142,10 +152,15 @@ fi
 for dep in libpng mjpegtools MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
-		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep) $(pkg-config --cflags $dep)"
-		LIBS+=" $(pkg-config --libs $dep)"
+		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep)"
+		PCDEPS+=" $dep"
 	fi
 done
+
+expand lib/resdet.pc.in lib/resdet.pc
+
+DEFS+=" $(pkg-config --cflags $PCDEPS)"
+LIBS+=" $(pkg-config --libs $PCDEPS)"
 
 echo "DEFS=$DEFS" >> config.mak
 echo "LIBS=$LIBS" >> config.mak

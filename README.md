@@ -11,10 +11,6 @@ Image readers are available using libpng, libjpeg, mjpegtools (yuv4mpeg), and/or
 	make
 	make install
 
-Or for the library:
-
-    make install-lib
-
 see `configure --help` for options
 
 # Examples
@@ -28,7 +24,9 @@ see `configure --help` for options
 
 # API
 
-resdet can be used as a library by including [resdet.h](resdet.h) and linking with libresdet. Documentation is available in the [doc](doc) subdirectory.
+resdet can be used as a library by including [resdet.h](resdet.h) and linking with libresdet. To install the library, use `make install-lib` after building.  
+A pkg-config file is included; linker flags can be gotten via `pkg-config --libs --static resdet`  
+API documentation is available in the [doc](doc) subdirectory.
 
 # FAQ
 This utility takes an image or frame of video which may have been upscaled and attempts to exactly identify the original resolution.
