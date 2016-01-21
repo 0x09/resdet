@@ -3,7 +3,7 @@
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
-CFLAGS="-Ofast -march=native -mtune=native $CFLAGS"
+CFLAGS="-Ofast -march=native -mtune=native -std=gnu99 $CFLAGS"
 
 with_libjpeg=true
 with_libmagic=true
