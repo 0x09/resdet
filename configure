@@ -30,13 +30,13 @@ function usage() {
 	echo "   --without-mjpegtools"
 	echo "   --without-MagickWand"
 	echo ""
-	echo "   --default-range"
+	echo "   --default-range [n] (12)"
 	exit 0
 }
 
 for o; do
-	opt="${o%%=}"
-	arg="${o#=}"
+	opt="${o%%=*}"
+	arg="${o#*=}"
 	case "$opt" in
 		--cc) CC="$arg";;
 		--ar) AR="$arg";;
@@ -51,7 +51,7 @@ for o; do
 		--without-libpng    ) with_libpng=false;;
 		--without-mjpegtools) with_mjpegtools=false;;
 		--without-MagickWand) with_MagickWand=false;;
-		--default-range) default_range=$arg;;
+		--default-range) DEFAULT_RANGE=$arg;;
 		--help) usage;;
 	esac
 done
@@ -124,9 +124,7 @@ define LIBPREFIX "$LIBPREFIX"
 define INCPREFIX "$INCPREFIX"
 define SHAREPREFIX "$SHAREPREFIX"
 define PCPREFIX "$PCPREFIX"
-if [ -n "$DEFAULT_RANGE" ]; then
-	define DEFAULT_RANGE "$DEFAULT_RANGE"
-fi
+[ -n "$DEFAULT_RANGE" ] && define DEFAULT_RANGE "$DEFAULT_RANGE"
 
 echo
 
