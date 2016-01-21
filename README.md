@@ -15,12 +15,22 @@ see `configure --help` for options
 
 # Examples
 
+Resize an image with [ImageMagick](http://www.imagemagick.org)'s `convert` command and detect it:
+
     $ convert Lenna.png -resize 200% resized.png
+
     $ resdet resized.png
 	given: 1024x1024
 	best guess: 512x512
 	all width        height
 	  512 (68.03%)     512 (67.83%)
+
+Just test if an image has been upscaled:
+
+	$ resdet -v0 resized.png && echo upscaled
+	upscaled
+
+See resdet -h for more options.
 
 # API
 

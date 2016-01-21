@@ -24,6 +24,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 #include "resdet.h"
 
@@ -33,51 +35,100 @@ int sortres(const void* left, const void* right) {
 	return ((const RDResolution*)right)->confidence*10000 - ((const RDResolution*)left)->confidence*10000;
 }
 
-int main(int argc, char* argv[]) {
-	if(argc < 2) {
-		printf("Usage: %s image <method>\n",argv[0]);
-		puts("Methods:");
+void usage(const char* self, bool help) {
+	printf("Usage: %s -h -m <method> -v <verbosity> image\n",self);
+	if(help) {
+		printf(
+"\n"
+" -m   Optional detection method, see below.\n"
+" -v   verbosity: -1 - Human-readable output, default.\n"
+"                  0 - Behave like a shell test, returning true if upscaling was detected, false if not or on error.\n"
+"                  1 - Print only the best guess width and height.\n"
+"                  2 - All detected widths and heights in confidence order.\n"
+"                  3 - -v2 plus the floating point confidence value.\n"
+"\n"
+);
+		puts("Available detection methods:");
 		RDMethod* m = resdet_methods();
-		printf("\t%s (default)\n",m->name);
+		printf("   %s (default)\n",m->name);
 		for(m++; m->name; m++)
-			printf("\t%s\n",m->name);
-		return 0;
+			printf("   %s\n",m->name);
 	}
+	exit(0);
+}
+int main(int argc, char* argv[]) {
+	int c;
+	int verbosity = -1;
+	const char* method = NULL;
+	while((c = getopt(argc,argv,"v:m:h")) != -1) {
+		switch(c) {
+			case 'v': verbosity = strtol(optarg,NULL,10); break;
+			case 'm': method = optarg; break;
+			case 'h': usage(argv[0],true); break;
+			default: usage(argv[0],false);
+		}
+	}
+
+	const char* input = argv[optind];
+	if(!input)
+		usage(argv[0],false);
 
 	RDContext* ctx = resdet_open_context();
 	if(!ctx) {
 		fprintf(stderr,"Context creation failed.\n");
-		return 1;
+		return 64;
 	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,argv[1],&rw,&cw,&rh,&ch,resdet_get_method(argv[2]));
+	RDError e = resdetect_file(ctx,input,&rw,&cw,&rh,&ch,resdet_get_method(method));
 	resdet_close_context(ctx);
-	if(e) goto end;
+	if(e || !verbosity)
+		goto end;
 
 	qsort(rw,cw,sizeof(*rw),sortres);
 	qsort(rh,ch,sizeof(*rh),sortres);
 
-	printf("given: %zux%zu\n",rw[cw-1].index,rh[ch-1].index);
+	if(verbosity == 1) {
+		printf("%zu %zu\n",rw[0].index,rh[0].index);
+		goto end;
+	}
+	if(verbosity == 2 || verbosity == 3) {
+		for(size_t i = 0; i < cw; i++) {
+			if(verbosity == 2)
+				printf("%zu ",rw[i].index);
+			else
+				printf("%zu:%f ",rw[i].index,rw[i].confidence);
+		}
+		putchar('\n');
+		for(size_t i = 0; i < ch; i++) {
+			if(verbosity == 2)
+				printf("%zu ",rh[i].index);
+			else
+				printf("%zu:%f ",rh[i].index,rh[i].confidence);
+		}
+		putchar('\n');
+		goto end;
+	}
 
-	printf("best guess: %zux%zu",rw[0].index,rh[0].index);
-	if(cw + ch == 2) printf(" (not upsampled)");
-	putchar('\n');
-
+	printf("given: %zux%zu\nbest guess: %zux%zu%s\n",rw[cw-1].index,rh[ch-1].index,rw[0].index,rh[0].index, (cw==ch==1 ? " (not upsampled)" : ""));
 	cw--; ch--;
 	if(MAX(cw,ch))
 		puts("all width        height");
-	for(int i = 0; i < MAX(cw,ch); i++) {
+	for(size_t i = 0; i < MAX(cw,ch); i++) {
 		if(i < cw)
 			printf("%5ld (%5.2f%%)   ",rw[i].index,rw[i].confidence*100);
-		else printf("                 ");
+		else printf("%17s","");
 		if(i < ch)
 			printf("%5ld (%5.2f%%)",rh[i].index,rh[i].confidence*100);
 		putchar('\n');
 	}
+
 end:
 	free(rw);
 	free(rh);
-	if(e) fprintf(stderr,"%s\n",RDErrStr[e]);
-	return e;
+	if(e) {
+		fprintf(stderr,"%s\n",RDErrStr[e]);
+		return e + 64;
+	}
+	return !verbosity ? cw == ch == 1 : 0;
 }
