@@ -60,7 +60,7 @@ void resdet_close_context(RDContext* ctx) {
 #endif
 	free(ctx);
 }
-#define NOTHING(x) x
+
 RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                               RDMethod* method, size_t range, float threshold) {
 
