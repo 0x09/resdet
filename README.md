@@ -26,6 +26,10 @@ see `configure --help` for options
 	all width        height
 	  512 (68.03%)     512 (67.83%)
 
+# API
+
+resdet can be used as a library by including [resdet.h](resdet.h) and linking with libresdet. Documentation is available in the [doc](doc) subdirectory.
+
 # FAQ
 This utility takes an image or frame of video which may have been upscaled and attempts to exactly identify the original resolution.
 
