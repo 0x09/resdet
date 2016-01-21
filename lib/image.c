@@ -172,15 +172,17 @@ static unsigned char* read_magick(FILE* f, size_t* width, size_t* height) {
 	unsigned char* image = NULL;
 	MagickWandGenesis();
 	MagickWand* wand = NewMagickWand();
-    if(!MagickReadImageFile(wand,f))
+	if(!MagickReadImageFile(wand,f))
 		goto end;
-    *width = MagickGetImageWidth(wand);
+	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
+	if(!(*width && *height) || *width > PIXEL_MAX / *height)
+		goto end;
 	if(!(image = malloc(*width * *height)))
 		goto end;
-    MagickExportImagePixels(wand,0,0,*width,*height,"I",CharPixel,image);
+	MagickExportImagePixels(wand,0,0,*width,*height,"I",CharPixel,image);
 end:
-    DestroyMagickWand(wand);
+	DestroyMagickWand(wand);
 	MagickWandTerminus(); //hopefully we're the only one using magickwand
 	return image;
 }
