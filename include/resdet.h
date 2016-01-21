@@ -68,11 +68,11 @@ RDError res_detect_file(RDContext* ctx, const char* filename, RDResolution** res
 
 RDError res_detect_with_params(unsigned char* restrict image, size_t width, size_t height,
                                RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
-							   RDMethod* method, size_t range, float threshold);
+                               RDMethod* method, size_t range, float threshold);
 
 RDError res_detect_file_with_params(RDContext* ctx, const char* filename,
                                     RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
-									RDMethod* method, size_t range, float threshold);
+                                    RDMethod* method, size_t range, float threshold);
 
 
 #endif
