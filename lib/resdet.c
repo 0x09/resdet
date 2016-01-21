@@ -110,7 +110,7 @@ RDError resdetect(unsigned char* restrict image, size_t width, size_t height, RD
 }
 
 RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
-                                    RDMethod* method, size_t range, float threshold) {
+                                   RDMethod* method, size_t range, float threshold) {
 	if(!method)
 		return RDEINVAL;
 
