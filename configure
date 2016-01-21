@@ -60,6 +60,10 @@ LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
 INCPREFIX="${INCPREFIX:-$PREFIX/include}"
 SHAREPREFIX="${SHAREPREFIX:-$PREFIX/share/resdet}"
 
+function abort() {
+	echo "Aborting"
+	exit 1
+}
 function testinc() {
 	printf "Testing for $1..."
 	target=""
@@ -96,6 +100,11 @@ function define() {
 	echo "$1=$2" >> config.mak
 }
 
+if ! command -v pkg-config &> /dev/null; then
+	echo "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
+	abort
+fi
+
 rm -f config.mak
 
 define CC "$(which "$CC")"
@@ -112,9 +121,8 @@ fi
 
 echo
 
-if ! (testinc fftw3.h && testlib fftw3f); then
-	echo "Aborting"
-	exit 1
+if ! testpc fftw3f; then
+	abort
 fi
 DEFS=
 LIBS="$(pkg-config --libs fftw3f)"
