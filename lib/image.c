@@ -51,7 +51,7 @@ static unsigned char* read_png(FILE* f, size_t* width, size_t* height) {
 	*width = png_get_image_width(png_ptr,info_ptr);
 	*height = png_get_image_height(png_ptr,info_ptr);
 
-	if(!(*width && *height) || *width > PIXEL_MAX / *height)
+	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
 		goto end;
 
 	int bit_depth = png_get_bit_depth(png_ptr,info_ptr), color = png_get_color_type(png_ptr,info_ptr);
@@ -68,8 +68,6 @@ static unsigned char* read_png(FILE* f, size_t* width, size_t* height) {
 	if(bit_depth < 8) { png_set_expand_gray_1_2_4_to_8(png_ptr); UPDATEPNG; }
 	int passes = png_set_interlace_handling(png_ptr);
 
-	if(!(image = malloc(*width * *height)))
-		goto end;
 	for(int i = 0; i < passes; i++) {
 		unsigned char* it = image;
 		for(rdint_index y = 0; y < *height; y++, it += *width)
@@ -115,9 +113,9 @@ static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height) {
 	jpeg_start_decompress(&cinfo);
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
-	if(!(*width && *height) || *width > PIXEL_MAX / *height)
+	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
 		goto finish;
-	image = malloc(cinfo.output_width*cinfo.output_height);
+
 	int y = 0;
 	unsigned char* it = image;
 	while(cinfo.output_scanline < cinfo.output_height) {
@@ -148,11 +146,9 @@ static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height) {
 		goto end;
 	*width = y4m_si_get_width(&st);
 	*height = y4m_si_get_height(&st);
-	if(!(*width && *height) || *width > PIXEL_MAX / *height)
-		goto end;
 	if(y4m_read_frame_header(fd,&st,&frame) != Y4M_OK)
 		goto end;
-	if(!(image = malloc(*width * *height)))
+	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
 		goto end;
 	if(y4m_read(fd,image,*width * *height) < 0) {
 		free(image);
@@ -176,11 +172,10 @@ static unsigned char* read_magick(FILE* f, size_t* width, size_t* height) {
 		goto end;
 	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
-	if(!(*width && *height) || *width > PIXEL_MAX / *height)
-		goto end;
-	if(!(image = malloc(*width * *height)))
+	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
 		goto end;
 	MagickExportImagePixels(wand,0,0,*width,*height,"I",CharPixel,image);
+
 end:
 	DestroyMagickWand(wand);
 	MagickWandTerminus(); //hopefully we're the only one using magickwand

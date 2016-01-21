@@ -27,11 +27,19 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+static bool pushres(RDResolution** list, size_t* count, RDResolution r) {
+	RDResolution* tmp = realloc(*list,sizeof(**list)*(*count+1));
+	if(!tmp)
+		return false;
+	(*list=tmp)[(*count)++] = r;
+	return true;
+}
+
 // Sweeps the image looking for boundaries with many sign inversions.
 // Fastest, simplest, and conveniently one of the most accurate methods.
-static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution**detect, size_t* count, size_t range, float threshold) {
-	if(!(*detect = malloc(sizeof(**detect)*(*count+1)))) return RDENOMEM;
-	**detect = (RDResolution){length,-1}; *count = 1;
+static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution** detect, size_t* count, size_t range, float threshold) {
+	if(!pushres(detect,count,(RDResolution){length,-1}))
+		return RDENOMEM;
 	if(range*2 >= length)
 		return RDEOK; //can't do anything
 
@@ -40,18 +48,17 @@ static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t
 		for(rdint_index y = 0; y < n; y++)
 			for(rdint_index i = 1; i <= range; i++)
 				sign += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
-		if(sign > range*n*threshold) {
-			if(!(*detect = realloc(*detect,sizeof(**detect)*(*count+1)))) return RDENOMEM;
-			(*detect)[(*count)++] = (RDResolution){x,sign/(float)(range*n)};
-		}
+		if(sign > range*n*threshold)
+			if(!pushres(detect,count,(RDResolution){x,sign/(float)(range*n)}))
+				return RDENOMEM;
 	}
 	return RDEOK;
 }
 
 // Looks for similar magnitude coefficients with inverted signs.
-static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution**detect, size_t* count, size_t range, float threshold) {
-	if(!(*detect = malloc(sizeof(**detect)*(*count+1)))) return RDENOMEM;
-	**detect = (RDResolution){length,-1}; *count = 1;
+static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution** detect, size_t* count, size_t range, float threshold) {
+	if(!pushres(detect,count,(RDResolution){length,-1}))
+		return RDENOMEM;
 	if(range*2 >= length)
 		return RDEOK; //can't do anything
 
@@ -63,10 +70,9 @@ static RDError detect_method_magnitude(const coeff* restrict f, size_t length, s
 				mi(frexp)(f[y*stride+x*dist-i*dist]/mc(copysign)(MAX(mc(fabs)(f[y*stride+x*dist+i*dist]),EPSILON),f[y*stride+x*dist+i*dist])+1,&e);
 				sign += e <= 0;
 			}
-		if(sign > range*n*threshold) {
-			if(!(*detect = realloc(*detect,sizeof(**detect)*(*count+1)))) return RDENOMEM;
-			(*detect)[(*count)++] = (RDResolution){x,sign/(float)(range*n)};
-		}
+		if(sign > range*n*threshold)
+			if(!pushres(detect,count,(RDResolution){x,sign/(float)(range*n)}))
+				return RDENOMEM;
 	}
 	return RDEOK;
 }
@@ -74,13 +80,13 @@ static RDError detect_method_magnitude(const coeff* restrict f, size_t length, s
 
 // Initial algorithm. Somewhat more complicated mixture of the previous.
 // Tests for inverted sign, same magnitude, with lower magnitude/zero crossing in between.
-static RDError detect_method_original(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution**detect, size_t* count, size_t range, float threshold) {
+static RDError detect_method_original(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution** detect, size_t* count, size_t range, float threshold) {
 #ifndef MAG_RANGE
 #define MAG_RANGE range
 #endif
 
-	if(!(*detect = malloc(sizeof(**detect)*(*count+1)))) return RDENOMEM;
-	**detect = (RDResolution){length,-1}; *count = 1;
+	if(!pushres(detect,count,(RDResolution){length,-1}))
+		return RDENOMEM;
 	if(range*2 >= length)
 		return RDEOK; //can't do anything
 
@@ -108,11 +114,11 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		}
 		int leftexp, rightexp, midexp;
 		mi(frexp)(left,&leftexp); mi(frexp)(right,&rightexp); mi(frexp)(mid,&midexp);
-		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) && (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid)) && 
-		   (sign[x-range] > threshold*range*n)) {
-			   if(!(*detect = realloc(*detect,sizeof(**detect)*(*count+1)))) { ret = RDENOMEM; goto end; }
-			   (*detect)[(*count)++] = (RDResolution){x,(sign[x-range]/**2-range*height*/)/(float)(range*n)};
-		}
+		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) &&
+		   (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid)) &&
+		   (sign[x-range] > threshold*range*n))
+			if(!pushres(detect,count,(RDResolution){x,sign[x-range]/(float)(range*n)}))
+				   return RDENOMEM;
 	}
 
 end:
