@@ -140,6 +140,6 @@ static RDMethod methods[] = {
 	{}
 };
 
-RDMethod* res_detect_methods() {
+RDMethod* resdet_methods() {
 	return methods;
 }

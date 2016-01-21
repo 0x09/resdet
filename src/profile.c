@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	RDMethod* methods = res_detect_methods();
+	RDMethod* methods = resdet_methods();
 	size_t nmethods = 0;
 	int padding = 0;
 	for(RDMethod* m = methods; m->name; m++) {
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
-			e = res_detect(image,w,h,&rw,&cw,&rh,&ch,m);
+			e = resdetect(image,w,h,&rw,&cw,&rh,&ch,m);
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval after = rusage.ru_utime;
 			resdet_close_context(NULL); //clean out fftw

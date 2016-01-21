@@ -61,7 +61,7 @@ void resdet_close_context(RDContext* ctx) {
 	free(ctx);
 }
 
-RDError res_detect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                               RDMethod* method, size_t range, float threshold) {
 	if(!method)
 		return RDEINVAL;
@@ -94,22 +94,22 @@ RDError res_detect_with_params(unsigned char* restrict image, size_t width, size
 	return ret;
 }
 
-RDMethod* res_detect_get_method(const char* name) {
+RDMethod* resdet_get_method(const char* name) {
 	if(!name)
-		return res_detect_methods(); //default
-	for(RDMethod* m = res_detect_methods(); m->name; m++)
+		return resdet_methods(); //default
+	for(RDMethod* m = resdet_methods(); m->name; m++)
 		if(!strcmp(m->name,name))
 			return m;
 	return NULL;
 }
 
-RDError res_detect(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
 	if(!method)
 		return RDEINVAL;
-	return res_detect_with_params(image,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
+	return resdetect_with_params(image,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
-RDError res_detect_file_with_params(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
 	if(!method)
 		return RDEINVAL;
@@ -118,12 +118,12 @@ RDError res_detect_file_with_params(RDContext* ctx, const char* filename, RDReso
 	size_t width, height;
 	RDError ret = resdet_read_image(ctx,filename,&image,&width,&height);
 	if(ret == RDEOK)
-		ret = res_detect_with_params(image,width,height,rw,cw,rh,ch,method,range,threshold);
+		ret = resdetect_with_params(image,width,height,rw,cw,rh,ch,method,range,threshold);
 	free(image);
 	return ret;
 }
 
-RDError res_detect_file(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
-	return res_detect_file_with_params(ctx,filename,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
+RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+	return resdetect_file_with_params(ctx,filename,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 

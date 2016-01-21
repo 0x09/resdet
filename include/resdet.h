@@ -54,23 +54,23 @@ typedef struct RDMethod {
 	const float threshold;
 } RDMethod;
 
-RDMethod* res_detect_methods();
-RDMethod* res_detect_get_method(const char* name);
+RDMethod* resdet_methods();
+RDMethod* resdet_get_method(const char* name);
 
 RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* width, size_t* height);
 
 
-RDError res_detect(unsigned char* restrict image, size_t width, size_t height,
+RDError resdetect(unsigned char* restrict image, size_t width, size_t height,
                    RDResolution** resw, size_t* countw, RDResolution** rh, size_t* ch,
                    RDMethod* method);
 
-RDError res_detect_file(RDContext* ctx, const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 
-RDError res_detect_with_params(unsigned char* restrict image, size_t width, size_t height,
+RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height,
                                RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                RDMethod* method, size_t range, float threshold);
 
-RDError res_detect_file_with_params(RDContext* ctx, const char* filename,
+RDError resdetect_file_with_params(RDContext* ctx, const char* filename,
                                     RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                                     RDMethod* method, size_t range, float threshold);
 
