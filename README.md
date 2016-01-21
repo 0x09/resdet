@@ -11,6 +11,10 @@ Image readers are available using libpng, libjpeg, mjpegtools (yuv4mpeg), and/or
 	make
 	make install
 
+Or for the library:
+
+    make install-lib
+
 see `configure --help` for options
 
 # Examples
@@ -31,7 +35,7 @@ Traditional resampling methods tend to manifest as an odd extension of a signal'
 
 ## Getting the best results
 
-resdet works best on images that are as close to the source as possible. Filtering and compression artifacts can signifcantly harm the accuracy of this test. In general, clearer and more detailed images will fair better.
+resdet works best on images that are as close to the source as possible. Filtering and compression artifacts can significantly harm the accuracy of this test. In general, clearer and more detailed images will fare better.
 
 ### Video
 For compressed video, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. Single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
