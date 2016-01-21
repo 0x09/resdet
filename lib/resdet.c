@@ -44,7 +44,7 @@ RDContext* resdet_open_context() {
 #endif
 
 #ifdef RSRC_DIR
-	fftwf_import_wisdom_from_filename(RSRC_DIR "/wisdom");
+	fftwp(import_wisdom_from_filename)(RSRC_DIR "/wisdom");
 #endif
 
 	return ctx;
@@ -54,13 +54,13 @@ error:
 }
 
 void resdet_close_context(RDContext* ctx) {
-	fftwf_cleanup();
+	fftwp(cleanup)();
 #ifdef HAVE_MAGIC
 	if(ctx && ctx->db) magic_close(ctx->db);
 #endif
 	free(ctx);
 }
-
+#define NOTHING(x) x
 RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                               RDMethod* method, size_t range, float threshold) {
 
@@ -70,23 +70,24 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 		return RDEINVAL;
 
 	RDError ret = RDEOK;
-	float* f = fftwf_malloc(sizeof(*f)*width*height);
+	coeff* f = fftwp(malloc)(sizeof(*f)*width*height);
 	if(!f) { ret = RDENOMEM; goto end; }
-	fftwf_plan p = fftwf_plan_r2r_2d(height,width,f,f,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE);
+	fftwp(plan) p = fftwp(plan_r2r_2d)(height,width,f,f,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE);
 	if(!p) { ret = RDEINTERNAL; goto end; }
 	for(rdint_index i = 0; i < width*height; i++)
 		f[i] = image[i];
-	fftwf_execute(p);
-	fftwf_destroy_plan(p);
+
+	fftwp(execute)(p);
+	fftwp(destroy_plan)(p);
 
 	if(rw)
-		if(!((ret = method->func(f,width,height,width,1,rw,cw,range,threshold))) == RDEOK)
+		if(!((ret = ((RDetectFunc)method->func)(f,width,height,width,1,rw,cw,range,threshold))) == RDEOK)
 			goto end;
 	if(rh)
-		if(!((ret = method->func(f,height,width,1,width,rh,ch,range,threshold))) == RDEOK)
+		if(!((ret = ((RDetectFunc)method->func)(f,height,width,1,width,rh,ch,range,threshold))) == RDEOK)
 			goto end;
 	end:
-	fftwf_free(f);
+	fftwp(free)(f);
 	return ret;
 }
 

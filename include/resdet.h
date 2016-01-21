@@ -46,11 +46,9 @@ typedef struct RDResolution {
 RDContext* resdet_open_context();
 void resdet_close_context(RDContext* ctx);
 
-typedef RDError(*RDetectFunc)(const float* restrict,size_t,size_t,size_t,size_t,RDResolution**,size_t*,size_t,float);
-
 typedef struct RDMethod {
 	const char* name;
-	const RDetectFunc func;
+	const void (*func)(void);
 	const float threshold;
 } RDMethod;
 

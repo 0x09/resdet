@@ -29,6 +29,7 @@ typedef int magic_t;
 #endif
 
 #include "resdet.h"
+#include "precision.h"
 
 #ifdef RESDET_HOSTED //for server, ignoreme
 #define PIXEL_MAX    (4096*4096)
@@ -49,3 +50,5 @@ typedef size_t    rdint_storage;
 struct RDContext {
 	magic_t db;
 };
+
+typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,RDResolution**,size_t*,size_t,float);

@@ -31,6 +31,8 @@ function usage() {
 	echo "   --without-MagickWand"
 	echo ""
 	echo "   --default-range [n] (12)"
+	echo "   --coeff-precision [4|8|12] (4)"
+	echo "   --inter-precision [4|8|12] (8)"
 	exit 0
 }
 
@@ -52,6 +54,8 @@ for o; do
 		--without-mjpegtools) with_mjpegtools=false;;
 		--without-MagickWand) with_MagickWand=false;;
 		--default-range) DEFAULT_RANGE=$arg;;
+		--coeff-precision) COEFF_PRECISION=$arg;;
+		--inter-precision) INTER_PRECISION=$arg;;
 		--help) usage;;
 	esac
 done
@@ -125,15 +129,23 @@ define INCPREFIX "$INCPREFIX"
 define SHAREPREFIX "$SHAREPREFIX"
 define PCPREFIX "$PCPREFIX"
 [ -n "$DEFAULT_RANGE" ] && define DEFAULT_RANGE "$DEFAULT_RANGE"
+[ -n "$COEFF_PRECISION" ] && define COEFF_PRECISION "$COEFF_PRECISION"
+[ -n "$INTER_PRECISION" ] && define INTER_PRECISION "$INTER_PRECISION"
 
 echo
 
-if ! testpc fftw3f; then
+lfftw="fftw3f"
+case "$COEFF_PRECISION" in
+	8)  lfftw="fftw";;
+	12) lfftw="fftw3l";;
+esac
+
+if ! testpc $lfftw; then
 	abort
 fi
 DEFS=
 LIBS=
-PCDEPS="fftw3f"
+PCDEPS="$lfftw"
 
 if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
 	echo "HAVE_LIBJPEG=1" >> config.mak
