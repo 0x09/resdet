@@ -32,7 +32,7 @@ install-lib: $(LIB)
 	install $(LIB) $(LIBPREFIX)/
 
 install: resdet
-	install tools/resdet $(BINPREFIX)/
+	install resdet $(BINPREFIX)/
 ifneq ($(SHAREPREFIX),)
 	mkdir -p $(SHAREPREFIX)
 	install share/magic $(SHAREPREFIX)/
