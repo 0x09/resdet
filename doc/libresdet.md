@@ -42,7 +42,7 @@ Returns NULL if no name matches.
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Allocated by the library, must be freed by caller.
+* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 
@@ -56,7 +56,7 @@ Detect with specified parameters.
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Allocated by the library, must be freed by caller.
+* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12, with reasonable values between 8-32 (DEFAULT_RANGE).
@@ -83,21 +83,21 @@ Detect from a bitmap directly.
 
 * image - 8-bit grayscale bitmap with no padding.
 * width, height - dimensions of the bitmap.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Allocated by the library, must be freed by caller.
+* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 
 ---
 
 	RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height,
-	                              RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+	                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
 	                              RDMethod* method, size_t range, float threshold);
 
 Detect from a bitmap directly with specified parameters.
 
 * image - 8-bit grayscale bitmap with no padding.
 * width, height - dimensions of the bitmap.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Allocated by the library, must be freed by caller.
+* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12, with reasonable values between 8-32 (DEFAULT_RANGE).

@@ -63,15 +63,11 @@ void resdet_close_context(RDContext* ctx) {
 
 RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                               RDMethod* method, size_t range, float threshold) {
+
+	if(rw) { *rw = NULL; *cw = 0; }
+	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
 		return RDEINVAL;
-
-	if(rw) {
-		*rw = NULL; *cw = 0;
-	}
-	if(rh) {
-		*rh = NULL; *ch = 0;
-	}
 
 	RDError ret = RDEOK;
 	float* f = fftwf_malloc(sizeof(*f)*width*height);
@@ -104,15 +100,18 @@ RDMethod* resdet_get_method(const char* name) {
 }
 
 RDError resdetect(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+	if(rw) { *rw = NULL; *cw = 0; }
+	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
 		return RDEINVAL;
+
 	return resdetect_with_params(image,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
 RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                    RDMethod* method, size_t range, float threshold) {
-	if(!method)
-		return RDEINVAL;
+	if(rw) { *rw = NULL; *cw = 0; }
+	if(rh) { *rh = NULL; *ch = 0; }
 
 	unsigned char* image = NULL;
 	size_t width, height;
@@ -124,6 +123,11 @@ RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResol
 }
 
 RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+	if(rw) { *rw = NULL; *cw = 0; }
+	if(rh) { *rh = NULL; *ch = 0; }
+	if(!method)
+		return RDEINVAL;
+
 	return resdetect_file_with_params(ctx,filename,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
