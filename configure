@@ -136,7 +136,7 @@ echo
 
 lfftw="fftw3f"
 case "$COEFF_PRECISION" in
-	8)  lfftw="fftw";;
+	8)  lfftw="fftw3";;
 	12) lfftw="fftw3l";;
 esac
 

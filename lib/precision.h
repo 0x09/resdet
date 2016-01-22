@@ -20,6 +20,14 @@
 #ifndef PRECISION_H
 #define PRECISION_H
 
+#ifndef COEFF_PRECISION
+#define COEFF_PRECISION 4
+#endif
+
+#ifndef INTER_PRECISION
+#define INTER_PRECISION 8
+#endif
+
 #if COEFF_PRECISION == 8
 	#define COEFF_SUFFIX
 	typedef double coeff;
@@ -32,9 +40,9 @@
 #endif
 
 #if INTER_PRECISION < COEFF_PRECISION
-#pragma message("Intermediate precision less than coefficient precision, changing")
-#undef INTER_PRECISION
-#define INTER_PRECISION COEFF_PRECISION
+	#pragma message("Intermediate precision less than coefficient precision, changing")
+	#undef INTER_PRECISION
+	#define INTER_PRECISION COEFF_PRECISION
 #endif
 
 #if INTER_PRECISION == 4
