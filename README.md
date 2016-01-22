@@ -17,13 +17,13 @@ see `configure --help` for options
 
 Resize an image with [ImageMagick](http://www.imagemagick.org)'s `convert` command and detect it:
 
-    $ convert Lenna.png -resize 200% resized.png
+    $ convert Lenna.png -resize 150% resized.png
 
     $ resdet resized.png
-	given: 1024x1024
-	best guess: 512x512
-	all width        height
-	  512 (68.03%)     512 (67.83%)
+    given: 768x768
+    best guess: 512x512
+    all width        height
+      512 (70.12%)     512 (68.89%)
 
 Just test if an image has been upscaled:
 
