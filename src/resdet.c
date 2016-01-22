@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 		goto end;
 	}
 
-	printf("given: %zux%zu\nbest guess: %zux%zu%s\n",rw[cw-1].index,rh[ch-1].index,rw[0].index,rh[0].index, (cw==ch==1 ? " (not upsampled)" : ""));
+	printf("given: %zux%zu\nbest guess: %zux%zu%s\n",rw[cw-1].index,rh[ch-1].index,rw[0].index,rh[0].index, (cw==1 && ch==1 ? " (not upsampled)" : ""));
 	cw--; ch--;
 	if(MAX(cw,ch))
 		puts("all width        height");
@@ -130,5 +130,5 @@ end:
 		fprintf(stderr,"%s\n",RDErrStr[e]);
 		return e + 64;
 	}
-	return !verbosity ? cw == ch == 1 : 0;
+	return !verbosity ? (cw==1 && ch==1) : 0;
 }
