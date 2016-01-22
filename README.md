@@ -63,7 +63,7 @@ resdet works well on images resampled with traditional methods, but will not wor
 
 If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
 
-![Upscaled Lenna spectrum](http://0x09.net/i/g/Lenna_upscaled.png)
+![Upscaled Lenna spectrum](http://0x09.net/i/g/Lenna_upscaled_150.png)
 
 Note the solid black lines indicating zero-crossings 512px in from each dimension.
 
