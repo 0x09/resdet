@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef RESDET_INTERNAL_H
+#define RESDET_INTERNAL_H
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -52,3 +55,5 @@ struct RDContext {
 };
 
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,RDResolution**,size_t*,size_t,float);
+
+#endif

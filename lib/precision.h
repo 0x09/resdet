@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef PRECISION_H
+#define PRECISION_H
+
 #if COEFF_PRECISION == 8
 	#define COEFF_SUFFIX
 	typedef double coeff;
@@ -53,3 +56,5 @@
 #define mc(call) CAT(call,COEFF_SUFFIX)
 #define mi(call) CAT(call,INTER_SUFFIX)
 #define fftwp(call) CAT(mc(fftw),_##call)
+
+#endif
