@@ -5,6 +5,7 @@ AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
 CFLAGS="-Ofast -march=native -mtune=native -std=gnu99 $CFLAGS"
 
+with_fftw=true
 with_libjpeg=true
 with_libmagic=true
 with_libpng=true
@@ -24,11 +25,13 @@ function usage() {
 	echo "   --shareprefix  \"$PREFIX/share/resdet\""
 	echo "   --pcprefix     \"$PREFIX/lib/pkgconfig\""
 	echo ""
-	echo "   --without-libmagic"
-	echo "   --without-libjpeg"
-	echo "   --without-libpng"
-	echo "   --without-mjpegtools"
-	echo "   --without-MagickWand"
+	echo "   --disable-fftw"
+	echo "   --disable-libmagic"
+	echo "   --disable-libjpeg"
+	echo "   --disable-libpng"
+	echo "   --disable-mjpegtools"
+	echo "   --disable-MagickWand"
+	echo "   --disable-everything"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [4|8|12] (4)"
@@ -48,11 +51,13 @@ for o; do
 		--libprefix)   LIBPREFIX="$arg";;
 		--incprefix)   INCPREFIX="$arg";;
 		--shareprefix) SHAREPREFIX="$arg";;
-		--without-libmagic  ) with_libmagic=false;;
-		--without-libjpeg   ) with_libjpeg=false;;
-		--without-libpng    ) with_libpng=false;;
-		--without-mjpegtools) with_mjpegtools=false;;
-		--without-MagickWand) with_MagickWand=false;;
+		--disable-fftw      ) with_fftw=false;;
+		--disable-libmagic  ) with_libmagic=false;;
+		--disable-libjpeg   ) with_libjpeg=false;;
+		--disable-libpng    ) with_libpng=false;;
+		--disable-mjpegtools) with_mjpegtools=false;;
+		--disable-MagickWand) with_MagickWand=false;;
+		--disable-everything) with_fftw=false; with_libmagic=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -134,18 +139,20 @@ define PCPREFIX "$PCPREFIX"
 
 echo
 
-lfftw="fftw3f"
-case "$COEFF_PRECISION" in
-	8)  lfftw="fftw3";;
-	12) lfftw="fftw3l";;
-esac
-
-if ! testpc $lfftw; then
-	abort
-fi
 DEFS=
 LIBS=
-PCDEPS="$lfftw"
+PCDEPS=
+
+lfftw="fftw3f"
+case "$COEFF_PRECISION" in
+	8)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;
+	12) lfftw="fftw3l"; DEFS+=" -Dkiss_fft_scalar=double";;
+esac
+
+if $with_fftw && testpc $lfftw; then
+	DEFS+=" -DHAVE_FFTW"
+	PCDEPS+=" $lfftw"
+fi
 
 if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
 	echo "HAVE_LIBJPEG=1" >> config.mak
@@ -169,8 +176,8 @@ done
 
 expand lib/resdet.pc.in lib/resdet.pc
 
-DEFS+=" $(pkg-config --cflags $PCDEPS)"
-LIBS+=" $(pkg-config --libs $PCDEPS)"
+DEFS+=" $(pkg-config --cflags $PCDEPS 2> /dev/null)"
+LIBS+=" $(pkg-config --libs $PCDEPS 2> /dev/null)"
 
 echo "DEFS=$DEFS" >> config.mak
 echo "LIBS=$LIBS" >> config.mak

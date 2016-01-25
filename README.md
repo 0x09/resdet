@@ -2,8 +2,10 @@ resdet - Detect source resolution of upscaled images.
 
 # Dependencies
 
-Requires [FFTW](http://fftw.org).  
-Image readers are available using libpng, libjpeg, mjpegtools (yuv4mpeg), and/or MagickWand, but these aren't required.
+resdet bundles [KISS FFT](http://kissfft.sourceforge.net) as its FFT implementation (permissively licensed) but can use [FFTW](http://fftw.org) (GPL, ~2x faster) if available.  
+Image loaders are available using any or all of libpng, libjpeg, mjpegtools (for yuv4mpeg), and MagickWand.  
+  
+libresdet can be used completely standalone provided the client supplies the image data.
 
 # Building
 

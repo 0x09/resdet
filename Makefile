@@ -1,9 +1,17 @@
 include config.mak
 
+OBJS=resdet.o image.o methods.o transform.o
 LIB=lib/libresdet.a
 TOOLS=resdet stat profile
 
 EXTRAFLAGS=
+ifndef HAVE_FFTW
+	EXTRAFLAGS += -Ilib/kissfft -Ilib/kissfft/tools
+	OBJS += $(addprefix kissfft/, kiss_fft.o $(addprefix tools/, kiss_fftnd.o kiss_fftndr.o kiss_fftr.o))
+endif
+
+OBJS := $(addprefix lib/, $(OBJS))
+
 ifneq ($(SHAREPREFIX),)
 	EXTRAFLAGS += -DRSRC_DIR='"$(SHAREPREFIX)"'
 endif
@@ -21,7 +29,7 @@ CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
 
 all: $(TOOLS)
 
-$(LIB): $(addprefix lib/, resdet.o image.o methods.o)
+$(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 resdet: src/resdet.o $(LIB)
@@ -49,14 +57,10 @@ ifneq ($(SHAREPREFIX),)
 endif
 
 uninstall:
-	rm -f $(BINPREFIX)/resdet
-	rm -f $(LIBPREFIX)/libresdet.a
-	rm -f $(PCPREFIX)/resdet.pc
-	rm -f $(INCPREFIX)/resdet.h
-	rm -f $(SHAREPREFIX)/magic
+	rm -f $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h $(SHAREPREFIX)/magic
 	rmdir $(SHAREPREFIX) &> /dev/null
 	
 clean:
-	rm -f -- src/*.o lib/*.o $(LIB) $(TOOLS)
+	rm -f -- src/*.o $(OBJS) $(LIB) $(TOOLS)
 
 .PHONY: all install uninstall clean

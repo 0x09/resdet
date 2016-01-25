@@ -27,9 +27,11 @@ todo:
 
 #include <stdio.h>
 
-#include <fftw3.h>
-
 #include "resdet_internal.h"
+
+#ifdef HAVE_FFTW
+	#include <fftw3.h> //still needed for wisdom, cleanup
+#endif
 
 RDContext* resdet_open_context() {
 	RDContext* ctx = malloc(sizeof(*ctx));
@@ -43,7 +45,7 @@ RDContext* resdet_open_context() {
 #endif
 #endif
 
-#ifdef RSRC_DIR
+#if defined(HAVE_FFTW) && defined(RSRC_DIR)
 	fftwp(import_wisdom_from_filename)(RSRC_DIR "/wisdom");
 #endif
 
@@ -54,7 +56,9 @@ error:
 }
 
 void resdet_close_context(RDContext* ctx) {
+#ifdef HAVE_FFTW
 	fftwp(cleanup)();
+#endif
 #ifdef HAVE_MAGIC
 	if(ctx && ctx->db) magic_close(ctx->db);
 #endif
@@ -69,16 +73,17 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 	if(!method)
 		return RDEINVAL;
 
+	if(!(width && height) || (width > PIXEL_MAX / height))
+		return RDEINVAL;
+	coeff* f = NULL;
+	if(!(f = resdet_alloc_coeffs(width,height)))
+		return RDENOMEM;
+
 	RDError ret = RDEOK;
-	coeff* f = fftwp(malloc)(sizeof(*f)*width*height);
-	if(!f) { ret = RDENOMEM; goto end; }
-	fftwp(plan) p = fftwp(plan_r2r_2d)(height,width,f,f,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE);
-	if(!p) { ret = RDEINTERNAL; goto end; }
 	for(rdint_index i = 0; i < width*height; i++)
 		f[i] = image[i];
-
-	fftwp(execute)(p);
-	fftwp(destroy_plan)(p);
+	if((ret = resdet_transform(f,width,height)))
+		goto end;
 
 	if(rw)
 		if(!((ret = ((RDetectFunc)method->func)(f,width,height,width,1,rw,cw,range,threshold))) == RDEOK)
@@ -86,8 +91,8 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 	if(rh)
 		if(!((ret = ((RDetectFunc)method->func)(f,height,width,1,width,rh,ch,range,threshold))) == RDEOK)
 			goto end;
-	end:
-	fftwp(free)(f);
+end:
+	resdet_free_coeffs(f);
 	return ret;
 }
 
