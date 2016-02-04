@@ -2,34 +2,46 @@ libresdet is a small library for analyzing potential original resolutions in an 
 
 # Functions
 
+```C
 	RDErrStr[]
+```
 
 Most library functions return `RDError` to indicate any failure. While not actually a function, use `RDErrStr[error]` to map an `RDError` to a descriptive string.
 
 ---
 
+```C
 	RDContext* resdet_open_context();
+```
 
 Open a new context -- currently only needed if compiled with libmagic support and using resdetect_file\*.
 
 ---
 
+```C
 	void resdet_close_context(RDContext*);
+```
 
 Close and free a context. If not using a context, `resdet_close_context(NULL)` can still be used to cleanup FFTW.
 
 ---
 
+```C
 	RDMethod* resdet_methods();
+```
 
 Returns list of available methods, terminated by an empty RDMethod. The first element can be assumed to be the library default. Can be iterated using
 
+```C
 	for(RDMethod* m = resdet_methods(); m->name; m++)
 		...;
+```
 
 ---
 
+```C
 	RDMethod* resdet_get_method(const char* name);
+```
 
 Lookup a method by name.
 
@@ -38,7 +50,10 @@ Lookup a method by name.
 Returns NULL if no name matches.
 
 ---
+
+```C
 	RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+```
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
@@ -48,9 +63,11 @@ Returns NULL if no name matches.
 
 ---
 
+```C
 	RDError resdetect_file_with_params(RDContext* ctx, const char* filename,
 	                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
 	                                   RDMethod* method, size_t range, float threshold);
+```
 
 Detect with specified parameters.
 
@@ -64,7 +81,9 @@ Detect with specified parameters.
 
 ---
 
+```C
 	RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* width, size_t* height);
+```
 
 Read an image using whatever image loaders the library was built with.
 
@@ -75,13 +94,15 @@ Read an image using whatever image loaders the library was built with.
 
 ---
 
+```C
 	RDError resdetect(unsigned char* restrict image, size_t width, size_t height,
 	                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
 	                   RDMethod* method);
+```
 
 Detect from a bitmap directly.
 
-* image - 8-bit grayscale bitmap with no padding.
+* image - 8-bit grayscale bitmap.
 * width, height - dimensions of the bitmap.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
@@ -89,13 +110,15 @@ Detect from a bitmap directly.
 
 ---
 
+```C
 	RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height,
 	                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
 	                              RDMethod* method, size_t range, float threshold);
+```
 
 Detect from a bitmap directly with specified parameters.
 
-* image - 8-bit grayscale bitmap with no padding.
+* image - 8-bit grayscale bitmap.
 * width, height - dimensions of the bitmap.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
@@ -107,6 +130,7 @@ Detect from a bitmap directly with specified parameters.
 
 Detect potential widths in a file, using the defaults:
 
+```C
 	const char* filename = ...;
 	
 	RDContext* ctx = resdet_open_context();
@@ -121,3 +145,4 @@ Detect potential widths in a file, using the defaults:
 	
 	for(size_t i = 0; i < cw; i++)
 		printf("%zu\n", rw[i].index);
+```
