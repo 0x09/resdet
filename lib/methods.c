@@ -20,8 +20,6 @@
 #include <math.h>
 #include <float.h>
 
-#include <fftw3.h>
-
 #include "resdet_internal.h"
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
