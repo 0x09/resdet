@@ -33,13 +33,13 @@ $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 resdet: src/resdet.o $(LIB)
-	$(CC) -o $@ $(LIBS) $+
+	$(CC) -o $@ $(DEFS) $+ $(LIBS)
 
 profile: src/profile.o $(LIB)
-	$(CC) -o $@ $(LIBS) $+
+	$(CC) -o $@ $(DEFS) $+ $(LIBS)
 
 stat: src/stat.o $(LIB)
-	$(CC) -o $@ $(LIBS) $+
+	$(CC) -o $@ $(DEFS) $+ $(LIBS)
 
 install-lib: $(LIB)
 	install include/resdet.h $(INCPREFIX)/
