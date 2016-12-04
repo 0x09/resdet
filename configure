@@ -124,9 +124,9 @@ fi
 
 rm -f config.mak
 
-define CC "$(which "$CC")"
+define CC "$(command -v "$CC")"
 define CFLAGS "$CFLAGS"
-define AR "$(which "$AR")"
+define AR "$(command -v "$AR")"
 define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
