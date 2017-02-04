@@ -1,6 +1,6 @@
 /*
  * libresdet - Detect source resolution of upscaled images.
- * Copyright (C) 2012-2016 0x09.net
+ * Copyright (C) 2012-2017 0x09.net
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

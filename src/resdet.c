@@ -1,6 +1,6 @@
 /*
  * resdet - Detect source resolution of upscaled images.
- * Copyright 2013-2016 0x09.net.
+ * Copyright (C) 2013-2017 0x09.net.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
