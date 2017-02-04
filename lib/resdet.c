@@ -85,12 +85,10 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 	if((ret = resdet_transform(f,width,height)))
 		goto end;
 
-	if(rw)
-		if(!((ret = ((RDetectFunc)method->func)(f,width,height,width,1,rw,cw,range,threshold))) == RDEOK)
-			goto end;
-	if(rh)
-		if(!((ret = ((RDetectFunc)method->func)(f,height,width,1,width,rh,ch,range,threshold))) == RDEOK)
-			goto end;
+	if(rw && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,rw,cw,range,threshold)) != RDEOK)
+		goto end;
+	if(rh && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,rh,ch,range,threshold)) != RDEOK)
+		goto end;
 end:
 	resdet_free_coeffs(f);
 	return ret;
