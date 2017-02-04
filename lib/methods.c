@@ -132,15 +132,15 @@ end:
 static RDMethod methods[] = {
 	{
 		.name = "sign",
-		.func = (const void(*)(void))detect_method_sign,
+		.func = (void(*)(void))detect_method_sign,
 		.threshold = 0.55
 	},{
 		.name = "mag",
-		.func = (const void(*)(void))detect_method_magnitude,
+		.func = (void(*)(void))detect_method_magnitude,
 		.threshold = 0.40
 	},{
 		.name = "orig",
-		.func = (const void(*)(void))detect_method_original,
+		.func = (void(*)(void))detect_method_original,
 		.threshold = 0.64
 	},
 	{}

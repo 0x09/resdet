@@ -48,7 +48,7 @@ void resdet_close_context(RDContext* ctx);
 
 typedef struct RDMethod {
 	const char* name;
-	const void (*func)(void);
+	void (*const func)(void);
 	const float threshold;
 } RDMethod;
 
