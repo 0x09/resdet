@@ -115,8 +115,10 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) &&
 		   (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid)) &&
 		   (sign[x-range] > threshold*range*n))
-			if(!pushres(detect,count,(RDResolution){x,sign[x-range]/(float)(range*n)}))
-				   return RDENOMEM;
+			if(!pushres(detect,count,(RDResolution){x,sign[x-range]/(float)(range*n)})) {
+				ret = RDENOMEM;
+				goto end;
+			}
 	}
 
 end:
