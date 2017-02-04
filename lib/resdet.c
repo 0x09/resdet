@@ -65,69 +65,84 @@ void resdet_close_context(RDContext* ctx) {
 	free(ctx);
 }
 
-static RDError detect_dimension(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution** detect, size_t* count, RDMethod* method, size_t range, float threshold) {
-	if(!detect)
-		return RDEOK;
 
+static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
 	size_t min_length = range*2;
+	if(!detect || min_length >= length)
+		return RDEOK; // can't do anything
+
 	if(!(*detect = malloc(sizeof(**detect) * (length-min_length+1))))
 		return RDENOMEM;
 	(*detect)[(*count)++] = (RDResolution){length,-1};
 
-	if(min_length >= length)
-		return RDEOK; //can't do anything
-
-	double* result = malloc(sizeof(*result) * (length-min_length));
-	if(!result)
+	if(!(*buf = calloc(length-min_length,sizeof(**buf))))
 		return RDENOMEM;
-
 	// bounds of result (range of meaningful outputs)
 	// may be narrowed by methods
-	rdint_index start = min_length, end = length - min_length;
-
-	RDError ret = ((RDetectFunc)method->func)(f,length,n,stride,dist,range,result,&start,&end);
-
-	if(ret == RDEOK)
-		for(rdint_index i = 0; i < end-start; i++)
-			if(result[i] >= threshold)
-				(*detect)[(*count)++] = (RDResolution){i+start,result[i]};
-
-	free(result);
-	return ret;
+	bounds[0] = min_length;
+	bounds[1] = length - min_length;
+	return RDEOK;
 }
 
-RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
-                              RDMethod* method, size_t range, float threshold) {
+RDError resdetect_multi_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
+                                    RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+                                    RDMethod* method, size_t range, float threshold) {
 
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!(method && range))
 		return RDEINVAL;
 
-	if(!(width && height) || (width > PIXEL_MAX / height))
+	if(!(width && height && nimages) || (width > PIXEL_MAX / height) || (width*height > PIXEL_MAX / nimages))
 		return RDEINVAL;
 	coeff* f = NULL;
 	if(!(f = resdet_alloc_coeffs(width,height)))
 		return RDENOMEM;
 
 	RDError ret = RDEOK;
-	for(rdint_index i = 0; i < width*height; i++)
-		f[i] = image[i];
+	double* xresult = NULL,* yresult = NULL;
 
 	resdet_plan* p;
 	if((ret = resdet_create_plan(&p,f,width,height)))
 		goto end;
-	resdet_transform(p);
 
-	if((ret = detect_dimension(f,width,height,width,1,rw,cw,method,range,threshold)) != RDEOK)
+	rdint_index xbound[2], ybound[2];
+	if((ret = setup_dimension(width,range,rw,cw,&xresult,xbound)) != RDEOK)
 		goto end;
-	if((ret = detect_dimension(f,height,width,1,width,rh,ch,method,range,threshold)) != RDEOK)
+	if((ret = setup_dimension(height,range,rh,ch,&yresult,ybound)) != RDEOK)
 		goto end;
+
+	for(size_t z = 0; z < nimages; z++) {
+		for(rdint_index i = 0; i < width*height; i++)
+			f[i] = image[z*width*height+i];
+		resdet_transform(p);
+
+		if(rw && *rw && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
+			goto end;
+		if(rh && *rh && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,range,yresult,ybound,ybound+1)) != RDEOK)
+			goto end;
+	}
+
+	for(rdint_index i = 0; rw && *rw && i < xbound[1]-xbound[0]; i++)
+		if(xresult[i]/nimages >= threshold)
+			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/nimages};
+
+	for(rdint_index i = 0; rh && *rh && i < ybound[1]-ybound[0]; i++)
+		if(yresult[i]/nimages >= threshold)
+			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/nimages};
 
 end:
+	free(xresult);
+	free(yresult);
 	resdet_free_plan(p);
 	resdet_free_coeffs(f);
 	return ret;
+}
+
+
+RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+                              RDMethod* method, size_t range, float threshold) {
+	return resdetect_multi_with_params(image, 1, width, height, rw, cw, rh, ch, method, range, threshold);
 }
 
 RDMethod* resdet_get_method(const char* name) {

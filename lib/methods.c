@@ -33,7 +33,7 @@ static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t
 		for(rdint_index y = 0; y < n; y++)
 			for(rdint_index i = 1; i <= range; i++)
 				sign_diff += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
-		result[x-*start] = sign_diff / (double)(n*range);
+		result[x-*start] += sign_diff / (double)(n*range);
 	}
 	return RDEOK;
 }
@@ -48,7 +48,7 @@ static RDError detect_method_magnitude(const coeff* restrict f, size_t length, s
 				mi(frexp)(f[y*stride+x*dist-i*dist]/mc(copysign)(MAX(mc(fabs)(f[y*stride+x*dist+i*dist]),EPSILON),f[y*stride+x*dist+i*dist])+1,&e);
 				mag_match += e <= 0;
 			}
-		result[x-*start] = mag_match / (double)(n*range);
+		result[x-*start] += mag_match / (double)(n*range);
 	}
 	return RDEOK;
 }
@@ -90,8 +90,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		mi(frexp)(left,&leftexp); mi(frexp)(right,&rightexp); mi(frexp)(mid,&midexp);
 		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) &&
 		   (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid)))
-			result[x-*start] = sign[x-range]/(double)(range*n);
-		else result[x-*start] = 0;
+			result[x-*start] += sign[x-range]/(double)(range*n);
 	}
 
 end:
