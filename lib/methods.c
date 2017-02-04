@@ -89,7 +89,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		return RDEOK; //can't do anything
 
 	RDError ret = RDEOK;
-	intermediate* line = NULL,* sum = NULL; rdint_storage* sign = NULL;
+	intermediate* sum = NULL; rdint_storage* sign = NULL;
 	if(!(sum = calloc(length,sizeof(*sum)))) { ret = RDENOMEM; goto end; }
 	if(!(sign = calloc(length-range*2,sizeof(*sign)))) { ret = RDENOMEM; goto end; }
 

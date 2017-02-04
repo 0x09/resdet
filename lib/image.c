@@ -116,7 +116,6 @@ static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height) {
 	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
 		goto finish;
 
-	int y = 0;
 	unsigned char* it = image;
 	while(cinfo.output_scanline < cinfo.output_height) {
 		unsigned char* rows[cinfo.rec_outbuf_height];
