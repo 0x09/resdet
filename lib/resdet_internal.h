@@ -54,7 +54,7 @@ struct RDContext {
 	magic_t db;
 };
 
-typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,RDResolution**,size_t*,size_t,float);
+typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,double*,rdint_index*restrict,rdint_index*restrict);
 
 coeff* resdet_alloc_coeffs(size_t,size_t);
 RDError resdet_transform(coeff* restrict f, size_t width, size_t height);

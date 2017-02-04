@@ -65,12 +65,43 @@ void resdet_close_context(RDContext* ctx) {
 	free(ctx);
 }
 
+static RDError detect_dimension(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, RDResolution** detect, size_t* count, RDMethod* method, size_t range, float threshold) {
+	if(!detect)
+		return RDEOK;
+
+	size_t min_length = range*2;
+	if(!(*detect = malloc(sizeof(**detect) * (length-min_length+1))))
+		return RDENOMEM;
+	(*detect)[(*count)++] = (RDResolution){length,-1};
+
+	if(min_length >= length)
+		return RDEOK; //can't do anything
+
+	double* result = malloc(sizeof(*result) * (length-min_length));
+	if(!result)
+		return RDENOMEM;
+
+	// bounds of result (range of meaningful outputs)
+	// may be narrowed by methods
+	rdint_index start = min_length, end = length - min_length;
+
+	RDError ret = ((RDetectFunc)method->func)(f,length,n,stride,dist,range,result,&start,&end);
+
+	if(ret == RDEOK)
+		for(rdint_index i = 0; i < end-start; i++)
+			if(result[i] >= threshold)
+				(*detect)[(*count)++] = (RDResolution){i+start,result[i]};
+
+	free(result);
+	return ret;
+}
+
 RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                               RDMethod* method, size_t range, float threshold) {
 
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
-	if(!method)
+	if(!(method && range))
 		return RDEINVAL;
 
 	if(!(width && height) || (width > PIXEL_MAX / height))
@@ -85,10 +116,11 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 	if((ret = resdet_transform(f,width,height)))
 		goto end;
 
-	if(rw && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,rw,cw,range,threshold)) != RDEOK)
+	if((ret = detect_dimension(f,width,height,width,1,rw,cw,method,range,threshold)) != RDEOK)
 		goto end;
-	if(rh && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,rh,ch,range,threshold)) != RDEOK)
+	if((ret = detect_dimension(f,height,width,1,width,rh,ch,method,range,threshold)) != RDEOK)
 		goto end;
+
 end:
 	resdet_free_coeffs(f);
 	return ret;
