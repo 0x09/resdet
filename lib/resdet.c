@@ -113,8 +113,11 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 	RDError ret = RDEOK;
 	for(rdint_index i = 0; i < width*height; i++)
 		f[i] = image[i];
-	if((ret = resdet_transform(f,width,height)))
+
+	resdet_plan* p;
+	if((ret = resdet_create_plan(&p,f,width,height)))
 		goto end;
+	resdet_transform(p);
 
 	if((ret = detect_dimension(f,width,height,width,1,rw,cw,method,range,threshold)) != RDEOK)
 		goto end;
@@ -122,6 +125,7 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_
 		goto end;
 
 end:
+	resdet_free_plan(p);
 	resdet_free_coeffs(f);
 	return ret;
 }

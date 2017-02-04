@@ -56,8 +56,11 @@ struct RDContext {
 
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,double*,rdint_index*restrict,rdint_index*restrict);
 
+typedef struct resdet_plan resdet_plan;
 coeff* resdet_alloc_coeffs(size_t,size_t);
-RDError resdet_transform(coeff* restrict f, size_t width, size_t height);
+RDError resdet_create_plan(resdet_plan**,coeff* restrict, size_t, size_t);
+void resdet_transform(resdet_plan*);
+void resdet_free_plan(resdet_plan*);
 void resdet_free_coeffs(coeff*);
 
 #endif
