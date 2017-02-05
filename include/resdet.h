@@ -55,16 +55,16 @@ typedef struct RDMethod {
 RDMethod* resdet_methods();
 RDMethod* resdet_get_method(const char* name);
 
-RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* width, size_t* height);
+RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
 
 
-RDError resdetect(unsigned char* restrict image, size_t width, size_t height,
+RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                   RDMethod* method);
 
 RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 
-RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height,
+RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
                               RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                               RDMethod* method, size_t range, float threshold);
 

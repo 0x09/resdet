@@ -116,8 +116,8 @@ int main(int argc, char* argv[]) {
 		line[len-1] = '\0';
 		puts(line);
 		unsigned char* image;
-		size_t w, h;
-		RDError e = resdet_read_image(ctx,line,&image,&w,&h);
+		size_t w, h, d;
+		RDError e = resdet_read_image(ctx,line,&image,&d,&w,&h);
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
-			e = resdetect(image,w,h,&rw,&cw,&rh,&ch,m);
+			e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m);
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval after = rusage.ru_utime;
 			resdet_close_context(NULL); //clean out fftw

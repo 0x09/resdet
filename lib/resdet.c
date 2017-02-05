@@ -22,7 +22,6 @@ todo:
 	statistical selection
 	union/intersect results
 	other methods from RDView
-	better accuracy could be had for videos by averaging across frames
 */
 
 #include <stdio.h>
@@ -84,7 +83,7 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 	return RDEOK;
 }
 
-RDError resdetect_multi_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
+RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
                                     RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
 
@@ -139,12 +138,6 @@ end:
 	return ret;
 }
 
-
-RDError resdetect_with_params(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
-                              RDMethod* method, size_t range, float threshold) {
-	return resdetect_multi_with_params(image, 1, width, height, rw, cw, rh, ch, method, range, threshold);
-}
-
 RDMethod* resdet_get_method(const char* name) {
 	if(!name)
 		return resdet_methods(); //default
@@ -154,13 +147,13 @@ RDMethod* resdet_get_method(const char* name) {
 	return NULL;
 }
 
-RDError resdetect(unsigned char* restrict image, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
 		return RDEINVAL;
 
-	return resdetect_with_params(image,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
+	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
 RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
@@ -169,10 +162,10 @@ RDError resdetect_file_with_params(RDContext* ctx, const char* filename, RDResol
 	if(rh) { *rh = NULL; *ch = 0; }
 
 	unsigned char* image = NULL;
-	size_t width, height;
-	RDError ret = resdet_read_image(ctx,filename,&image,&width,&height);
+	size_t width, height, nimages;
+	RDError ret = resdet_read_image(ctx,filename,&image,&nimages,&width,&height);
 	if(ret == RDEOK)
-		ret = resdetect_with_params(image,width,height,rw,cw,rh,ch,method,range,threshold);
+		ret = resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,range,threshold);
 	free(image);
 	return ret;
 }
@@ -185,4 +178,3 @@ RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** rw, 
 
 	return resdetect_file_with_params(ctx,filename,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
-

@@ -30,7 +30,8 @@
 static void pngerr_error_fn(png_structp png_ptr, png_const_charp error_msg) { png_longjmp(png_ptr,1); }
 static void pngerr_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {}
 
-static unsigned char* read_png(FILE* f, size_t* width, size_t* height) {
+static unsigned char* read_png(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+	*nimages = 1;
 	unsigned char* image = NULL;
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
@@ -92,7 +93,8 @@ end:
 static void jerr_emit_message(j_common_ptr cinfo, int msg_level) {}
 static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1); }
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
-static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height) {
+static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+	*nimages = 1;
 	unsigned char* image = NULL;
 	struct jpeg_decompress_struct cinfo;
 	cinfo.err = &(struct jpeg_error_mgr){
@@ -134,8 +136,8 @@ end:
 #ifdef HAVE_MJPEGTOOLS
 #include <mjpegtools/yuv4mpeg.h>
 
-static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height) {
-	unsigned char* image = NULL;
+static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+	unsigned char* image = NULL,* discard = NULL;
 	int fd = fileno(f);
 	y4m_stream_info_t st;
 	y4m_frame_info_t frame;
@@ -145,15 +147,28 @@ static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height) {
 		goto end;
 	*width = y4m_si_get_width(&st);
 	*height = y4m_si_get_height(&st);
-	if(y4m_read_frame_header(fd,&st,&frame) != Y4M_OK)
+	int frame_length = y4m_si_get_framelength(&st);
+	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || frame_length < *width * *height)
 		goto end;
-	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
-		goto end;
-	if(y4m_read(fd,image,*width * *height) < 0) {
-		free(image);
-		image = NULL;
+	frame_length -= *width * *height; // u/v plane skip
+	discard = malloc(frame_length);
+	while(y4m_read_frame_header(fd,&st,&frame) == Y4M_OK) {
+		(*nimages)++;
+		unsigned char* tmp;
+		if((*width * *height > PIXEL_MAX / *nimages) ||
+		   !(tmp = realloc(image,*width * *height * *nimages))) {
+			free(image); image = NULL; break;
+		}
+
+		image = tmp;
+		if(y4m_read(fd,image + *width * *height * (*nimages - 1),*width * *height) < 0 ||
+		   read(fd,discard,frame_length) != frame_length) {
+   			free(image); image = NULL; break;
+		}
 	}
+
 end:
+	free(discard);
 	y4m_fini_frame_info(&frame);
 	y4m_fini_stream_info(&st);
 	return image;
@@ -163,7 +178,7 @@ end:
 #ifdef HAVE_MAGICKWAND
 #include <wand/MagickWand.h>
 
-static unsigned char* read_magick(FILE* f, size_t* width, size_t* height) {
+static unsigned char* read_magick(FILE* f, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL;
 	MagickWandGenesis();
 	MagickWand* wand = NewMagickWand();
@@ -171,10 +186,14 @@ static unsigned char* read_magick(FILE* f, size_t* width, size_t* height) {
 		goto end;
 	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
-	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
+	*nimages = MagickGetNumberImages(wand);
+	if(!(*width && *height && *nimages) || (*width > PIXEL_MAX / *height) || (*width * *height > PIXEL_MAX / *nimages) || !(image = malloc(*width * *height * *nimages)))
 		goto end;
-	MagickExportImagePixels(wand,0,0,*width,*height,"I",CharPixel,image);
-
+	MagickResetIterator(wand);
+	for(size_t i = 0; i < *nimages; i++) {
+		MagickNextImage(wand);
+		MagickExportImagePixels(wand,0,0,*width,*height,"I",CharPixel,image + i * *width* *height);
+	}
 end:
 	DestroyMagickWand(wand);
 	MagickWandTerminus(); //hopefully we're the only one using magickwand
@@ -195,8 +214,8 @@ static const char* mimetype_from_ext(const char* filename) {
 	return "";
 }
 
-RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* width, size_t* height) {
-	*width = *height = 0;
+RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* nimages, size_t* width, size_t* height) {
+	*width = *height = *nimages = 0;
 	*image = NULL;
 	FILE* f = fopen(filename,"r");
 	if(!f)
@@ -212,7 +231,7 @@ RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** 
 		return RDEINTERNAL;
 #endif
 
-	unsigned char* (*read_image)(FILE*,size_t*,size_t*) = NULL;
+	unsigned char* (*read_image)(FILE*,size_t*,size_t*,size_t*) = NULL;
 	if(false)
 		;
 #ifdef HAVE_LIBJPEG
@@ -232,7 +251,7 @@ RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** 
 #endif
 
 	if(read_image)
-		*image = read_image(f,width,height);
+		*image = read_image(f,width,height,nimages);
 	fclose(f);
 	return *image ? RDEOK : RDEINVAL;
 }
