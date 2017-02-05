@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 #ifdef HAVE_MAGIC
 #include <magic.h>
@@ -34,14 +35,16 @@ typedef int magic_t;
 #include "resdet.h"
 #include "precision.h"
 
-#ifdef RESDET_HOSTED //for server, ignoreme
-#define PIXEL_MAX    (4096*4096)
-typedef int_fast32_t rdint_index;
-typedef uint32_t     rdint_storage;
-#else
+#ifndef PIXEL_MAX
 #define PIXEL_MAX SIZE_MAX
-typedef size_t    rdint_index;
-typedef size_t    rdint_storage;
+#endif
+
+#if PIXEL_MAX <= UINT32_MAX
+typedef uint_fast32_t rdint_index;
+typedef uint32_t rdint_storage;
+#else
+typedef size_t rdint_index;
+typedef size_t rdint_storage;
 #endif
 
 #ifndef DEFAULT_RANGE
@@ -57,6 +60,7 @@ struct RDContext {
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,double*,rdint_index*restrict,rdint_index*restrict);
 
 typedef struct resdet_plan resdet_plan;
+
 coeff* resdet_alloc_coeffs(size_t,size_t);
 RDError resdet_create_plan(resdet_plan**,coeff* restrict, size_t, size_t);
 void resdet_transform(resdet_plan*);

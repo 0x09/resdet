@@ -36,6 +36,7 @@ function usage() {
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [4|8|12] (4)"
 	echo "   --inter-precision [4|8|12] (8)"
+	echo "   --pixel-max (SIZE_MAX)"
 	exit 0
 }
 
@@ -61,6 +62,7 @@ for o; do
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
+		--pixel-max) PIXEL_MAX=$arg;;
 		--help) usage;;
 	esac
 done
@@ -136,6 +138,7 @@ define PCPREFIX "$PCPREFIX"
 [ -n "$DEFAULT_RANGE" ] && define DEFAULT_RANGE "$DEFAULT_RANGE"
 [ -n "$COEFF_PRECISION" ] && define COEFF_PRECISION "$COEFF_PRECISION"
 [ -n "$INTER_PRECISION" ] && define INTER_PRECISION "$INTER_PRECISION"
+[ -n "$PIXEL_MAX" ] && define PIXEL_MAX "$PIXEL_MAX"
 
 echo
 

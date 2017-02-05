@@ -146,3 +146,17 @@ Detect potential widths in a file, using the defaults:
 	for(size_t i = 0; i < cw; i++)
 		printf("%zu\n", rw[i].index);
 ```
+
+# Memory Requirements
+libresdet's peak requirements (including the primary image buffer) can be calculated by:
+
+	width * height +
+	width * height * COEFF_PRECISION +
+	width  * sizeof(double) +
+	height * sizeof(double) +
+	width  * sizeof(RDResolution) +
+	height * sizeof(RDResolution)
+
+These may be limited indirectly by setting the PIXEL_MAX macro, which restricts the product of width and height for valid images (SIZE_MAX by default).
+
+Note that image libraries used by `resdet_read_image` will have their own separate requirements not included in this calculation.
