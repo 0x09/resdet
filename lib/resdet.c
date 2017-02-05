@@ -79,8 +79,8 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 		return RDENOMEM;
 	// bounds of result (range of meaningful outputs)
 	// may be narrowed by methods
-	bounds[0] = min_length;
-	bounds[1] = length - min_length;
+	bounds[0] = range;
+	bounds[1] = length - range;
 	return RDEOK;
 }
 
