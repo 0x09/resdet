@@ -72,6 +72,7 @@ struct resdet_plan {
 	kiss_fftr_cfg cfg[2];
 	kiss_fft_scalar* mirror;
 	kiss_fft_cpx* F;
+	kiss_fft_cpx* shift[2];
 };
 
 coeff* resdet_alloc_coeffs(size_t width, size_t height) {
@@ -83,11 +84,13 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
 	size_t bufsize = width > height ? width : height;
 
-	if(!((*p          = malloc(sizeof(**p)))                       && /* tower of malloc failures */
-	    ((*p)->cfg[0] = kiss_fftr_alloc(width*2,false,NULL,NULL))  &&
-	    ((*p)->cfg[1] = kiss_fftr_alloc(height*2,false,NULL,NULL)) &&
-	    ((*p)->mirror = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
-	    ((*p)->F      = malloc(sizeof(kiss_fft_cpx)*bufsize+1))
+	if(!((*p            = malloc(sizeof(**p)))                       && /* tower of malloc failures */
+	    ((*p)->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL))  &&
+	    ((*p)->cfg[1]   = kiss_fftr_alloc(height*2,false,NULL,NULL)) &&
+	    ((*p)->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
+	    ((*p)->F        = malloc(sizeof(kiss_fft_cpx)*bufsize+1))    &&
+	    ((*p)->shift[0] = malloc(sizeof(kiss_fft_cpx)*width))        &&
+	    ((*p)->shift[1] = malloc(sizeof(kiss_fft_cpx)*height))
 	)) {
 		resdet_free_plan(*p);
 		*p = NULL;
@@ -96,6 +99,16 @@ RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t heigh
 	(*p)->f = f;
 	(*p)->width = width;
 	(*p)->height = height;
+
+	// Precalculating this offers a decent speedup, especially with multiple frames
+	for(size_t x = 0; x < width; x++) {
+		(*p)->shift[0][x].r = mi(cos)(-M_PI*x/(2*width));
+		(*p)->shift[0][x].i = mi(sin)(-M_PI*x/(2*width));
+	}
+	for(size_t y = 0; y < height; y++) {
+		(*p)->shift[1][y].r = mi(cos)(-M_PI*y/(2*height));
+		(*p)->shift[1][y].i = mi(sin)(-M_PI*y/(2*height));
+	}
 	return RDEOK;
 }
 
@@ -104,31 +117,33 @@ void resdet_transform(resdet_plan* p) {
 	kiss_fft_scalar* mirror = p->mirror;
 	kiss_fft_cpx* F = p->F;
 	coeff* f = p->f;
-	intermediate shift;
+	kiss_fft_cpx* shift;
 
-	shift = -M_PI/(2*width);
+	shift = p->shift[0];
 	for(size_t y = 0; y < height; y++) {
 		for(size_t x = 0; x < width; x++)
 			mirror[x] = mirror[width*2-1-x] = f[y*width+x];
 		kiss_fftr(p->cfg[0],mirror,F);
 		for(size_t x = 0; x < width; x++)
-			f[y*width+x] = F[x].r * mi(cos)(shift*x) - F[x].i * mi(sin)(shift*x);
+			f[y*width+x] = F[x].r * shift[x].r - F[x].i * shift[x].i;
 	}
 
-	shift = -M_PI/(2*height);
+	shift = p->shift[1];
 	for(size_t x = 0; x < width; x++) {
 		for(size_t y = 0; y < height; y++)
 			mirror[y] = mirror[height*2-1-y] = f[y*width+x];
 		kiss_fftr(p->cfg[1],mirror,F);
 		for(size_t y = 0; y < height; y++)
-			f[y*width+x] = F[y].r * mi(cos)(shift*y) - F[y].i * mi(sin)(shift*y);
+			f[y*width+x] = F[y].r * shift[y].r - F[y].i * shift[y].i;
 	}
 }
 
 void resdet_free_plan(resdet_plan* p) {
 	if(p) {
-		free(p->cfg[0]);
-		free(p->cfg[1]);
+		for(int i = 0; i < 2; i++) {
+			free(p->cfg[i]);
+			free(p->shift[i]);
+		}
 		free(p->mirror);
 		free(p->F);
 		free(p);
