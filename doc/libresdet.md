@@ -151,7 +151,7 @@ Detect potential widths in a file, using the defaults:
 ```
 
 # Memory Requirements
-libresdet's peak requirements (including the primary image buffer) can be calculated by:
+libresdet's peak requirements when built with FFTW support (including the primary image buffer) can be calculated by:
 
 	width * height * nimages +
 	width * height * COEFF_PRECISION +
@@ -160,7 +160,9 @@ libresdet's peak requirements (including the primary image buffer) can be calcul
 	width  * sizeof(RDResolution) +
 	height * sizeof(RDResolution)
 
-These may be limited indirectly by setting the PIXEL_MAX macro, which restricts the product of width, height, and nimages for valid images (SIZE_MAX by default).
+The KISS FFT transform requirements are more slightly more complex.
+
+The above requirements may be limited indirectly by setting the PIXEL_MAX macro, which restricts the product of width, height, and nimages for valid images (SIZE_MAX by default).
 
 Note that image libraries used by `resdet_read_image` will have their own separate requirements not included in this calculation.
 
