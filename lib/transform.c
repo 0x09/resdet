@@ -71,8 +71,7 @@ struct resdet_plan {
 	size_t width, height;
 	kiss_fftr_cfg cfg[2];
 	kiss_fft_scalar* mirror;
-	kiss_fft_cpx* F;
-	kiss_fft_cpx* shift[2];
+	kiss_fft_cpx* F,* shift[2];
 };
 
 coeff* resdet_alloc_coeffs(size_t width, size_t height) {
@@ -84,13 +83,15 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
 	size_t bufsize = width > height ? width : height;
 
-	if(!((*p            = calloc(1,sizeof(**p)))                     && /* tower of malloc failures */
-	    ((*p)->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL))  &&
-	    ((*p)->cfg[1]   = kiss_fftr_alloc(height*2,false,NULL,NULL)) &&
-	    ((*p)->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
-	    ((*p)->F        = malloc(sizeof(kiss_fft_cpx)*bufsize+1))    &&
-	    ((*p)->shift[0] = malloc(sizeof(kiss_fft_cpx)*width))        &&
-	    ((*p)->shift[1] = malloc(sizeof(kiss_fft_cpx)*height))
+	if(!(( *p                             = calloc(1,sizeof(**p))                    ) && /* tower of malloc failures */
+	     ((*p)->mirror                    = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
+	     ((*p)->F                         = malloc(sizeof(kiss_fft_cpx)*bufsize+1)   ) &&
+	     ((*p)->shift[0] = (*p)->shift[1] = malloc(sizeof(kiss_fft_cpx)*width)       ) &&
+	     ((*p)->cfg[0]   = (*p)->cfg[1]   = kiss_fftr_alloc(width*2,false,NULL,NULL) ) &&
+	     (width == height || (
+	         ((*p)->shift[1]              = malloc(sizeof(kiss_fft_cpx)*height)      ) &&
+	         ((*p)->cfg[1]                = kiss_fftr_alloc(height*2,false,NULL,NULL))
+	      ))
 	)) {
 		resdet_free_plan(*p);
 		*p = NULL;
@@ -105,7 +106,7 @@ RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t heigh
 		(*p)->shift[0][x].r = mi(cos)(-M_PI*x/(2*width));
 		(*p)->shift[0][x].i = mi(sin)(-M_PI*x/(2*width));
 	}
-	for(size_t y = 0; y < height; y++) {
+	for(size_t y = 0; width != height && y < height; y++) {
 		(*p)->shift[1][y].r = mi(cos)(-M_PI*y/(2*height));
 		(*p)->shift[1][y].i = mi(sin)(-M_PI*y/(2*height));
 	}
@@ -140,7 +141,7 @@ void resdet_transform(resdet_plan* p) {
 
 void resdet_free_plan(resdet_plan* p) {
 	if(p) {
-		for(int i = 0; i < 2; i++) {
+		for(int i = 0; i < (p->width != p->height) + 1; i++) {
 			free(p->cfg[i]);
 			free(p->shift[i]);
 		}
