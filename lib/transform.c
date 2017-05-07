@@ -84,7 +84,7 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
 	size_t bufsize = width > height ? width : height;
 
-	if(!((*p            = malloc(sizeof(**p)))                       && /* tower of malloc failures */
+	if(!((*p            = calloc(1,sizeof(**p)))                     && /* tower of malloc failures */
 	    ((*p)->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL))  &&
 	    ((*p)->cfg[1]   = kiss_fftr_alloc(height*2,false,NULL,NULL)) &&
 	    ((*p)->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
