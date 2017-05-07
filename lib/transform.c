@@ -69,7 +69,7 @@ void resdet_free_coeffs(coeff* f) {
 struct resdet_plan {
 	coeff* f;
 	size_t width, height;
-	kiss_fftndr_cfg cfg;
+	kiss_fftr_cfg cfg[2];
 	kiss_fft_scalar* mirror;
 	kiss_fft_cpx* F;
 };
@@ -81,10 +81,13 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 }
 
 RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
-	if(!((*p          = malloc(sizeof(**p)))                                            && /* tower of malloc failures */
-	    ((*p)->cfg    = kiss_fftndr_alloc((int[]){height*2,width*2},2,false,NULL,NULL)) &&
-	    ((*p)->mirror = malloc(sizeof(kiss_fft_scalar)*height*width*4))                 &&
-	    ((*p)->F      = malloc(sizeof(kiss_fft_cpx)*(width+1)*height*2))
+	size_t bufsize = width > height ? width : height;
+
+	if(!((*p          = malloc(sizeof(**p)))                       && /* tower of malloc failures */
+	    ((*p)->cfg[0] = kiss_fftr_alloc(width*2,false,NULL,NULL))  &&
+	    ((*p)->cfg[1] = kiss_fftr_alloc(height*2,false,NULL,NULL)) &&
+	    ((*p)->mirror = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
+	    ((*p)->F      = malloc(sizeof(kiss_fft_cpx)*bufsize+1))
 	)) {
 		resdet_free_plan(*p);
 		*p = NULL;
@@ -101,30 +104,31 @@ void resdet_transform(resdet_plan* p) {
 	kiss_fft_scalar* mirror = p->mirror;
 	kiss_fft_cpx* F = p->F;
 	coeff* f = p->f;
+	intermediate shift;
 
+	shift = -M_PI/(2*width);
 	for(size_t y = 0; y < height; y++) {
 		for(size_t x = 0; x < width; x++)
-			mirror[y*width*2+x] = mirror[(y+1)*width*2-1-x] = f[y*width+x];
-		memcpy(mirror + (height*2-1-y)*width*2, mirror + y*width*2, sizeof(kiss_fft_scalar)*width*2);
+			mirror[x] = mirror[width*2-1-x] = f[y*width+x];
+		kiss_fftr(p->cfg[0],mirror,F);
+		for(size_t x = 0; x < width; x++)
+			f[y*width+x] = F[x].r * mi(cos)(shift*x) - F[x].i * mi(sin)(shift*x);
 	}
 
-	kiss_fftndr(p->cfg,mirror,F);
-
-	// Shift is a simple factorization of
-	// e^(-I*PI*n / 2N) * e^(-I*PI*m / 2M)
-	intermediate EXP = -M_PI/(mi(2.)*width*height);
-	for(size_t y = 0; y < height; y++)
-		for(size_t x = 0; x < width; x++)
-			f[y*width+x] =
-				// In terms of C99 complex
-				// creal((F[y*(width+1)+x].r + I*F[y*(width+1)+x].i) * cexp(I*(EXP*(x*width+y*height))));
-				F[y*(width+1)+x].r * mi(cos)(EXP*(x*width+y*height)) -
-				F[y*(width+1)+x].i * mi(sin)(EXP*(x*width+y*height));
+	shift = -M_PI/(2*height);
+	for(size_t x = 0; x < width; x++) {
+		for(size_t y = 0; y < height; y++)
+			mirror[y] = mirror[height*2-1-y] = f[y*width+x];
+		kiss_fftr(p->cfg[1],mirror,F);
+		for(size_t y = 0; y < height; y++)
+			f[y*width+x] = F[y].r * mi(cos)(shift*y) - F[y].i * mi(sin)(shift*y);
+	}
 }
 
 void resdet_free_plan(resdet_plan* p) {
 	if(p) {
-		free(p->cfg);
+		free(p->cfg[0]);
+		free(p->cfg[1]);
 		free(p->mirror);
 		free(p->F);
 		free(p);
