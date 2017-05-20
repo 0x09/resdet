@@ -81,7 +81,7 @@ function testinc() {
 	printf "Testing for $1..."
 	target=""
 	for arg; do target="-include $arg $target"; done
-	if $CC -xc -fsyntax-only $target - <<< "" &> /dev/null; then
+	if $CC $CFLAGS -xc -fsyntax-only $target - <<< "" &> /dev/null; then
 		printf " ok\n"
 		return 0
 	fi
@@ -92,7 +92,7 @@ function testlib() {
 	printf "Testing for $1..."
 	target=""
 	for arg; do target="-l$arg $target"; done
-	if $CC -xc $target -o /dev/null - <<< "int main(void){};" &> /dev/null; then
+	if $CC $CFLAGS -xc $target -o /dev/null - <<< "int main(void){};" &> /dev/null; then
 		printf " ok\n"
 		return 0
 	fi
