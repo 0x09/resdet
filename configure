@@ -128,6 +128,10 @@ function expand() {
 		eval printf \"%s\\n\" \"$line\"
 	done < "$1" > "$2"
 }
+function pcver() {
+	ver="$(pkg-config --modversion "$1")"
+	echo ${ver%%.*}
+}
 
 testbin "$CC" || abort
 testbin "$AR" || abort
@@ -166,7 +170,7 @@ case "$COEFF_PRECISION" in
 esac
 
 if $with_fftw && testpc $lfftw; then
-	DEFS+=" -DHAVE_FFTW"
+	DEFS+=" -DHAVE_FFTW=$(pcver $lfftw)"
 	PCDEPS+=" $lfftw"
 fi
 
@@ -185,7 +189,7 @@ fi
 for dep in libpng mjpegtools MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
-		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep)"
+		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep)=$(pcver $dep)"
 		PCDEPS+=" $dep"
 	fi
 done
