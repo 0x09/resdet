@@ -129,9 +129,11 @@ function expand() {
 	done < "$1" > "$2"
 }
 
-testbin pkg-config || abort "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
 testbin "$CC" || abort
 testbin "$AR" || abort
+if $with_libpng || $with_mjpegtools || $with_MagickWand || $with_fftw; then
+	testbin pkg-config || abort "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
+fi
 
 echo
 
@@ -194,8 +196,10 @@ echo
 
 expand lib/resdet.pc.in lib/resdet.pc
 
-DEFS+=" $(pkg-config --cflags $PCDEPS 2> /dev/null)"
-LIBS+=" $(pkg-config --libs $PCDEPS 2> /dev/null)"
+if [ -n "$PCDEPS" ]; then
+	DEFS+=" $(pkg-config --cflags $PCDEPS 2> /dev/null)"
+	LIBS+=" $(pkg-config --libs $PCDEPS 2> /dev/null)"
+fi
 
 echo "DEFS=$DEFS" >> config.mak
 echo "LIBS=$LIBS" >> config.mak
