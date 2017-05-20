@@ -206,7 +206,7 @@ static const char* mimetype_from_ext(const char* filename) {
 	if(!ext)
 		return "";
 	if(!strcasecmp(ext+1,"jpg") || !strcasecmp(ext+1,"jpeg"))
-		return "image/jpg";
+		return "image/jpeg";
 	if(!strcasecmp(ext+1,"png"))
 		return "image/png";
 	if(!strcasecmp(ext+1,"y4m"))
