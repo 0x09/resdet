@@ -115,7 +115,7 @@ static RDMethod methods[] = {
 		.func = (void(*)(void))detect_method_original,
 		.threshold = 0.64
 	},
-	{}
+	{0}
 };
 
 RDMethod* resdet_methods() {

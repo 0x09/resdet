@@ -102,7 +102,7 @@ static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height, size_t* 
 		.emit_message    = jerr_emit_message,
 		.reset_error_mgr = jerr_reset_error_mgr
 	};
-	if(setjmp(cinfo.client_data = (jmp_buf){})) {
+	if(setjmp(cinfo.client_data = (jmp_buf){0})) {
 		free(image);
 		image = NULL;
 		goto end;
