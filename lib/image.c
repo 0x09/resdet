@@ -176,7 +176,11 @@ end:
 #endif
 
 #ifdef HAVE_MAGICKWAND
+#if HAVE_MAGICKWAND > 6
+#include <MagickWand/MagickWand.h>
+#else
 #include <wand/MagickWand.h>
+#endif
 
 static unsigned char* read_magick(FILE* f, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL;
