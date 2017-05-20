@@ -74,7 +74,8 @@ SHAREPREFIX="${SHAREPREFIX:-$PREFIX/share/resdet}"
 PCPREFIX="${PCPREFIX:-$PREFIX/lib/pkgconfig}"
 
 function abort() {
-	echo "Aborting"
+	echo "${1:-Aborting}"
+	rm -f config.mak
 	exit 1
 }
 function testinc() {
@@ -108,6 +109,15 @@ function testpc() {
 	printf " not found\n"
 	return 1
 }
+function testbin() {
+	printf "Testing for $1..."
+	if command -v "$1" &> /dev/null; then
+		printf " ok\n"
+		return 0
+	fi
+	printf " not found\n"
+	return 1
+}
 function define() {
 	echo "$1 is \"$2\""
 	echo "$1=$2" >> config.mak
@@ -119,16 +129,17 @@ function expand() {
 	done < "$1" > "$2"
 }
 
-if ! command -v pkg-config &> /dev/null; then
-	echo "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
-	abort
-fi
+testbin pkg-config || abort "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
+testbin "$CC" || abort
+testbin "$AR" || abort
+
+echo
 
 rm -f config.mak
 
 define CC "$(command -v "$CC")"
-define CFLAGS "$CFLAGS"
 define AR "$(command -v "$AR")"
+define CFLAGS "$CFLAGS"
 define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
@@ -178,6 +189,8 @@ for dep in libpng mjpegtools MagickWand; do
 done
 
 testlib m && LIBS+=" -lm"
+
+echo
 
 expand lib/resdet.pc.in lib/resdet.pc
 
