@@ -2,7 +2,7 @@ include config.mak
 
 OBJS=resdet.o image.o methods.o transform.o
 LIB=lib/libresdet.a
-TOOLS=resdet stat profile
+TOOLS=resdet stat profile imgread
 
 EXTRAFLAGS=
 ifndef HAVE_FFTW
@@ -42,6 +42,9 @@ profile: src/profile.o $(LIB)
 	$(CC) -o $@ $(DEFS) $+ $(LIBS)
 
 stat: src/stat.o $(LIB)
+	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+
+imgread: src/imgread.o $(LIB)
 	$(CC) -o $@ $(DEFS) $+ $(LIBS)
 
 install-lib: $(LIB)
