@@ -63,16 +63,27 @@ static unsigned char* read_png(FILE* f, size_t* width, size_t* height, size_t* n
 	color = png_get_color_type(png_ptr,info_ptr);\
 } while(0)
 
+	if(png_get_valid(png_ptr,info_ptr,PNG_INFO_tRNS)) { png_set_tRNS_to_alpha(png_ptr); UPDATEPNG; }
 	if(color == PNG_COLOR_TYPE_PALETTE) { png_set_palette_to_rgb(png_ptr); UPDATEPNG; }
 	if(color & PNG_COLOR_MASK_COLOR) { png_set_rgb_to_gray(png_ptr,1,-1,-1); UPDATEPNG; }
 	if(bit_depth == 16) { png_set_strip_16(png_ptr); UPDATEPNG; }
 	if(bit_depth < 8) { png_set_expand_gray_1_2_4_to_8(png_ptr); UPDATEPNG; }
 	int passes = png_set_interlace_handling(png_ptr);
 
+	// png_set_strip_alpha is throwing exceptions, so deal with these ourselves
+	unsigned char* abuf;
+	if(color & PNG_COLOR_MASK_ALPHA)
+		abuf = malloc(*width*2);
+
 	for(int i = 0; i < passes; i++) {
 		unsigned char* it = image;
 		for(rdint_index y = 0; y < *height; y++, it += *width)
-			png_read_row(png_ptr,it,NULL);
+			if(color & PNG_COLOR_MASK_ALPHA) {
+				png_read_row(png_ptr,abuf,NULL);
+				for(rdint_index x = 0; x < *width; x++)
+					it[x] = abuf[x*2];
+			}
+			else png_read_row(png_ptr,it,NULL);
 	}
 
 	png_read_end(png_ptr, NULL);
