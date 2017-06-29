@@ -60,6 +60,11 @@ mpv:  `mpv --start timestamp --frames 1 -o image.y4m source`
 
 Better results should be possible by analyzing multiple frames together. resdet supports this with both the mjpegtools (y4m) and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames. Note that currently frames will be read in bulk, so choose only a small section of the video to avoid consuming too much memory. This is not an inherent limitation, and will likely change.
 
+### JPEG
+Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.
+
+Deblocking example with FFmpeg: `ffmpeg -i source.jpg -vf pp=ha/va image.png`
+
 ### Caveats
 resdet works well on images resampled with traditional methods, but will not work with newer neural network-based resizers.
 
