@@ -56,9 +56,9 @@ resdet works best on images that are as close to the source as possible. Filteri
 ### Video
 For compressed video stills, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. Single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
 
-FFmpeg/avconv: `ffmpeg -i source -ss timestamp -vframes 1 image.y4m`
+FFmpeg/avconv: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
 
-mpv:  `mpv --start timestamp --frames 1 -o image.y4m source`
+mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
 
 Better results should be possible by analyzing multiple frames together. resdet supports this with both the mjpegtools (y4m) and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames. Note that currently frames will be read in bulk, so choose only a small section of the video to avoid consuming too much memory. This is not an inherent limitation, and will likely change.
 
