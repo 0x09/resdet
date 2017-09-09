@@ -85,7 +85,7 @@ RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t heigh
 
 	if(!(( *p            = calloc(1,sizeof(**p))                    ) && /* tower of malloc failures */
 	     ((*p)->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
-	     ((*p)->F        = malloc(sizeof(kiss_fft_cpx)*bufsize+1)   ) &&
+	     ((*p)->F        = malloc(sizeof(kiss_fft_cpx)*(bufsize+1))   ) &&
 	     ((*p)->shift[0] = malloc(sizeof(kiss_fft_cpx)*width)       ) &&
 	     ((*p)->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL) ) &&
 	     (width == height || (
