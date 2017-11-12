@@ -14,7 +14,7 @@ Most library functions return `RDError` to indicate any failure. While not actua
 	RDContext* resdet_open_context();
 ```
 
-Open a new context -- currently only needed if compiled with libmagic support and using resdetect_file\*.
+Open a new context -- currently only needed if compiled with libmagic support and using resdetect_file\*. Returns NULL on error.
 
 ---
 
@@ -22,7 +22,7 @@ Open a new context -- currently only needed if compiled with libmagic support an
 	void resdet_close_context(RDContext*);
 ```
 
-Close and free a context. If not using a context, `resdet_close_context(NULL)` can still be used to cleanup FFTW.
+Close and free a context. If the context is already NULL, this is a no-op.
 
 ---
 
@@ -167,3 +167,25 @@ The above requirements may be limited indirectly by setting the PIXEL_MAX macro,
 Note that image libraries used by `resdet_read_image` will have their own separate requirements not included in this calculation.
 
 Note also that at the time of this writing, multiple image formats like y4m are read into the buffer in their entirety. Therefore `resdetect_file` is not suitable for files with a large number of frames.
+
+# Thread Safety
+libresdet's own routines are thread safe, but some of its optional supporting libraries rely on global state. As libresdet does not mandate a threading model itself, it cannot enforce their safe execution in a multithreaded app.  
+If your application will make calls to resdet from concurrent threads while one of these are enabled, your application must independently prepare these libraries for threaded use at the start of execution.
+
+These measures are only necessary when both:
+
+1. resdet is built with either FFTW or ImageMagick support, and
+2. resdet routines will be called concurrently.
+
+In all other cases no extra preparation is needed.
+
+Steps to prepare each of these for threaded execution are:
+
+* FFTW
+ * Include `fftw.h`
+ * Call [`fftw_make_planner_thread_safe()`](http://www.fftw.org/fftw3_doc/Thread-safety.html#Thread-safety)
+ * Link with a threaded version of the FFTW library
+ * Link with the system's threading library if necessary
+* MagickWand
+ * Include `MagickWand.h`
+ * Call [`MagickWandGenesis()`](https://www.imagemagick.org/api/magick-wand.php#MagickWandGenesis)

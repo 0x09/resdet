@@ -184,7 +184,6 @@ end:
 
 static unsigned char* read_magick(FILE* f, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL;
-	MagickWandGenesis();
 	MagickWand* wand = NewMagickWand();
 	if(!MagickReadImageFile(wand,f))
 		goto end;
@@ -200,7 +199,6 @@ static unsigned char* read_magick(FILE* f, size_t* width, size_t* height, size_t
 	}
 end:
 	DestroyMagickWand(wand);
-	MagickWandTerminus(); //hopefully we're the only one using magickwand
 	return image;
 }
 #endif

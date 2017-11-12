@@ -28,10 +28,6 @@ todo:
 
 #include "resdet_internal.h"
 
-#ifdef HAVE_FFTW
-	#include <fftw3.h> //still needed for wisdom, cleanup
-#endif
-
 RDContext* resdet_open_context() {
 	RDContext* ctx = malloc(sizeof(*ctx));
 	if(!ctx) goto error;
@@ -44,10 +40,6 @@ RDContext* resdet_open_context() {
 #endif
 #endif
 
-#if defined(HAVE_FFTW) && defined(RSRC_DIR)
-	fftwp(import_wisdom_from_filename)(RSRC_DIR "/wisdom");
-#endif
-
 	return ctx;
 error:
 	resdet_close_context(ctx);
@@ -55,9 +47,6 @@ error:
 }
 
 void resdet_close_context(RDContext* ctx) {
-#ifdef HAVE_FFTW
-	fftwp(cleanup)();
-#endif
 #ifdef HAVE_MAGIC
 	if(ctx && ctx->db) magic_close(ctx->db);
 #endif

@@ -133,7 +133,6 @@ int main(int argc, char* argv[]) {
 			e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m);
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval after = rusage.ru_utime;
-			resdet_close_context(NULL); //clean out fftw
 
 			after = diffts(before,after);
 			tvs[m-methods].tv_sec += after.tv_sec + (tvs[m-methods].tv_usec + after.tv_usec) / 1000000;
