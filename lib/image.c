@@ -80,7 +80,6 @@ end:
 	if(png_ptr)
 		png_destroy_read_struct(&png_ptr,&info_ptr,NULL);
 	return image;
-#undef UPDATEPNG
 }
 #else
 //png.h complains if setjmp is already included
