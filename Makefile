@@ -10,8 +10,6 @@ ifndef HAVE_FFTW
 	OBJS += $(addprefix kissfft/, kiss_fft.o $(addprefix tools/, kiss_fftnd.o kiss_fftndr.o kiss_fftr.o))
 endif
 
-OBJS := $(addprefix lib/, $(OBJS))
-
 ifdef DEFAULT_RANGE
 	EXTRAFLAGS += -DDEFAULT_RANGE=$(DEFAULT_RANGE)
 endif
@@ -24,6 +22,21 @@ endif
 ifdef PIXEL_MAX
 	EXTRAFLAGS += -DPIXEL_MAX=$(PIXEL_MAX)
 endif
+
+ifdef HAVE_LIBJPEG
+	OBJS += image/libjpeg.o
+endif
+ifdef HAVE_LIBPNG
+	OBJS += image/libpng.o
+endif
+ifdef HAVE_MJPEGTOOLS
+	OBJS += image/mjpegtools.o
+endif
+ifdef HAVE_MAGICKWAND
+	OBJS += image/magickwand.o
+endif
+
+OBJS := $(addprefix lib/, $(OBJS))
 
 CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
 
