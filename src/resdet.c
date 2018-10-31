@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,input,&rw,&cw,&rh,&ch,resdet_get_method(method));
+	RDError e = resdetect_file(ctx,input,NULL,&rw,&cw,&rh,&ch,resdet_get_method(method));
 	resdet_close_context(ctx);
 	if(e || !verbosity)
 		goto end;

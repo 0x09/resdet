@@ -215,13 +215,15 @@ static const char* mimetype_from_ext(const char* filename) {
 	return "";
 }
 
-RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* nimages, size_t* width, size_t* height) {
+RDError resdet_read_image(RDContext* ctx, const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height) {
 	*width = *height = *nimages = 0;
 	*image = NULL;
 	FILE* f = fopen(filename,"r");
 	if(!f)
 		return RDEINTERNAL;
-	const char* c = mimetype_from_ext(filename);
+	const char* c = mimetype;
+	if(!c)
+		c = mimetype_from_ext(filename);
 
 	unsigned char* (*read_image)(FILE*,size_t*,size_t*,size_t*) = NULL;
 	if(false)

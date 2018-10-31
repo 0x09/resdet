@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
 	unsigned char* image;
 	size_t nimages, width, height;
-	RDError e = resdet_read_image(ctx, argv[1], &image, &nimages, &width, &height);
+	RDError e = resdet_read_image(ctx, argv[1], NULL, &image, &nimages, &width, &height);
 	resdet_close_context(ctx);
 
 	if(e) {

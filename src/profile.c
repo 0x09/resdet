@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 		puts(line);
 		unsigned char* image;
 		size_t w, h, d;
-		RDError e = resdet_read_image(ctx,line,&image,&d,&w,&h);
+		RDError e = resdet_read_image(ctx,line,NULL,&image,&d,&w,&h);
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);

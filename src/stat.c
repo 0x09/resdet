@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,argv[1],&rw,&cw,&rh,&ch,resdet_get_method(argv[2]));
+	RDError e = resdetect_file(ctx,argv[1],NULL,&rw,&cw,&rh,&ch,resdet_get_method(argv[2]));
 	resdet_close_context(ctx);
 	if(e) goto end;
 	puts("width:");

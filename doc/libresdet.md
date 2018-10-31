@@ -57,6 +57,7 @@ Returns NULL if no name matches.
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
+* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
@@ -73,6 +74,7 @@ Detect with specified parameters.
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
+* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
@@ -82,13 +84,14 @@ Detect with specified parameters.
 ---
 
 ```C
-	RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
+	RDError resdet_read_image(RDContext* ctx, const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
 ```
 
 Read an image using whatever image loaders the library was built with.
 
 * ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image.
+* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * image - Out parameter containing the 8-bit grayscale bitmap(s). Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of image + width * height. Allocated by the library, must be freed by caller.
 * nimages - Out parameter containing the number of images returned.
 * width, height - Out parameters containing the bitmap dimensions.
