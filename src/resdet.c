@@ -36,7 +36,7 @@ int sortres(const void* left, const void* right) {
 }
 
 void usage(const char* self, bool help) {
-	printf("Usage: %s -h -m <method> -v <verbosity> image\n",self);
+	printf("Usage: %s -h -m <method> -v <verbosity> -t <mimetype> image\n",self);
 	if(help) {
 		printf(
 "\n"
@@ -46,6 +46,7 @@ void usage(const char* self, bool help) {
 "                  1 - Print only the best guess width and height.\n"
 "                  2 - All detected widths and heights in confidence order.\n"
 "                  3 - -v2 plus the floating point confidence value.\n"
+" -t   mimetype: Override the input type."
 "\n"
 );
 		puts("Available detection methods:");
@@ -59,11 +60,12 @@ void usage(const char* self, bool help) {
 int main(int argc, char* argv[]) {
 	int c;
 	int verbosity = -1;
-	const char* method = NULL;
-	while((c = getopt(argc,argv,"v:m:h")) != -1) {
+	const char* method = NULL,* type = NULL;
+	while((c = getopt(argc,argv,"v:m:t:h")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
+			case 't': type = optarg; break;
 			case 'h': usage(argv[0],true); break;
 			default: usage(argv[0],false);
 		}
@@ -80,7 +82,7 @@ int main(int argc, char* argv[]) {
 	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,input,NULL,&rw,&cw,&rh,&ch,resdet_get_method(method));
+	RDError e = resdetect_file(ctx,input,type,&rw,&cw,&rh,&ch,resdet_get_method(method));
 	resdet_close_context(ctx);
 	if(e || !verbosity)
 		goto end;
