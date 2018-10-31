@@ -28,20 +28,6 @@ todo:
 
 #include "resdet_internal.h"
 
-RDContext* resdet_open_context() {
-	RDContext* ctx = malloc(sizeof(*ctx));
-	if(!ctx) goto error;
-	return ctx;
-error:
-	resdet_close_context(ctx);
-	return NULL;
-}
-
-void resdet_close_context(RDContext* ctx) {
-	free(ctx);
-}
-
-
 static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
 	size_t min_length = range*2;
 	if(!detect || min_length >= length)
@@ -133,25 +119,25 @@ RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, s
 	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
-RDError resdetect_file_with_params(RDContext* ctx, const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+RDError resdetect_file_with_params(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                    RDMethod* method, size_t range, float threshold) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
 	unsigned char* image = NULL;
 	size_t width, height, nimages;
-	RDError ret = resdet_read_image(ctx,filename,mimetype,&image,&nimages,&width,&height);
+	RDError ret = resdet_read_image(filename,mimetype,&image,&nimages,&width,&height);
 	if(ret == RDEOK)
 		ret = resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,range,threshold);
 	free(image);
 	return ret;
 }
 
-RDError resdetect_file(RDContext* ctx, const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
 		return RDEINVAL;
 
-	return resdetect_file_with_params(ctx,filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
+	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }

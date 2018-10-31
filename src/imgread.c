@@ -33,16 +33,9 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
-	RDContext* ctx = resdet_open_context();
-	if(!ctx) {
-		fprintf(stderr,"Context creation failed.\n");
-		return 1;
-	}
-
 	unsigned char* image;
 	size_t nimages, width, height;
-	RDError e = resdet_read_image(ctx, argv[1], NULL, &image, &nimages, &width, &height);
-	resdet_close_context(ctx);
+	RDError e = resdet_read_image(argv[1], NULL, &image, &nimages, &width, &height);
 
 	if(e) {
 		fprintf(stderr,"%s\n",RDErrStr[e]);

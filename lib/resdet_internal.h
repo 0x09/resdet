@@ -26,8 +26,6 @@
 #include <stdint.h>
 #include <limits.h>
 
-typedef int magic_t;
-
 #include "resdet.h"
 #include "precision.h"
 
@@ -47,11 +45,6 @@ typedef size_t rdint_storage;
 //32 originally but diminishing returns after 8 (8 seems to be ideal). smaller is faster, lower accuracy
 #define DEFAULT_RANGE 12
 #endif
-
-
-struct RDContext {
-	magic_t db;
-};
 
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,double*,rdint_index*restrict,rdint_index*restrict);
 

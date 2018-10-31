@@ -87,12 +87,6 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	RDContext* ctx = resdet_open_context();
-	if(!ctx) {
-		fprintf(stderr,"Context creation failed.\n");
-		return 1;
-	}
-
 	RDMethod* methods = resdet_methods();
 	size_t nmethods = 0;
 	int padding = 0;
@@ -117,7 +111,7 @@ int main(int argc, char* argv[]) {
 		puts(line);
 		unsigned char* image;
 		size_t w, h, d;
-		RDError e = resdet_read_image(ctx,line,NULL,&image,&d,&w,&h);
+		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);
@@ -154,7 +148,6 @@ int main(int argc, char* argv[]) {
 		free(image);
 	}
 	fclose(dict);
-	resdet_close_context(ctx);
 
 	puts("totals");
 	for(RDMethod* m = methods; m->name; m++)

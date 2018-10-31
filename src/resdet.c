@@ -75,15 +75,9 @@ int main(int argc, char* argv[]) {
 	if(!input)
 		usage(argv[0],false);
 
-	RDContext* ctx = resdet_open_context();
-	if(!ctx) {
-		fprintf(stderr,"Context creation failed.\n");
-		return 64;
-	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,input,type,&rw,&cw,&rh,&ch,resdet_get_method(method));
-	resdet_close_context(ctx);
+	RDError e = resdetect_file(input,type,&rw,&cw,&rh,&ch,resdet_get_method(method));
 	if(e || !verbosity)
 		goto end;
 

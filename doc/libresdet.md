@@ -11,22 +11,6 @@ Most library functions return `RDError` to indicate any failure. While not actua
 ---
 
 ```C
-	RDContext* resdet_open_context();
-```
-
-Open a new context -- currently only needed if compiled with libmagic support and using resdetect_file\*. Returns NULL on error.
-
----
-
-```C
-	void resdet_close_context(RDContext*);
-```
-
-Close and free a context. If the context is already NULL, this is a no-op.
-
----
-
-```C
 	RDMethod* resdet_methods();
 ```
 
@@ -52,10 +36,9 @@ Returns NULL if no name matches.
 ---
 
 ```C
-	RDError resdetect_file(RDContext* ctx, const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+	RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 ```
 
-* ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
@@ -65,14 +48,13 @@ Returns NULL if no name matches.
 ---
 
 ```C
-	RDError resdetect_file_with_params(RDContext* ctx, const char* filename,
+	RDError resdetect_file_with_params(const char* filename,
 	                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
 	                                   RDMethod* method, size_t range, float threshold);
 ```
 
 Detect with specified parameters.
 
-* ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
@@ -84,12 +66,11 @@ Detect with specified parameters.
 ---
 
 ```C
-	RDError resdet_read_image(RDContext* ctx, const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
+	RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
 ```
 
 Read an image using whatever image loaders the library was built with.
 
-* ctx - The context returned by `resdet_open_context`.
 * filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * image - Out parameter containing the 8-bit grayscale bitmap(s). Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of image + width * height. Allocated by the library, must be freed by caller.
@@ -139,13 +120,9 @@ Detect potential widths in a file, using the defaults:
 ```C
 	const char* filename = ...;
 	
-	RDContext* ctx = resdet_open_context();
-	if(!ctx)
-		//handle error
 	RDResolution* rw;
 	size_t cw;
-	RDError e = resdetect_file(ctx, filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
-	resdet_close_context(ctx);
+	RDError e = resdetect_file(filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
 	if(e)
 		//handle error
 	

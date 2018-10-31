@@ -63,15 +63,9 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	RDContext* ctx = resdet_open_context();
-	if(!ctx) {
-		fprintf(stderr,"Context creation failed.\n");
-		return 1;
-	}
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDError e = resdetect_file(ctx,argv[1],NULL,&rw,&cw,&rh,&ch,resdet_get_method(argv[2]));
-	resdet_close_context(ctx);
+	RDError e = resdetect_file(argv[1],NULL,&rw,&cw,&rh,&ch,resdet_get_method(argv[2]));
 	if(e) goto end;
 	puts("width:");
 	statres(rw+1,cw-1);

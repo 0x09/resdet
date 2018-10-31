@@ -36,15 +36,10 @@ static const char* const RDErrStr[] = {
 	[RDEINVAL]    = "Invalid image"
 };
 
-typedef struct RDContext RDContext;
-
 typedef struct RDResolution {
 	size_t index;
 	float confidence;
 } RDResolution;
-
-RDContext* resdet_open_context();
-void resdet_close_context(RDContext* ctx);
 
 typedef struct RDMethod {
 	const char* name;
@@ -55,20 +50,20 @@ typedef struct RDMethod {
 RDMethod* resdet_methods();
 RDMethod* resdet_get_method(const char* name);
 
-RDError resdet_read_image(RDContext* ctx, const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
+RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
 
 
 RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                   RDMethod* method);
 
-RDError resdetect_file(RDContext* ctx, const char* filename, const char* mimetype, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 
 RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
                               RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                               RDMethod* method, size_t range, float threshold);
 
-RDError resdetect_file_with_params(RDContext* ctx, const char* filename, const char* mimetype,
+RDError resdetect_file_with_params(const char* filename, const char* mimetype,
                                    RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                                    RDMethod* method, size_t range, float threshold);
 
