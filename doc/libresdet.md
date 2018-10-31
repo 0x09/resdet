@@ -144,7 +144,7 @@ Detect potential widths in a file, using the defaults:
 		//handle error
 	RDResolution* rw;
 	size_t cw;
-	RDError e = resdetect_file(ctx, filename, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
+	RDError e = resdetect_file(ctx, filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
 	resdet_close_context(ctx);
 	if(e)
 		//handle error
