@@ -176,7 +176,10 @@ fi
 for dep in libpng mjpegtools MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
-		DEFS+=" -DHAVE_$(tr '[a-z]' '[A-Z]' <<< $dep)=$(pcver $dep)"
+		name="$(tr '[a-z]' '[A-Z]' <<< $dep)"
+		ver="$(pcver $dep)"
+		echo "HAVE_$name=$ver" >> config.mak
+		DEFS+=" -DHAVE_$name=$ver"
 		PCDEPS+=" $dep"
 	fi
 done
