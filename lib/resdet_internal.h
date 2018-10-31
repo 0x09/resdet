@@ -26,11 +26,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#ifdef HAVE_MAGIC
-#include <magic.h>
-#else
 typedef int magic_t;
-#endif
 
 #include "resdet.h"
 #include "precision.h"

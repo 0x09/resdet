@@ -1,9 +1,0 @@
-0       string          YUV4MPEG2       YUV4MPEG2 video
-!:mime  video/yuv4mpeg
-
-0       string          \x89PNG\x0d\x0a\x1a\x0a         PNG image data
-!:mime  image/png
-
-0       beshort         0xffd8          JPEG image data
-!:mime  image/jpeg
-

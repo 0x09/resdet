@@ -7,7 +7,6 @@ CFLAGS="-Ofast -march=native -mtune=native -std=gnu99 $CFLAGS"
 
 with_fftw=true
 with_libjpeg=true
-with_libmagic=true
 with_libpng=true
 with_mjpegtools=true
 with_MagicWand=true
@@ -26,7 +25,6 @@ function usage() {
 	echo "   --pcprefix     \"$PREFIX/lib/pkgconfig\""
 	echo ""
 	echo "   --disable-fftw"
-	echo "   --disable-libmagic"
 	echo "   --disable-libjpeg"
 	echo "   --disable-libpng"
 	echo "   --disable-mjpegtools"
@@ -53,12 +51,11 @@ for o; do
 		--incprefix)   INCPREFIX="$arg";;
 		--shareprefix) SHAREPREFIX="$arg";;
 		--disable-fftw      ) with_fftw=false;;
-		--disable-libmagic  ) with_libmagic=false;;
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
 		--disable-mjpegtools) with_mjpegtools=false;;
 		--disable-MagickWand) with_MagickWand=false;;
-		--disable-everything) with_fftw=false; with_libmagic=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
+		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -178,12 +175,6 @@ if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
 	echo "HAVE_LIBJPEG=1" >> config.mak
 	DEFS+=" -DHAVE_LIBJPEG"
 	LIBS+=" -ljpeg"
-fi
-
-if $with_libmagic && testinc magic.h && testlib magic; then
-	echo "HAVE_LIBMAGIC=1" >> config.mak
-	DEFS+=" -DHAVE_LIBMAGIC"
-	LIBS+=" -lmagic"
 fi
 
 for dep in libpng mjpegtools MagickWand; do

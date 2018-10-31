@@ -31,15 +31,6 @@ todo:
 RDContext* resdet_open_context() {
 	RDContext* ctx = malloc(sizeof(*ctx));
 	if(!ctx) goto error;
-#ifdef HAVE_MAGIC
-	if(!(ctx->db = magic_open(MAGIC_MIME_TYPE))) goto error;
-#ifdef RSRC_DIR //for server
-	if(magic_load(ctx->db,RSRC_DIR "/magic")) goto error;
-#else
-	if(magic_load(ctx->db,NULL)) goto error;
-#endif
-#endif
-
 	return ctx;
 error:
 	resdet_close_context(ctx);
@@ -47,9 +38,6 @@ error:
 }
 
 void resdet_close_context(RDContext* ctx) {
-#ifdef HAVE_MAGIC
-	if(ctx && ctx->db) magic_close(ctx->db);
-#endif
 	free(ctx);
 }
 

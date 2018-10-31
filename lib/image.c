@@ -222,15 +222,6 @@ RDError resdet_read_image(RDContext* ctx, const char* filename, unsigned char** 
 	if(!f)
 		return RDEINTERNAL;
 	const char* c = mimetype_from_ext(filename);
-#ifdef HAVE_MAGIC
-	const char* mc = magic_descriptor(ctx->db,fileno(f));
-	//some magic dbs don't recognize y4m, so we won't trust it all the time
-	if(mc && strcmp(mc,"application/octet-stream"))
-		c = mc;
-	fclose(f); // freopen bug in glibc
-	if(!(f = fopen(filename,"r")))
-		return RDEINTERNAL;
-#endif
 
 	unsigned char* (*read_image)(FILE*,size_t*,size_t*,size_t*) = NULL;
 	if(false)
