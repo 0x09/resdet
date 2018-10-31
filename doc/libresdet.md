@@ -56,7 +56,7 @@ Returns NULL if no name matches.
 ```
 
 * ctx - The context returned by `resdet_open_context`.
-* filename - Path of the image.
+* filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
@@ -73,7 +73,7 @@ Returns NULL if no name matches.
 Detect with specified parameters.
 
 * ctx - The context returned by `resdet_open_context`.
-* filename - Path of the image.
+* filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
@@ -90,7 +90,7 @@ Detect with specified parameters.
 Read an image using whatever image loaders the library was built with.
 
 * ctx - The context returned by `resdet_open_context`.
-* filename - Path of the image.
+* filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * image - Out parameter containing the 8-bit grayscale bitmap(s). Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of image + width * height. Allocated by the library, must be freed by caller.
 * nimages - Out parameter containing the number of images returned.
