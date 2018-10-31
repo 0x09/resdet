@@ -21,7 +21,6 @@ function usage() {
 	echo "   --binprefix    \"$PREFIX/bin\""
 	echo "   --libprefix    \"$PREFIX/lib\""
 	echo "   --incprefix    \"$PREFIX/include\""
-	echo "   --shareprefix  \"$PREFIX/share/resdet\""
 	echo "   --pcprefix     \"$PREFIX/lib/pkgconfig\""
 	echo ""
 	echo "   --disable-fftw"
@@ -49,7 +48,6 @@ for o; do
 		--binprefix)   BINPREFIX="$arg";;
 		--libprefix)   LIBPREFIX="$arg";;
 		--incprefix)   INCPREFIX="$arg";;
-		--shareprefix) SHAREPREFIX="$arg";;
 		--disable-fftw      ) with_fftw=false;;
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
@@ -67,7 +65,6 @@ done
 BINPREFIX="${BINPREFIX:-$PREFIX/bin}"
 LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
 INCPREFIX="${INCPREFIX:-$PREFIX/include}"
-SHAREPREFIX="${SHAREPREFIX:-$PREFIX/share/resdet}"
 PCPREFIX="${PCPREFIX:-$PREFIX/lib/pkgconfig}"
 
 function abort() {
@@ -147,7 +144,6 @@ define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
 define INCPREFIX "$INCPREFIX"
-define SHAREPREFIX "$SHAREPREFIX"
 define PCPREFIX "$PCPREFIX"
 [ -n "$DEFAULT_RANGE" ] && define DEFAULT_RANGE "$DEFAULT_RANGE"
 [ -n "$COEFF_PRECISION" ] && define COEFF_PRECISION "$COEFF_PRECISION"

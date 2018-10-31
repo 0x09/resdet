@@ -12,9 +12,6 @@ endif
 
 OBJS := $(addprefix lib/, $(OBJS))
 
-ifneq ($(SHAREPREFIX),)
-	EXTRAFLAGS += -DRSRC_DIR='"$(SHAREPREFIX)"'
-endif
 ifdef DEFAULT_RANGE
 	EXTRAFLAGS += -DDEFAULT_RANGE=$(DEFAULT_RANGE)
 endif
@@ -57,14 +54,9 @@ endif
 
 install: resdet
 	install resdet $(BINPREFIX)/
-ifneq ($(SHAREPREFIX),)
-	mkdir -p $(SHAREPREFIX)
-	install share/magic $(SHAREPREFIX)/
-endif
 
 uninstall:
-	rm -f $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h $(SHAREPREFIX)/magic
-	rmdir $(SHAREPREFIX) &> /dev/null
+	rm -f $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
 	
 clean:
 	rm -f -- src/*.o $(OBJS) $(LIB) $(TOOLS)
