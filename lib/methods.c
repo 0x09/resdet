@@ -99,8 +99,20 @@ end:
 	return ret;
 }
 
-// A few different attempts to ID the zero-crossing on an odd-ish extension of a function, of many
-// Someone with a better math background may certainly know a better one
+// Lightweight version of original method
+// Disregards range, only checks explicitly for zero crossings over all 3-element spans
+static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
+	for(rdint_index x = *start; x < *end; x++) {
+		rdint_storage zero_crossings = 0;
+		for(rdint_index y = 0; y < n; y++) {
+			coeff l = f[y*stride+x*dist-dist], c = f[y*stride+x*dist], r = f[y*stride+x*dist+dist];
+			zero_crossings += signbit(l) != signbit(r) && ((l < c && c < r) || (l > c && c > r));
+		}
+		result[x-*start] += zero_crossings / (double)n;
+	}
+	return RDEOK;
+}
+
 static RDMethod methods[] = {
 	{
 		.name = "sign",
@@ -114,6 +126,10 @@ static RDMethod methods[] = {
 		.name = "orig",
 		.func = (void(*)(void))detect_method_original,
 		.threshold = 0.64
+	},{
+		.name = "zerox",
+		.func = (void(*)(void))detect_method_zerocrossing,
+		.threshold = 0.5
 	},
 	{0}
 };
