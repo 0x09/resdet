@@ -28,7 +28,7 @@ static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height, size_t* n
 
 		image = tmp;
 		if(y4m_read(fd,image + *width * *height * (*nimages - 1),*width * *height) < 0 ||
-		   read(fd,discard,frame_length) != frame_length) {
+		   y4m_read(fd,discard,frame_length) != 0) {
    			free(image); image = NULL; break;
 		}
 	}
