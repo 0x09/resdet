@@ -35,10 +35,8 @@ static const char* mimetype_from_ext(const char* filename) {
 RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height) {
 	*width = *height = *nimages = 0;
 	*image = NULL;
-	FILE* f = stdin;
-	if(strcmp(filename,"-"))
-		f = fopen(filename,"r");
-	if(!f)
+
+	if(!filename)
 		return RDEINTERNAL;
 
 	const char* c = mimetype;
@@ -74,9 +72,7 @@ RDError resdet_read_image(const char* filename, const char* mimetype, unsigned c
 #endif
 
 	if(reader)
-		*image = reader->read(f,width,height,nimages);
-	if(f != stdin)
-		fclose(f);
+		*image = reader->read(filename,width,height,nimages);
 
 	return *image ? RDEOK : RDEINVAL;
 }

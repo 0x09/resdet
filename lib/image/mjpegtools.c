@@ -1,10 +1,14 @@
 #include "image.h"
 
 #include <mjpegtools/yuv4mpeg.h>
+#include <fcntl.h>
 
-static unsigned char* read_y4m(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+static unsigned char* read_y4m(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL,* discard = NULL;
-	int fd = fileno(f);
+	int fd = strcmp(filename,"-") ? open(filename,O_RDONLY) : 1;
+	if(fd < 0)
+		return NULL;
+
 	y4m_stream_info_t st;
 	y4m_frame_info_t frame;
 	y4m_init_stream_info(&st);
@@ -37,6 +41,8 @@ end:
 	free(discard);
 	y4m_fini_frame_info(&frame);
 	y4m_fini_stream_info(&st);
+	if(fd > 0)
+		close(fd);
 	return image;
 }
 

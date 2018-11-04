@@ -8,7 +8,11 @@
 static void pngerr_error_fn(png_structp png_ptr, png_const_charp error_msg) { png_longjmp(png_ptr,1); }
 static void pngerr_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {}
 
-static unsigned char* read_png(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+static unsigned char* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	if(!f)
+		return NULL;
+
 	*nimages = 1;
 	unsigned char* image = NULL;
 	png_structp png_ptr = NULL;
@@ -57,6 +61,8 @@ static unsigned char* read_png(FILE* f, size_t* width, size_t* height, size_t* n
 end:
 	if(png_ptr)
 		png_destroy_read_struct(&png_ptr,&info_ptr,NULL);
+	if(f != stdin)
+		fclose(f);
 	return image;
 }
 

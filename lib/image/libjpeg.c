@@ -9,7 +9,11 @@ static void jerr_emit_message(j_common_ptr cinfo, int msg_level) {}
 static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1); }
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
 
-static unsigned char* read_jpeg(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+static unsigned char* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	if(!f)
+		return NULL;
+
 	*nimages = 1;
 	unsigned char* image = NULL;
 	struct jpeg_decompress_struct cinfo;
@@ -45,6 +49,8 @@ finish:
 	jpeg_finish_decompress(&cinfo);
 end:
 	jpeg_destroy_decompress(&cinfo);
+	if(f != stdin)
+		fclose(f);
 	return image;
 }
 

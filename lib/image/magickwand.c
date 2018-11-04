@@ -6,10 +6,10 @@
 #include <wand/MagickWand.h>
 #endif
 
-static unsigned char* read_magick(FILE* f, size_t* width, size_t* height, size_t* nimages) {
+static unsigned char* read_magick(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL;
 	MagickWand* wand = NewMagickWand();
-	if(!MagickReadImageFile(wand,f))
+	if(!MagickReadImage(wand,filename))
 		goto end;
 	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
