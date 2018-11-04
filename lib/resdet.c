@@ -57,16 +57,29 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, siz
 
 	if(!(width && height && nimages) || (width > PIXEL_MAX / height) || (width*height > PIXEL_MAX / nimages))
 		return RDEINVAL;
-	coeff* f = NULL;
-	if(!(f = resdet_alloc_coeffs(width,height)))
-		return RDENOMEM;
 
 	RDError ret = RDEOK;
+	coeff* fx = NULL,* fy = NULL;
 	double* xresult = NULL,* yresult = NULL;
+	resdet_plan* px = NULL,* py = NULL;
 
-	resdet_plan* p;
-	if((ret = resdet_create_plan(&p,f,width,height)))
+	if(!(fx = resdet_alloc_coeffs(width)))
+		return RDENOMEM;
+	if((ret = resdet_create_plan(&px,fx,width)))
 		goto end;
+
+	if(width == height) {
+		fy = fx;
+		py = px;
+	}
+	else {
+		if(!(fy = resdet_alloc_coeffs(height))) {
+			ret = RDENOMEM;
+			goto end;
+		}
+		if((ret = resdet_create_plan(&py,fy,height)))
+			goto end;
+	}
 
 	rdint_index xbound[2], ybound[2];
 	if((ret = setup_dimension(width,range,rw,cw,&xresult,xbound)) != RDEOK)
@@ -75,29 +88,39 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, siz
 		goto end;
 
 	for(size_t z = 0; z < nimages; z++) {
-		for(rdint_index i = 0; i < width*height; i++)
-			f[i] = image[z*width*height+i];
-		resdet_transform(p);
-
-		if(rw && *rw && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
-			goto end;
-		if(rh && *rh && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,range,yresult,ybound,ybound+1)) != RDEOK)
-			goto end;
+		for(rdint_index y = 0; y < height; y++) {
+			for(rdint_index x = 0; x < width; x++)
+				fx[x] = image[z*width*height+y*width+x];
+			resdet_transform(px);
+			if(rw && *rw && (ret = ((RDetectFunc)method->func)(fx,width,range,xresult,xbound,xbound+1)) != RDEOK)
+				goto end;
+		}
+		for(rdint_index x = 0; x < width; x++) {
+			for(rdint_index y = 0; y < height; y++)
+				fy[y] = image[z*width*height+y*width+x];
+			resdet_transform(py);
+			if(rh && *rh && (ret = ((RDetectFunc)method->func)(fy,height,range,yresult,ybound,ybound+1)) != RDEOK)
+				goto end;
+		}
 	}
 
 	for(rdint_index i = 0; rw && *rw && i < xbound[1]-xbound[0]; i++)
-		if(xresult[i]/nimages >= threshold)
-			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/nimages};
+		if(xresult[i]/(height*nimages) >= threshold)
+			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/(height*nimages)};
 
 	for(rdint_index i = 0; rh && *rh && i < ybound[1]-ybound[0]; i++)
-		if(yresult[i]/nimages >= threshold)
-			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/nimages};
+		if(yresult[i]/(width*nimages) >= threshold)
+			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/(width*nimages)};
 
 end:
 	free(xresult);
 	free(yresult);
-	resdet_free_plan(p);
-	resdet_free_coeffs(f);
+	resdet_free_plan(px);
+	resdet_free_coeffs(fx);
+	if(width != height) {
+		resdet_free_plan(py);
+		resdet_free_coeffs(fy);
+	}
 	return ret;
 }
 

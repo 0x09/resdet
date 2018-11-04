@@ -146,7 +146,7 @@ Detect potential widths in a file, using the defaults:
 libresdet's peak requirements when built with FFTW support (including the primary image buffer) can be calculated by:
 
 	width * height * nimages +
-	width * height * COEFF_PRECISION +
+	max(width, height) * COEFF_PRECISION +
 	width  * sizeof(double) +
 	height * sizeof(double) +
 	width  * sizeof(RDResolution) +

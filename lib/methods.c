@@ -27,86 +27,60 @@
 
 // Sweeps the image looking for boundaries with many sign inversions.
 // Fastest, simplest, and conveniently one of the most accurate methods.
-static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage sign_diff = 0;
-		for(rdint_index y = 0; y < n; y++)
-			for(rdint_index i = 1; i <= range; i++)
-				sign_diff += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
-		result[x-*start] += sign_diff / (double)(n*range);
+		for(rdint_index i = 1; i <= range; i++)
+			sign_diff += signbit(f[x-i]) != signbit(f[x+i]);
+		result[x-*start] += sign_diff / (double)(range);
 	}
 	return RDEOK;
 }
 
 // Looks for similar magnitude coefficients with inverted signs.
-static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage mag_match = 0;
-		for(rdint_index y = 0; y < n; y++)
-			for(rdint_index i = 1; i <= range; i++) {
-				int e;
-				mi(frexp)(f[y*stride+x*dist-i*dist]/mc(copysign)(MAX(mc(fabs)(f[y*stride+x*dist+i*dist]),EPSILON),f[y*stride+x*dist+i*dist])+1,&e);
-				mag_match += e <= 0;
-			}
-		result[x-*start] += mag_match / (double)(n*range);
+		for(rdint_index i = 1; i <= range; i++) {
+			int e;
+			mi(frexp)(f[x-i]/mc(copysign)(MAX(mc(fabs)(f[x+i]),EPSILON),f[x+i])+1,&e);
+			mag_match += e <= 0;
+		}
+		result[x-*start] += mag_match / (double)(range);
 	}
 	return RDEOK;
 }
 
-// Initial algorithm. Somewhat more complicated mixture of the previous.
-// Tests for inverted sign, same magnitude, with lower magnitude/zero crossing in between.
-// Confidence value is the same as detect_method_sign, but results not matching the expected magnitudes are suppressed
-static RDError detect_method_original(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
+// not quite identical to original method, but closest linear equivalent
+static RDError detect_method_original(const coeff* restrict f, size_t length, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
 #ifndef MAG_RANGE
 #define MAG_RANGE range
 #endif
-
-	rdint_index maxrange = MAX(MAG_RANGE,range);
-	if(maxrange*2 >= length)
-		return RDEOK; //can't do anything
-
-	intermediate* sum = NULL;
-	if(!(sum = calloc(length,sizeof(*sum))))
-		return RDENOMEM;
-
-	*start = maxrange;
-	*end = length-maxrange;
-	for(rdint_index y = 0; y < n; y++)
-		for(rdint_index x = 0; x < length; x++)
-			sum[x] += mi(fabs)(f[y*stride+x*dist]);
-	for(rdint_index x = 0; x < length; x++)
-		sum[x] /= n;
-	for(rdint_index x = maxrange; x < length-maxrange; x++) {
-		intermediate left = 0, right = 0, mid = sum[x] * MAG_RANGE;
+	for(rdint_index x = *start; x < *end; x++) {
+		intermediate left = 0, right = 0, mid = mi(fabs)(f[x]) * MAG_RANGE;
 		for(rdint_index i = 1; i <= MAG_RANGE; i++) {
-			left += sum[x-i];
-			right += sum[x+i];
+			left += mi(fabs)(f[x-i]);
+			right += mi(fabs)(f[x+i]);
 		}
-		int leftexp, rightexp, midexp;
-		mi(frexp)(left,&leftexp); mi(frexp)(right,&rightexp); mi(frexp)(mid,&midexp);
-		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) &&
-		   (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid))) {
+		intermediate lrdiff = mi(fabs)(left-right);
+		if(MIN(left,right) > mid && lrdiff < mi(fabs)(left-mid) && lrdiff < mi(fabs)(right-mid)) {
 			rdint_storage sign = 0;
-			for(rdint_index y = 0; y < n; y++)
-				for(rdint_index i = 1; i <= range; i++)
-					sign += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
-			result[x-*start] += sign/(double)(range*n);
+			for(rdint_index i = 1; i <= range; i++)
+				sign += signbit(f[x-i]) != signbit(f[x+i]);
+			result[x-*start] += sign / (double)(range);
 		}
 	}
-
 	return RDEOK;
 }
 
 // Lightweight version of original method
 // Disregards range, only checks explicitly for zero crossings over all 3-element spans
-static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage zero_crossings = 0;
-		for(rdint_index y = 0; y < n; y++) {
-			coeff l = f[y*stride+x*dist-dist], c = f[y*stride+x*dist], r = f[y*stride+x*dist+dist];
-			zero_crossings += signbit(l) != signbit(r) && ((l < c && c < r) || (l > c && c > r));
-		}
-		result[x-*start] += zero_crossings / (double)n;
+		coeff l = f[x-1], c = f[x], r = f[x+1];
+		zero_crossings += signbit(l) != signbit(r) && ((l < c && c < r) || (l > c && c > r));
+		result[x-*start] += zero_crossings;
 	}
 	return RDEOK;
 }
@@ -115,19 +89,19 @@ static RDMethod methods[] = {
 	{
 		.name = "sign",
 		.func = (void(*)(void))detect_method_sign,
-		.threshold = 0.55
+		.threshold = 0.60
 	},{
 		.name = "mag",
 		.func = (void(*)(void))detect_method_magnitude,
-		.threshold = 0.40
+		.threshold = 0.45
 	},{
 		.name = "orig",
 		.func = (void(*)(void))detect_method_original,
-		.threshold = 0.64
+		.threshold = 0.32
 	},{
 		.name = "zerox",
 		.func = (void(*)(void))detect_method_zerocrossing,
-		.threshold = 0.5
+		.threshold = 0.45
 	},
 	{0}
 };
