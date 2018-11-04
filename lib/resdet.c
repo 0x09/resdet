@@ -141,3 +141,7 @@ RDError resdetect_file(const char* filename, const char* mimetype, RDResolution*
 
 	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
+
+size_t resdet_default_range() {
+	return DEFAULT_RANGE;
+}

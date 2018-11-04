@@ -50,6 +50,8 @@ typedef struct RDMethod {
 RDMethod* resdet_methods();
 RDMethod* resdet_get_method(const char* name);
 
+size_t resdet_default_range(void);
+
 RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
 
 

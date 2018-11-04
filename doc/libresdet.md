@@ -36,6 +36,18 @@ Returns NULL if no name matches.
 ---
 
 ```C
+	size_t resdet_default_range(void);
+```
+
+Returns the library default search range, as used when not explicitly specifying the range via the `redetect_with_params`.
+
+Most detection methods use this value to determine how many neighboring values to consider when detecting a given resolution.
+
+Higher values are more accurate up to a point, while lower values are faster.
+
+---
+
+```C
 	RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 ```
 
