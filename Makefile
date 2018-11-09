@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o transform.o
+OBJS=resdet.o image.o methods.o transform.o image/pgm.o
 LIB=lib/libresdet.a
 TOOLS=resdet stat profile imgread
 
