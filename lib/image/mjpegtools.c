@@ -5,7 +5,7 @@
 
 static unsigned char* read_y4m(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL,* discard = NULL;
-	int fd = strcmp(filename,"-") ? open(filename,O_RDONLY) : 1;
+	int fd = strcmp(filename,"-") ? open(filename,O_RDONLY) : 0;
 	if(fd < 0)
 		return NULL;
 
