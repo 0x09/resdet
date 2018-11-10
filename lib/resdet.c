@@ -29,10 +29,10 @@ todo:
 #include "resdet_internal.h"
 
 static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
-	size_t min_length = range*2;
-	if(!detect || min_length >= length)
+	if(!detect || range >= (length+1)/2)
 		return RDEOK; // can't do anything
 
+	size_t min_length = range*2;
 	if(!(*detect = malloc(sizeof(**detect) * (length-min_length+1))))
 		return RDENOMEM;
 	(*detect)[(*count)++] = (RDResolution){length,-1};
