@@ -29,15 +29,21 @@ todo:
 #include "resdet_internal.h"
 
 static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
-	if(!detect || range >= (length+1)/2)
-		return RDEOK; // can't do anything
+	if(!detect)
+		return RDEOK;
 
-	size_t min_length = range*2;
-	if(!(*detect = malloc(sizeof(**detect) * (length-min_length+1))))
+	size_t maxlen = 0;
+	if(range < (length+1)/2)
+		maxlen = length - range*2;
+
+	if(!(*detect = malloc(sizeof(**detect) * (maxlen+1))))
 		return RDENOMEM;
 	(*detect)[(*count)++] = (RDResolution){length,-1};
 
-	if(!(*buf = calloc(length-min_length,sizeof(**buf))))
+	if(!maxlen)
+		return RDEOK;
+
+	if(!(*buf = calloc(maxlen,sizeof(**buf))))
 		return RDENOMEM;
 	// bounds of result (range of meaningful outputs)
 	// may be narrowed by methods
@@ -79,17 +85,17 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, siz
 			f[i] = image[z*width*height+i];
 		resdet_transform(p);
 
-		if(rw && *rw && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
+		if(xresult && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
 			goto end;
-		if(rh && *rh && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,range,yresult,ybound,ybound+1)) != RDEOK)
+		if(yresult && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,range,yresult,ybound,ybound+1)) != RDEOK)
 			goto end;
 	}
 
-	for(rdint_index i = 0; rw && *rw && i < xbound[1]-xbound[0]; i++)
+	for(rdint_index i = 0; xresult && i < xbound[1]-xbound[0]; i++)
 		if(xresult[i]/nimages >= threshold)
 			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/nimages};
 
-	for(rdint_index i = 0; rh && *rh && i < ybound[1]-ybound[0]; i++)
+	for(rdint_index i = 0; yresult && i < ybound[1]-ybound[0]; i++)
 		if(yresult[i]/nimages >= threshold)
 			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/nimages};
 
