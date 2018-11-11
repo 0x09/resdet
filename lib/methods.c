@@ -82,10 +82,8 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 			left += sum[x-i];
 			right += sum[x+i];
 		}
-		int leftexp, rightexp, midexp;
-		mi(frexp)(left,&leftexp); mi(frexp)(right,&rightexp); mi(frexp)(mid,&midexp);
-		if((abs(leftexp - rightexp) < 2) && (!mid || MIN(leftexp,rightexp) >= midexp) && (MIN(left,right) > mid) &&
-		   (mi(fabs)(left - right) < mi(fabs)(left - mid) && mi(fabs)(left - right) < mi(fabs)(right - mid))) {
+		intermediate lrdiff = mi(fabs)(left-right);
+		if(MIN(left,right) > mid && lrdiff < mi(fabs)(left-mid) && lrdiff < mi(fabs)(right-mid)) {
 			rdint_storage sign = 0;
 			for(rdint_index y = 0; y < n; y++)
 				for(rdint_index i = 1; i <= range; i++)
