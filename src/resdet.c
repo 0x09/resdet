@@ -82,9 +82,16 @@ int main(int argc, char* argv[]) {
 	if(!input)
 		usage(argv[0],false);
 
+	RDMethod* m = resdet_get_method(method);
+	if(!m) {
+		fprintf(stderr,"Invalid method \"%s\"\nAvailable methods:\n", method);
+		for(m = resdet_methods(); m->name; m++)
+			fprintf(stderr,"%s\n",m->name);
+		return 1;
+	}
+
 	RDResolution* rw,* rh;
 	size_t cw, ch;
-	RDMethod* m = resdet_get_method(method);
 
 	if(threshold < 0)
 		threshold = m->threshold;
