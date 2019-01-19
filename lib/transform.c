@@ -117,30 +117,20 @@ RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t heigh
 	return RDEOK;
 }
 
+static void kiss_dct(kiss_fftr_cfg cfg, coeff* restrict f, kiss_fft_cpx* restrict F, kiss_fft_scalar* restrict mirror, kiss_fft_cpx* restrict shift, size_t n, size_t length, size_t stride, size_t dist) {
+	for(size_t j = 0; j < n; j++) {
+		for(size_t i = 0; i < length; i++)
+			mirror[i] = mirror[length*2-1-i] = f[j*dist+i*stride];
+		kiss_fftr(cfg,mirror,F);
+		for(size_t i = 0; i < length; i++)
+			f[j*dist+i*stride] = F[i].r * shift[i].r - F[i].i * shift[i].i;
+	}
+}
+
 void resdet_transform(resdet_plan* p) {
 	size_t width = p->width, height = p->height;
-	kiss_fft_scalar* mirror = p->mirror;
-	kiss_fft_cpx* F = p->F;
-	coeff* f = p->f;
-	kiss_fft_cpx* shift;
-
-	shift = p->shift[0];
-	for(size_t y = 0; y < height; y++) {
-		for(size_t x = 0; x < width; x++)
-			mirror[x] = mirror[width*2-1-x] = f[y*width+x];
-		kiss_fftr(p->cfg[0],mirror,F);
-		for(size_t x = 0; x < width; x++)
-			f[y*width+x] = F[x].r * shift[x].r - F[x].i * shift[x].i;
-	}
-
-	shift = p->shift[1];
-	for(size_t x = 0; x < width; x++) {
-		for(size_t y = 0; y < height; y++)
-			mirror[y] = mirror[height*2-1-y] = f[y*width+x];
-		kiss_fftr(p->cfg[1],mirror,F);
-		for(size_t y = 0; y < height; y++)
-			f[y*width+x] = F[y].r * shift[y].r - F[y].i * shift[y].i;
-	}
+	kiss_dct(p->cfg[0],p->f,p->F,p->mirror,p->shift[0],height,width,1,width);
+	kiss_dct(p->cfg[1],p->f,p->F,p->mirror,p->shift[1],width,height,width,1);
 }
 
 void resdet_free_plan(resdet_plan* p) {
