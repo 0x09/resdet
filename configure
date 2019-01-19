@@ -163,7 +163,7 @@ case "$COEFF_PRECISION" in
 esac
 
 if $with_fftw && testpc $lfftw; then
-	DEFS+=" -DHAVE_FFTW=$(pcver $lfftw)"
+	echo "HAVE_FFTW=$(pcver $lfftw)" >> config.mak
 	PCDEPS+=" $lfftw"
 fi
 
