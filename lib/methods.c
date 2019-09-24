@@ -92,6 +92,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		}
 	}
 
+	free(sum);
 	return RDEOK;
 }
 
