@@ -9,7 +9,7 @@ static unsigned char* read_pgm(const char* filename, size_t* width, size_t* heig
 	uint16_t depth;
 	if(
 		f &&
-		fscanf(f,"P5 %zu %zu %" PRIu16,width,height,&depth) == 3 &&
+		fscanf(f,"P5 %zu %zu %" SCNu16,width,height,&depth) == 3 &&
 		fgetc(f) != EOF &&
 		depth < 256 &&
 		*width && *height &&
