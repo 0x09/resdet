@@ -37,7 +37,7 @@ See resdet -h for more options.
 
 # API
 
-resdet can be used as a library by including [resdet.h](resdet.h) and linking with libresdet. To install the library, use `make install-lib` after building.  
+resdet can be used as a library by including [resdet.h](include/resdet.h) and linking with libresdet. To install the library, use `make install-lib` after building.  
 A pkg-config file is included; linker flags can be gotten via `pkg-config --libs --static resdet`  
 API documentation is available in the [doc](doc) subdirectory.  
 Though the supplied build script is meant for Unix-likes, libresdet is written in standard C and should be usable on any platform with a C99 libc.
