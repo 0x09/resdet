@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - "3.7"
+
+dist: bionic
+
+before_install:
+  - sudo apt-get install -y libfftw3-dev
+
+addons:
+  apt:
+    update: true
+
+install: true
+
+script:
+  - make all
+  - make testall

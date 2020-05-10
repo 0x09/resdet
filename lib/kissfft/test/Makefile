@@ -64,6 +64,11 @@ all: tools $(BENCHKISS) $(SELFTEST) $(BENCHFFTW) $(TESTREAL) $(TESTKFC)
 tools:
 	cd ../tools && make all
 
+test_simd: test_simd.c  $(SRCFILES)
+	$(CC) -o $@ -g $(CFLAGS) -DUSE_SIMD=1 -msse $+ -lm
+
+testsse: test_simd
+	./test_simd
 
 $(SELFTEST): $(SELFTESTSRC) $(SRCFILES)
 	$(CC) -o $@ $(CFLAGS) $(TYPEFLAGS) $+ -lm 
@@ -93,16 +98,9 @@ test: all
 	@echo "======higher dimensions type=$(DATATYPE))"
 	@./testkiss.py
 
-selftest.c:
-	./mk_test.py 10 12 14 > selftest.c
-selftest_short.c:
-	./mk_test.py -s 10 12 14 > selftest_short.c
-
-
-CXXFLAGS=-O3 -ffast-math -fomit-frame-pointer  -I.. -I../tools -W -Wall
+CXXFLAGS=-O3 -ffast-math -fomit-frame-pointer  -I.. -I../tools -W -Wall -march=native -mtune=native
 testcpp: testcpp.cc ../kissfft.hh
 	$(CXX) -o $@ $(CXXFLAGS) testcpp.cc -lm
-
 
 clean:
 	rm -f *~ bm_* st_* tr_* kf_* tkfc_* ff_* ffr_* *.pyc *.pyo *.dat testcpp
