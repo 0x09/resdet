@@ -3,13 +3,17 @@
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
-CFLAGS="-Ofast -march=native -mtune=native -std=gnu99 $CFLAGS"
+CFLAGS="-march=native -mtune=native -std=gnu99 $CFLAGS"
 
 with_fftw=true
 with_libjpeg=true
 with_libpng=true
 with_mjpegtools=true
 with_MagicWand=true
+
+verbose=false
+testcmd_out=/dev/null
+testcmd_err=/dev/null
 
 function usage() {
 	echo "./configure --opt=arg"
@@ -34,6 +38,8 @@ function usage() {
 	echo "   --coeff-precision [4|8|12] (4)"
 	echo "   --inter-precision [4|8|12] (8)"
 	echo "   --pixel-max (SIZE_MAX)"
+	echo ""
+	echo "   --verbose"
 	exit 0
 }
 
@@ -58,6 +64,7 @@ for o; do
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
 		--pixel-max) PIXEL_MAX=$arg;;
+		--verbose) verbose=true; testcmd_out=/dev/stdout; testcmd_err=/dev/stderr;;
 		--help) usage;;
 	esac
 done
@@ -72,46 +79,36 @@ function abort() {
 	rm -f config.mak
 	exit 1
 }
-function testinc() {
-	printf "Testing for $1..."
-	target=""
-	for arg; do target="-include $arg $target"; done
-	if $CC $CFLAGS -xc -fsyntax-only $target - <<< "" &> /dev/null; then
-		printf " ok\n"
-		return 0
+
+function testcmd() {
+	printf "Testing for %s... " "$1"
+	$verbose && printf "\n$ %s\n" "${*:2}"
+	"${@:2}" > "$testcmd_out" 2> "$testcmd_err"
+	ret=$?
+	if [ $ret -eq 0 ]; then
+		printf "ok\n"
+	else
+		printf "not found\n"
 	fi
-	printf " not found\n"
-	return 1
-}
-function testlib() {
-	printf "Testing for $1..."
-	target=""
-	for arg; do target="-l$arg $target"; done
-	if $CC $CFLAGS -xc $target -o /dev/null - <<< "int main(void){};" &> /dev/null; then
-		printf " ok\n"
-		return 0
-	fi
-	printf " not found\n"
-	return 1
+	$verbose && printf "\n"
+	return $ret
 }
 function testpc() {
-	printf "Testing for $1..."
-	if pkg-config --exists $1; then
-		printf " ok\n"
-		return 0
-	fi
-	printf " not found\n"
-	return 1
+	testcmd "$1" pkg-config --exists "$1"
 }
 function testbin() {
-	printf "Testing for $1..."
-	if command -v "$1" &> /dev/null; then
-		printf " ok\n"
-		return 0
-	fi
-	printf " not found\n"
-	return 1
+	testcmd "$1" command -v "$1"
 }
+function testcc() {
+	testcmd "$1" "$CC" $CFLAGS -xc "${@:2}" -o /dev/null -
+}
+function testinc() {
+	testcc "$1" -fsyntax-only $(printf -- "-include %s " "$@") <&-
+}
+function testlib() {
+	testcc "$1" $(printf -- "-l%s " "$@") - <<< "int main(void){}"
+}
+
 function define() {
 	echo "$1 is \"$2\""
 	echo "$1=$2" >> config.mak
@@ -167,7 +164,7 @@ if $with_fftw && testpc $lfftw; then
 	PCDEPS+=" $lfftw"
 fi
 
-if $with_libjpeg && testinc jpeglib.h stddef.h stdio.h && testlib jpeg; then
+if $with_libjpeg && testinc stdio.h stddef.h jpeglib.h && testlib jpeg; then
 	echo "HAVE_LIBJPEG=1" >> config.mak
 	DEFS+=" -DHAVE_LIBJPEG"
 	LIBS+=" -ljpeg"
