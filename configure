@@ -11,6 +11,8 @@ with_libpng=true
 with_mjpegtools=true
 with_MagicWand=true
 
+use_builtin_signbit=true
+
 verbose=false
 testcmd_out=/dev/null
 testcmd_err=/dev/null
@@ -38,6 +40,7 @@ function usage() {
 	echo "   --coeff-precision [4|8|12] (4)"
 	echo "   --inter-precision [4|8|12] (8)"
 	echo "   --pixel-max (SIZE_MAX)"
+	echo "   --no-builtin-signbit"
 	echo ""
 	echo "   --verbose"
 	exit 0
@@ -64,6 +67,7 @@ for o; do
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
 		--pixel-max) PIXEL_MAX=$arg;;
+		--no-builtin-signbit) use_builtin_signbit=false;;
 		--verbose) verbose=true; testcmd_out=/dev/stdout; testcmd_err=/dev/stderr;;
 		--help) usage;;
 	esac
@@ -182,6 +186,8 @@ for dep in libpng mjpegtools MagickWand; do
 done
 
 testlib m && LIBS+=" -lm"
+
+$use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
 
 echo
 

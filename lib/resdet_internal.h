@@ -29,6 +29,12 @@
 #include "resdet.h"
 #include "precision.h"
 
+#if USE_BUILTIN_SIGNBIT
+#define coeff_signbit(x) __builtin_signbit((x))
+#else
+#define coeff_signbit(x) signbit((x))
+#endif
+
 #ifndef PIXEL_MAX
 #define PIXEL_MAX SIZE_MAX
 #endif

@@ -32,7 +32,7 @@ static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t
 		rdint_storage sign_diff = 0;
 		for(rdint_index y = 0; y < n; y++)
 			for(rdint_index i = 1; i <= range; i++)
-				sign_diff += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
+				sign_diff += coeff_signbit(f[y*stride+x*dist-i*dist]) != coeff_signbit(f[y*stride+x*dist+i*dist]);
 		result[x-*start] += sign_diff / ((double)n*range);
 	}
 	return RDEOK;
@@ -87,7 +87,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 			rdint_storage sign = 0;
 			for(rdint_index y = 0; y < n; y++)
 				for(rdint_index i = 1; i <= range; i++)
-					sign += signbit(f[y*stride+x*dist-i*dist]) != signbit(f[y*stride+x*dist+i*dist]);
+					sign += coeff_signbit(f[y*stride+x*dist-i*dist]) != coeff_signbit(f[y*stride+x*dist+i*dist]);
 			result[x-*start] += sign/((double)range*n);
 		}
 	}
@@ -103,7 +103,7 @@ static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length
 		rdint_storage zero_crossings = 0;
 		for(rdint_index y = 0; y < n; y++) {
 			coeff l = f[y*stride+x*dist-dist], c = f[y*stride+x*dist], r = f[y*stride+x*dist+dist];
-			zero_crossings += signbit(l) != signbit(r) && ((l < c && c < r) || (l > c && c > r));
+			zero_crossings += coeff_signbit(l) != coeff_signbit(r) && ((l < c && c < r) || (l > c && c > r));
 		}
 		result[x-*start] += zero_crossings / (double)n;
 	}
