@@ -29,6 +29,8 @@ static const char* mimetype_from_ext(const char* filename) {
 		return "image/png";
 	if(!strcasecmp(ext+1,"y4m"))
 		return "video/yuv4mpeg";
+	if(!strcasecmp(ext+1,"pgm"))
+		return "image/x-portable-graymap";
 	return "";
 }
 
@@ -44,8 +46,10 @@ RDError resdet_read_image(const char* filename, const char* mimetype, unsigned c
 		c = mimetype_from_ext(filename);
 
 	struct image_reader* reader = NULL;
-	if(false)
-		;
+	if(!strcmp(c,"image/x-portable-graymap")) {
+		extern struct image_reader resdet_image_reader_pgm;
+		reader = &resdet_image_reader_pgm;
+	}
 #ifdef HAVE_LIBJPEG
 	else if(!strcmp(c,"image/jpeg")) {
 		extern struct image_reader resdet_image_reader_libjpeg;

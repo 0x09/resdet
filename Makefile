@@ -1,11 +1,14 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o transform.o
+OBJS=resdet.o image.o methods.o image/pgm.o
 LIB=lib/libresdet.a
 TOOLS=resdet stat profile imgread
 
 EXTRAFLAGS=
-ifndef HAVE_FFTW
+ifdef HAVE_FFTW
+	OBJS += transform/fftw.o
+else
+	OBJS += transform/kiss_fft.o
 	EXTRAFLAGS += -Ilib/kissfft -Ilib/kissfft/tools
 	OBJS += $(addprefix kissfft/, kiss_fft.o $(addprefix tools/, kiss_fftnd.o kiss_fftndr.o kiss_fftr.o))
 endif

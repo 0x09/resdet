@@ -18,15 +18,15 @@ see `configure --help` for options
 
 # Examples
 
-Resize an image with [ImageMagick](http://www.imagemagick.org)'s `convert` command and detect it:
+Resize [an image](http://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](http://www.imagemagick.org)'s `convert` command and detect it:
 
-    $ convert Lenna.png -resize 150% resized.png
+    $ convert blue_marble_2012.png -resize 150% resized.png
 
     $ resdet resized.png
     given: 768x768
     best guess: 512x512
     all width        height
-      512 (70.12%)     512 (68.89%)
+      512 (77.03%)     512 (76.38%)
 
 Just test if an image has been upscaled:
 
@@ -37,7 +37,7 @@ See resdet -h for more options.
 
 # API
 
-resdet can be used as a library by including [resdet.h](resdet.h) and linking with libresdet. To install the library, use `make install-lib` after building.  
+resdet can be used as a library by including [resdet.h](include/resdet.h) and linking with libresdet. To install the library, use `make install-lib` after building.  
 A pkg-config file is included; linker flags can be gotten via `pkg-config --libs --static resdet`  
 API documentation is available in the [doc](doc) subdirectory.  
 Though the supplied build script is meant for Unix-likes, libresdet is written in standard C and should be usable on any platform with a C99 libc.
@@ -72,7 +72,7 @@ resdet works well on images resampled with traditional methods, but will not wor
 
 If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
 
-![Upscaled Lenna spectrum](http://0x09.net/i/g/Lenna_upscaled_150.png)
+![Upscaled Blue Marble spectrum](http://0x09.net/i/g/blue_marble_2012_upscaled.png)
 
 Note the solid black lines indicating zero-crossings 512px in from each dimension.
 

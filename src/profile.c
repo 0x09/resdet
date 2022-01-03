@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
 			diffplus[m-methods] += plus;
 			diffminus[m-methods] += minus;
 
-			printf("%-*s   %2ld.%0.9d   (+%zu -%zu)\n",padding,m->name,after.tv_sec,after.tv_usec,plus,minus);
+			printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,after.tv_sec,(long)after.tv_usec,plus,minus);
 
 			free(rw);
 			free(rh);
@@ -151,6 +151,6 @@ int main(int argc, char* argv[]) {
 
 	puts("totals");
 	for(RDMethod* m = methods; m->name; m++)
-		printf("%-*s   %2ld.%0.9d   (+%zu -%zu)\n",padding,m->name,tvs[m-methods].tv_sec,tvs[m-methods].tv_usec,diffplus[m-methods],diffminus[m-methods]);
+		printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,tvs[m-methods].tv_sec,(long)tvs[m-methods].tv_usec,diffplus[m-methods],diffminus[m-methods]);
 	return 0;
 }

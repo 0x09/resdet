@@ -31,7 +31,7 @@ static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage sign_diff = 0;
 		for(rdint_index i = 1; i <= range; i++)
-			sign_diff += signbit(f[x-i]) != signbit(f[x+i]);
+			sign_diff += coeff_signbit(f[x-i]) != coeff_signbit(f[x+i]);
 		result[x-*start] += sign_diff / (double)(range);
 	}
 	return RDEOK;
@@ -66,7 +66,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 		if(MIN(left,right) > mid && lrdiff < mi(fabs)(left-mid) && lrdiff < mi(fabs)(right-mid)) {
 			rdint_storage sign = 0;
 			for(rdint_index i = 1; i <= range; i++)
-				sign += signbit(f[x-i]) != signbit(f[x+i]);
+				sign += coeff_signbit(f[x-i]) != coeff_signbit(f[x+i]);
 			result[x-*start] += sign / (double)(range);
 		}
 	}
@@ -79,7 +79,7 @@ static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage zero_crossings = 0;
 		coeff l = f[x-1], c = f[x], r = f[x+1];
-		zero_crossings += signbit(l) != signbit(r) && ((l < c && c < r) || (l > c && c > r));
+		zero_crossings += coeff_signbit(l) != coeff_signbit(r) && ((l < c && c < r) || (l > c && c > r));
 		result[x-*start] += zero_crossings;
 	}
 	return RDEOK;

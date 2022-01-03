@@ -29,15 +29,21 @@ todo:
 #include "resdet_internal.h"
 
 static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
-	size_t min_length = range*2;
-	if(!detect || min_length >= length)
-		return RDEOK; // can't do anything
+	if(!detect)
+		return RDEOK;
 
-	if(!(*detect = malloc(sizeof(**detect) * (length-min_length+1))))
+	size_t maxlen = 0;
+	if(range < (length+1)/2)
+		maxlen = length - range*2;
+
+	if(!(*detect = malloc(sizeof(**detect) * (maxlen+1))))
 		return RDENOMEM;
 	(*detect)[(*count)++] = (RDResolution){length,-1};
 
-	if(!(*buf = calloc(length-min_length,sizeof(**buf))))
+	if(!maxlen)
+		return RDEOK;
+
+	if(!(*buf = calloc(maxlen,sizeof(**buf))))
 		return RDENOMEM;
 	// bounds of result (range of meaningful outputs)
 	// may be narrowed by methods

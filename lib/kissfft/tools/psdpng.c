@@ -1,16 +1,10 @@
 /*
-Copyright (c) 2003-2004, Mark Borgerding
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    * Neither the author nor the names of any contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  Copyright (c) 2003-2004, Mark Borgerding. All rights reserved.
+ *  This file is part of KISS FFT - https://github.com/mborgerding/kissfft
+ *
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *  See COPYING file for more information.
+ */
 
 #include <stdlib.h>
 #include <math.h>
@@ -135,9 +129,7 @@ void transform_signal(void)
     CHECKNULL( inbuf=(short*)malloc(sizeof(short)*2*nfft ) );
     CHECKNULL( tbuf=(kiss_fft_scalar*)malloc(sizeof(kiss_fft_scalar)*nfft ) );
     CHECKNULL( fbuf=(kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx)*nfreqs ) );
-    CHECKNULL( mag2buf=(float*)malloc(sizeof(float)*nfreqs ) );
-
-    memset(mag2buf,0,sizeof(mag2buf)*nfreqs);
+    CHECKNULL( mag2buf=(float*)calloc(nfreqs,sizeof(float) ) );
 
     while (1) {
         if (stereo) {
@@ -170,7 +162,7 @@ void transform_signal(void)
         if (++avgctr == navg) {
             avgctr=0;
             ++nrows;
-            vals = (float*)realloc(vals,sizeof(float)*nrows*nfreqs);
+            CHECKNULL( vals = (float*)realloc(vals,sizeof(float)*nrows*nfreqs) );
             float eps = 1;
             for (i=0;i<nfreqs;++i)
                 vals[(nrows - 1) * nfreqs + i] = 10 * log10 ( mag2buf[i] / navg + eps );
@@ -204,10 +196,10 @@ void make_png(void)
     png_set_IHDR(png_ptr, info_ptr ,nfreqs,nrows,8,PNG_COLOR_TYPE_RGB,PNG_INTERLACE_NONE,PNG_COMPRESSION_TYPE_DEFAULT,PNG_FILTER_TYPE_DEFAULT );
     
 
-    row_data = (rgb_t*)malloc(sizeof(rgb_t) * nrows * nfreqs) ;
+    CHECKNULL( row_data = (rgb_t*)malloc(sizeof(rgb_t) * nrows * nfreqs) );
     cpx2pixels(row_data, vals, nfreqs*nrows );
 
-    row_pointers = realloc(row_pointers, nrows*sizeof(png_bytep));
+    CHECKNULL( row_pointers = malloc(nrows*sizeof(png_bytep)) );
     for (i=0;i<nrows;++i) {
         row_pointers[i] = (png_bytep)(row_data + i*nfreqs);
     }
@@ -219,6 +211,9 @@ void make_png(void)
 
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY , NULL);
 
+    free(row_pointers);
+    free(row_data);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
 }
 
 int main(int argc,char ** argv)
@@ -231,5 +226,6 @@ int main(int argc,char ** argv)
 
     if (fout!=stdout) fclose(fout);
     if (fin!=stdin) fclose(fin);
+    free(vals);
     return 0;
 }
