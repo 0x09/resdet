@@ -53,6 +53,16 @@ Traditional resampling methods tend to manifest as an odd extension of a signal'
 
 resdet works best on images that are as close to the source as possible. Filtering and compression artifacts can significantly harm the accuracy of this test. In general, clearer and more detailed images will fare better.
 
+### Colorspace
+
+resdet can provide significantly more accurate results if detection is performed in the same colorspace the image was originally resized in. If an image might have been resized in a linear light colorspace before being converted to a non-linear colorspace such as sRGB, it's worth attempting detection in linear light as well.
+
+Here is an example that uses ImageMagick's `convert` command to convert the colorspace to linear RGB and provide the increased precision result to resdet using the portable floatmap format:
+
+```
+convert image.png -colorspace RGB pfm:- | resdet -t image/x-portable-floatmap -
+```
+
 ### Video
 For compressed video stills, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. Single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
 
@@ -60,7 +70,7 @@ FFmpeg/avconv: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image
 
 mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
 
-Better results should be possible by analyzing multiple frames together. resdet supports this with both the mjpegtools (y4m) and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames. Note that currently frames will be read in bulk, so choose only a small section of the video to avoid consuming too much memory. This is not an inherent limitation, and will likely change.
+Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, mjpegtools (y4m), and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames. Note that currently frames will be read in bulk, so choose only a small section of the video to avoid consuming too much memory. This is not an inherent limitation, and will likely change.
 
 ### JPEG
 Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.

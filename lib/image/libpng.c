@@ -8,13 +8,14 @@
 static void pngerr_error_fn(png_structp png_ptr, png_const_charp error_msg) { png_longjmp(png_ptr,1); }
 static void pngerr_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {}
 
-static unsigned char* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
 	if(!f)
 		return NULL;
 
 	*nimages = 1;
 	unsigned char* image = NULL;
+	float* imagef = NULL;
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
 	unsigned char header[8];
@@ -58,12 +59,19 @@ static unsigned char* read_png(const char* filename, size_t* width, size_t* heig
 	}
 
 	png_read_end(png_ptr, NULL);
+
+	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+		goto end;
+	for(size_t i = 0; i < *width * *height; i++)
+		imagef[i] = image[i]/255.f;
+
 end:
 	if(png_ptr)
 		png_destroy_read_struct(&png_ptr,&info_ptr,NULL);
+    free(image);
 	if(f != stdin)
 		fclose(f);
-	return image;
+	return imagef;
 }
 
 struct image_reader resdet_image_reader_libpng = {

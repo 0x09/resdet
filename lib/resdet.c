@@ -25,6 +25,7 @@ todo:
 */
 
 #include <stdio.h>
+#include <math.h>
 
 #include "resdet_internal.h"
 
@@ -52,7 +53,7 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 	return RDEOK;
 }
 
-RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
+RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
                                     RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
 
@@ -81,8 +82,13 @@ RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, siz
 		goto end;
 
 	for(size_t z = 0; z < nimages; z++) {
-		for(rdint_index i = 0; i < width*height; i++)
+		for(rdint_index i = 0; i < width*height; i++) {
+			if(!isfinite(image[z*width*height+i])) {
+				ret = RDEINVAL;
+				goto end;
+			}
 			f[i] = image[z*width*height+i];
+		}
 		resdet_transform(p);
 
 		if(xresult && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
@@ -116,7 +122,7 @@ RDMethod* resdet_get_method(const char* name) {
 	return NULL;
 }
 
-RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
@@ -130,7 +136,7 @@ RDError resdetect_file_with_params(const char* filename, const char* mimetype, R
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
-	unsigned char* image = NULL;
+	float* image = NULL;
 	size_t width, height, nimages;
 	RDError ret = resdet_read_image(filename,mimetype,&image,&nimages,&width,&height);
 	if(ret == RDEOK)

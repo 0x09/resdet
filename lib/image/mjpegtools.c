@@ -3,8 +3,9 @@
 #include <mjpegtools/yuv4mpeg.h>
 #include <fcntl.h>
 
-static unsigned char* read_y4m(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_y4m(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	unsigned char* image = NULL,* discard = NULL;
+	float* imagef = NULL;
 	int fd = strcmp(filename,"-") ? open(filename,O_RDONLY) : 0;
 	if(fd < 0)
 		return NULL;
@@ -37,13 +38,18 @@ static unsigned char* read_y4m(const char* filename, size_t* width, size_t* heig
 		}
 	}
 
+	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+		goto end;
+	for(size_t i = 0; i < *width * *height; i++)
+		imagef[i] = image[i]/255.f;
+    free(image);
 end:
 	free(discard);
 	y4m_fini_frame_info(&frame);
 	y4m_fini_stream_info(&st);
 	if(fd > 0)
 		close(fd);
-	return image;
+	return imagef;
 }
 
 

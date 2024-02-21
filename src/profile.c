@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
 	while((len = getline(&line,&len2,dict)) > 1) {
 		line[len-1] = '\0';
 		puts(line);
-		unsigned char* image;
+		float* image;
 		size_t w, h, d;
 		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';

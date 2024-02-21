@@ -31,10 +31,12 @@ static const char* mimetype_from_ext(const char* filename) {
 		return "video/yuv4mpeg";
 	if(!strcasecmp(ext+1,"pgm"))
 		return "image/x-portable-graymap";
+	if(!strcasecmp(ext+1,"pfm"))
+		return "image/x-portable-floatmap";
 	return "";
 }
 
-RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height) {
+RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height) {
 	*width = *height = *nimages = 0;
 	*image = NULL;
 
@@ -49,6 +51,10 @@ RDError resdet_read_image(const char* filename, const char* mimetype, unsigned c
 	if(!strcmp(c,"image/x-portable-graymap")) {
 		extern struct image_reader resdet_image_reader_pgm;
 		reader = &resdet_image_reader_pgm;
+	}
+	if(!strcmp(c,"image/x-portable-floatmap")) {
+		extern struct image_reader resdet_image_reader_pfm;
+		reader = &resdet_image_reader_pfm;
 	}
 #ifdef HAVE_LIBJPEG
 	else if(!strcmp(c,"image/jpeg")) {
