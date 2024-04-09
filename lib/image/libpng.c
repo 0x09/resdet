@@ -35,7 +35,7 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	*width = png_get_image_width(png_ptr,info_ptr);
 	*height = png_get_image_height(png_ptr,info_ptr);
 
-	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height)))
 		goto end;
 
 	int bit_depth = png_get_bit_depth(png_ptr,info_ptr), color = png_get_color_type(png_ptr,info_ptr);

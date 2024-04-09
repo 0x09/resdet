@@ -25,7 +25,7 @@ struct resdet_plan {
 };
 
 coeff* resdet_alloc_coeffs(size_t width, size_t height) {
-	if(width > SIZE_MAX/height || width*height > SIZE_MAX/sizeof(coeff))
+	if(resdet_dims_exceed_limit(width,height,1,coeff))
 		return NULL;
 	return fftwp(alloc_real)(width*height);
 }

@@ -13,8 +13,7 @@ static float* read_pgm(const char* filename, size_t* width, size_t* height, size
 		fscanf(f,"P5 %zu %zu %" SCNu16,width,height,&depth) == 3 &&
 		fgetc(f) != EOF &&
 		depth < 256 &&
-		*width && *height &&
-		!(*width > PIXEL_MAX / *height) &&
+		!resdet_dims_exceed_limit(*width,*height,1,*image) &&
 		(image = malloc(sizeof(*image) * *width * *height))
 	) {
 		int c;
@@ -93,8 +92,7 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	if(!(
 	   fscanf(f,"P%c %zu %zu %f\n",&format,width,height,&endianness_scale) == 4 &&
 	   (format == 'f' || format == 'F') &&
-	   *width && *height &&
-	   !(*width > PIXEL_MAX / *height) &&
+	   !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
 	   (image = malloc(sizeof(*image) * *width * *height))
 	))
 		goto end;
@@ -115,6 +113,7 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	    fscanf(f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) == 4 &&
 	    (next_format == 'f' || next_format == 'F') &&
 	    next_width == *width && next_height == *height && next_endianness_scale == endianness_scale &&
+	    !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
 	    (next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))
 	) {
 		if(!next_image) {

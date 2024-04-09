@@ -33,7 +33,7 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 	jpeg_start_decompress(&cinfo);
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
-	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height)))
 		goto finish;
 
 	unsigned char* it = image;

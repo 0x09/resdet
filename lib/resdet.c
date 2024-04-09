@@ -62,7 +62,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	if(!(method && range))
 		return RDEINVAL;
 
-	if(!(width && height && nimages) || (width > PIXEL_MAX / height) || (width*height > PIXEL_MAX / nimages))
+	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
 		return RDEINVAL;
 	coeff* f = NULL;
 	if(!(f = resdet_alloc_coeffs(width,height)))

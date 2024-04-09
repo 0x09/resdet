@@ -14,7 +14,7 @@ static float* read_magick(const char* filename, size_t* width, size_t* height, s
 	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
 	*nimages = MagickGetNumberImages(wand);
-	if(!(*width && *height && *nimages) || (*width > PIXEL_MAX / *height) || (*width * *height > PIXEL_MAX / *nimages) || !(image = malloc(sizeof(*image) * *width * *height * *nimages)))
+	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image) || !(image = malloc(sizeof(*image) * *width * *height * *nimages)))
 		goto end;
 	MagickResetIterator(wand);
 	for(size_t i = 0; i < *nimages; i++) {

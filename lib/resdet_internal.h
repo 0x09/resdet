@@ -47,6 +47,12 @@ typedef size_t rdint_index;
 typedef size_t rdint_storage;
 #endif
 
+#define resdet_dims_exceed_limit(width, height, nimages, buffer_type) !( \
+	(width) && (height) && (nimages) && \
+	((size_t)PIXEL_MAX) / (width) / (height) / (nimages) && \
+	SIZE_MAX / (width) / (height) / (nimages) / sizeof(buffer_type) \
+)
+
 #ifndef DEFAULT_RANGE
 //32 originally but diminishing returns after 8 (8 seems to be ideal). smaller is faster, lower accuracy
 #define DEFAULT_RANGE 12
