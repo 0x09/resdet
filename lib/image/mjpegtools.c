@@ -38,9 +38,9 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 		}
 	}
 
-	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+	if(!(imagef = malloc(*width * *height * *nimages * sizeof(*imagef))))
 		goto end;
-	for(size_t i = 0; i < *width * *height; i++)
+	for(size_t i = 0; i < *width * *height * *nimages; i++)
 		imagef[i] = image[i]/255.f;
     free(image);
 end:
