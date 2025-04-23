@@ -25,6 +25,7 @@ jobs:
         base-os:
           - fedora
           - debian
+          - distroless
     container:
       image: quay.io/buildah/stable:latest
       options: --security-opt seccomp=/usr/share/containers/seccomp.json --privileged
