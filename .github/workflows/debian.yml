@@ -6,25 +6,54 @@ jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
+    container:
+      image: quay.io/buildah/stable:latest
+      options: --security-opt seccomp=/usr/share/containers/seccomp.json --privileged
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Buildah Action
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ github.repository }}
-          tags: debian-latest debian-${{ github.sha }}
-          containerfiles: |
-            ./debian.Containerfile
+      - name: lowercase github.repository
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
 
-      - name: Push To ghcr.io
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          registry: ghcr.io/${{ github.repository }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Buildah Login
+        id: buildah-login
+        run: >
+          echo "${{ secrets.GITHUB_TOKEN }}" | buildah login --username "${{ github.actor }}" --password-stdin ghcr.io/${{ env.IMAGE_NAME }}
+
+      - name: Manifest Create
+        id: manifest-create
+        run: >
+          buildah manifest create ${{ env.IMAGE_NAME }}
+
+      - name: Manifest Annotate
+        id: manifest-annotate
+        run: >
+          buildah manifest annotate
+          --index
+          --annotation org.opencontainers.image.revision="${{ github.sha }}"
+          ${{ env.IMAGE_NAME }}
+      - name: Buildah Bud
+        id: buildah-bud
+        run: >
+          buildah bud
+          --jobs=4
+          --platform=linux/amd64
+          --manifest ${{ env.IMAGE_NAME }}
+          --layers
+          --cache-from=ghcr.io/${{ env.IMAGE_NAME }}/cache
+          --cache-to=ghcr.io/${{ env.IMAGE_NAME }}/cache
+          -f ./debian.Containerfile
+          .
+
+      - name: Push To ghcr.io with SHA
+        id: push-to-ghcr-sha
+        run: >
+          buildah manifest push --all ${{ env.IMAGE_NAME }}
+          docker://ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Push To ghcr.io with latest
+        id: push-to-ghcr-latest
+        run:
+          buildah manifest push --all ${{ env.IMAGE_NAME }}
+          docker://ghcr.io/${{ env.IMAGE_NAME }}:debian-latest
