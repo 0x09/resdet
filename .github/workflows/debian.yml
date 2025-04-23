@@ -1,0 +1,30 @@
+name: debian-image
+
+on: [push]
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Buildah Action
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ github.repository }}
+          tags: debian-latest debian-${{ github.sha }}
+          containerfiles: |
+            ./debian.Containerfile
+
+      - name: Push To ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
