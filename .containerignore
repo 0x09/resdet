@@ -1,0 +1,13 @@
+# IDE
+/.idea
+/.git*
+/.run
+
+**/*.o
+**/*.a
+**/*.pc
+/config.mak
+/imgread
+/profile
+/resdet
+/stat
