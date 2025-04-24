@@ -50,6 +50,20 @@ jobs:
           --index
           --annotation org.opencontainers.image.revision="${{ github.sha }}"
           ${{ needs.image-name.outputs.image-name }}
+
+      - name: Buildah Bud Debug
+        id: buildah-bud-debug
+        if: ${{ matrix.base-os == 'distroless' }}
+        run: >
+          buildah bud
+          --jobs=4
+          --platform=linux/amd64
+          --target=debug
+          --layers
+          --cache-from=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          --cache-to=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          -f ./${{ matrix.base-os }}.Containerfile
+          .
       - name: Buildah Bud
         id: buildah-bud
         run: >

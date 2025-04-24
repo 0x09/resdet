@@ -45,12 +45,13 @@ FROM gcr.io/distroless/static-debian12:debug AS debug
 
 COPY --from=builder /dist/ /
 
-# cachebust
-ENV I=1
+RUN [ "ln", "-s", "/busybox/sh", "/bin/sh" ]
 
-# this doesn't fail if something is missing
-ENV LD_TRACE_LOADED_OBJECTS=1
-RUN [ "/lib64/ld-linux-x86-64.so.2", "/usr/local/bin/resdet" ]
+# check for missing libraries
+RUN <<LDD
+missing=$(LD_TRACE_LOADED_OBJECTS=1 /lib64/ld-linux-x86-64.so.2 /usr/local/bin/resdet | grep "not found")
+[ -z "$missing" ] || { printf "%s\n" "$missing"; exit 1; }
+LDD
 
 ENTRYPOINT [ "/usr/local/bin/resdet" ]
 
