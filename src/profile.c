@@ -106,7 +106,9 @@ int main(int argc, char* argv[]) {
 	ssize_t len;
 	size_t len2;
 	char* line = NULL;
-	while((len = getline(&line,&len2,dict)) > 1) {
+	while((len = getline(&line,&len2,dict)) > 0) {
+		if(*line == '\n')
+			continue;
 		line[len-1] = '\0';
 		puts(line);
 		float* image;
