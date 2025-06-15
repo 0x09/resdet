@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # visualize the resolution detected by resdet over the image's spectrogram
 
+set -e
+
 if ! command -v resdet > /dev/null; then
 	echo "This script requires resdet to be installed." 1>&2
 	exit 1
@@ -48,7 +50,7 @@ shift $((OPTIND-1))
 image=$1
 output=$2
 
-read full_width full_height < <(identify -ping -format '%w %h' "$image")
+read full_width full_height < <(identify -ping -format '%w %h\n' "$image")
 read detected_width detected_height < <(resdet $resdet_opts -v 1 -- "$image")
 
 spec $spec_opts -- "$image" - | magick - -stroke "$line_color" -draw \
