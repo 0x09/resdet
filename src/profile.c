@@ -114,6 +114,11 @@ int main(int argc, char* argv[]) {
 		float* image;
 		size_t w, h, d;
 		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
+		if(e) {
+			fprintf(stderr, "Error reading %s: %s\n",line,RDErrStr[e]);
+			continue;
+		}
+
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);
