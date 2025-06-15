@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 "\tfilename\n"
 "\t...\n"
 "\n"
-"one-line example: %s <<< \"lenna.png\\n512\\n512\\n\"\n"
+"one-line example: printf \"resized.png\\n512\\n512\\n\" | %s /dev/stdin\n"
 		,argv[0],argv[0]);
 		return 0;
 	}
