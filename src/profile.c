@@ -71,7 +71,7 @@ void readres(char* line, size_t** ar, size_t* ct) {
 
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
-		printf(
+		fprintf(stderr,
 "Usage: %s dict.txt\n"
 "\n"
 "dict.txt provides a set of images with known resolutions with the format\n"
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 "\n"
 "one-line example: printf \"resized.png\\n512\\n512\\n\" | %s /dev/stdin\n"
 		,argv[0],argv[0]);
-		return 0;
+		return 1;
 	}
 
 	RDMethod* methods = resdet_methods();
