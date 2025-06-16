@@ -20,9 +20,9 @@ see `configure --help` for options
 
 # Examples
 
-Resize [an image](http://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](http://www.imagemagick.org)'s `convert` command and detect it:
+Resize [an image](http://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](http://www.imagemagick.org) and detect it:
 
-    $ convert blue_marble_2012.png -resize 150% resized.png
+    $ magick blue_marble_2012.png -resize 150% resized.png
 
     $ resdet resized.png
     given: 768x768
