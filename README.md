@@ -59,10 +59,10 @@ resdet works best on images that are as close to the source as possible. Filteri
 
 resdet can provide significantly more accurate results if detection is performed in the same colorspace the image was originally resized in. If an image might have been resized in a linear light colorspace before being converted to a non-linear colorspace such as sRGB, it's worth attempting detection in linear light as well.
 
-Here is an example that uses ImageMagick's `convert` command to convert the colorspace to linear RGB and provide the increased precision result to resdet using the portable floatmap format:
+Here is an example that uses ImageMagick to convert the colorspace to linear RGB and provide the increased precision result to resdet using the portable floatmap format:
 
 ```
-convert image.png -colorspace RGB pfm:- | resdet -t image/x-portable-floatmap -
+magick image.png -colorspace RGB pfm:- | resdet -t image/x-portable-floatmap -
 ```
 
 ### Video
