@@ -68,7 +68,7 @@ magick image.png -colorspace RGB pfm:- | resdet -t image/x-portable-floatmap -
 ### Video
 For compressed video stills, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. Single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
 
-FFmpeg/avconv: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
+FFmpeg: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
 
 mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
 
