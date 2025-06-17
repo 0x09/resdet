@@ -4,7 +4,7 @@ resdet is a command-line tool and C library which attempts to detect upscaling i
 
 # Dependencies
 
-resdet bundles [KISS FFT](https://kissfft.sourceforge.net) as its FFT implementation (permissively licensed) but can use [FFTW](https://fftw.org) (GPL, potentially faster) if available.  
+resdet bundles [KISS FFT](https://github.com/mborgerding/kissfft) as its FFT implementation (permissively licensed) but can use [FFTW](https://fftw.org) (GPL, potentially faster) if available.  
 Image loaders are available using any or all of libpng, libjpeg, mjpegtools (for yuv4mpeg), and MagickWand.  
   
 libresdet can be used completely standalone provided the client supplies the image data.
