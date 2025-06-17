@@ -4,7 +4,7 @@ resdet is a command-line tool and C library which attempts to detect upscaling i
 
 # Dependencies
 
-resdet bundles [KISS FFT](http://kissfft.sourceforge.net) as its FFT implementation (permissively licensed) but can use [FFTW](http://fftw.org) (GPL, potentially faster) if available.  
+resdet bundles [KISS FFT](https://kissfft.sourceforge.net) as its FFT implementation (permissively licensed) but can use [FFTW](https://fftw.org) (GPL, potentially faster) if available.  
 Image loaders are available using any or all of libpng, libjpeg, mjpegtools (for yuv4mpeg), and MagickWand.  
   
 libresdet can be used completely standalone provided the client supplies the image data.
@@ -20,7 +20,7 @@ see `configure --help` for options
 
 # Examples
 
-Resize [an image](http://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](http://www.imagemagick.org) and detect it:
+Resize [an image](https://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](https://www.imagemagick.org) and detect it:
 
     $ magick blue_marble_2012.png -resize 150% resized.png
 
@@ -84,7 +84,7 @@ resdet works well on images resampled with traditional methods, but will not wor
 
 If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
 
-![Upscaled Blue Marble spectrum](http://0x09.net/i/g/blue_marble_2012_upscaled.png)
+![Upscaled Blue Marble spectrum](https://0x09.net/i/g/blue_marble_2012_upscaled.png)
 
 Note the solid black lines indicating zero-crossings 512px in from each dimension.
 
@@ -95,4 +95,4 @@ There's no direct equivalent. Since downsampling loses information by definition
 ## Source?
 Looking at too many spectrograms.  
 Specifically, this project was born out of a yet-unpublished image deduplication framework, while attempting to identify whether duplicates were scaled versions of one another.  
-While [some resources](http://anibin.blogspot.ca) doing similar things via unspecified methods exist, I don't know of any comparable algorithm to resdet or publication describing something like it (but would be glad to read if they exist).
+While [some resources](https://anibin.blogspot.ca) doing similar things via unspecified methods exist, I don't know of any comparable algorithm to resdet or publication describing something like it (but would be glad to read if they exist).
