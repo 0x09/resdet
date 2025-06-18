@@ -49,16 +49,16 @@ $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 resdet: src/resdet.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 profile: src/profile.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 stat: src/stat.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 imgread: src/imgread.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 install-lib: $(LIB)
 	install include/resdet.h $(INCPREFIX)/

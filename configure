@@ -23,6 +23,7 @@ function usage() {
 	echo "   --cc           \"$CC\""
 	echo "   --ar           \"$AR\""
 	echo "   --cflags       \"$CFLAGS\""
+	echo "   --ldflags      \"$LDFLAGS\""
 	echo "   --prefix       \"$PREFIX\""
 	echo "   --binprefix    \"$PREFIX/bin\""
 	echo "   --libprefix    \"$PREFIX/lib\""
@@ -53,6 +54,7 @@ for o; do
 		--cc) CC="$arg";;
 		--ar) AR="$arg";;
 		--cflags) CFLAGS="$arg";;
+		--ldflags) LDFLAGS="$arg";;
 		--prefix) PREFIX="$arg";;
 		--binprefix)   BINPREFIX="$arg";;
 		--libprefix)   LIBPREFIX="$arg";;
@@ -141,6 +143,7 @@ rm -f config.mak
 define CC "$(command -v "$CC")"
 define AR "$(command -v "$AR")"
 define CFLAGS "$CFLAGS"
+define LDFLAGS "$LDFLAGS"
 define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
