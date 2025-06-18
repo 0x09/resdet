@@ -61,11 +61,11 @@ imgread: src/imgread.o $(LIB)
 	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 install-lib: $(LIB)
-	install include/resdet.h $(INCPREFIX)/
-	install $(LIB) $(LIBPREFIX)/
+	install -m644 include/resdet.h $(INCPREFIX)/
+	install -m644 $(LIB) $(LIBPREFIX)/
 ifneq ($(PCPREFIX),)
 	mkdir -p $(PCPREFIX)
-	install lib/resdet.pc $(PCPREFIX)/
+	install -m644 lib/resdet.pc $(PCPREFIX)/
 endif
 
 install: resdet
