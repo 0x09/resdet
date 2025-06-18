@@ -43,6 +43,12 @@ int main(int argc, char** argv) {
 	}
 
 	FILE* out = fopen(argv[2], "w");
+	if(!out) {
+		perror("error opening output");
+		free(image);
+		return 1;
+	}
+
 	fprintf(out, "Pf\n%zu %zu\n-1.0\n", width, height);
 	for(size_t i = height; i > 0; i--)
 		fwrite(image+(i-1)*width,sizeof(*image),width,out);
