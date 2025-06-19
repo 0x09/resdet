@@ -28,7 +28,7 @@ Resize [an image](https://0x09.net/i/g/blue_marble_2012.png) with [ImageMagick](
     given: 768x768
     best guess: 512x512
     all width        height
-      512 (77.03%)     512 (76.38%)
+      512 (87.94%)     512 (88.04%)
 
 Just test if an image has been upscaled:
 
