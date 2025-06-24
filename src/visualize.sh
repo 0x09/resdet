@@ -50,6 +50,8 @@ shift $((OPTIND-1))
 image=$1
 output=$2
 
+[ -z "$output" ] && usage
+
 read full_width full_height < <(identify -ping -format '%w %h\n' "$image")
 read detected_width detected_height < <(resdet $resdet_opts -v 1 -- "$image")
 
