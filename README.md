@@ -80,7 +80,8 @@ Moderate to heavily compressed JPEG sources tend to produce false positives at m
 Deblocking example with FFmpeg: `ffmpeg -i source.jpg -vf pp=ha/va image.png`
 
 ### Caveats
-resdet works well on images resampled with traditional methods, but will not work with newer neural network-based resizers.
+resdet works well on images resampled with traditional methods, but will not work with newer AI/neural network-based resizers like DLSS.
+These work by effectively adding information to the upscaled image rather than simply resampling, which makes the results indistinguishable from a non-upscaled image to resdet.
 
 If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
 
