@@ -36,12 +36,13 @@ int sortres(const void* left, const void* right) {
 }
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
+	printf("Usage: %s [-h -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
+		" -h   This help text."
 		"\n"
 		" -m   Optional detection method, see below.\n"
 		" -v   verbosity: -1 - Human-readable output, default.\n"
