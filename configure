@@ -83,6 +83,8 @@ LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
 INCPREFIX="${INCPREFIX:-$PREFIX/include}"
 PCPREFIX="${PCPREFIX:-$PREFIX/lib/pkgconfig}"
 
+cctmp=$(mktemp)
+
 function abort() {
 	echo "${1:-Aborting}"
 	rm -f config.mak
@@ -199,6 +201,8 @@ if $omit_native_pgm_reader; then
 fi
 
 $use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
+
+rm -f -- "$cctmp"
 
 echo
 
