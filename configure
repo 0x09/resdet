@@ -10,6 +10,7 @@ with_libjpeg=true
 with_libpng=true
 with_mjpegtools=true
 with_MagicWand=true
+omit_native_pgm_reader=false
 
 use_builtin_signbit=true
 
@@ -36,6 +37,7 @@ function usage() {
 	echo "   --disable-mjpegtools"
 	echo "   --disable-MagickWand"
 	echo "   --disable-everything"
+	echo "   --omit-native-pgm-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [4|8|12] (4)"
@@ -65,6 +67,7 @@ for o; do
 		--disable-mjpegtools) with_mjpegtools=false;;
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
+		--omit-native-pgm-reader) omit_native_pgm_reader=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -190,6 +193,11 @@ done
 
 testlib m && LIBS+=" -lm"
 
+if $omit_native_pgm_reader; then
+	DEFS+=' -DOMIT_NATIVE_PGM_READER'
+	echo OMIT_NATIVE_PGM_READER=1 >> config.mak
+fi
+
 $use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
 
 echo
@@ -206,4 +214,8 @@ echo "LIBS=$LIBS" >> config.mak
 
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"
+fi
+
+if $omit_native_pgm_reader && [[ ! "$DEFS" =~ .*HAVE_(MAGICKWAND|LIBPNG|LIBJPEG|MJPEGTOOLS).* ]]; then
+	echo "Warning: building with --omit-native-pgm-reader but no other image libraries were found, resdet will not be able to read any images."
 fi

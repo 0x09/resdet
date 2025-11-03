@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o image/pgm.o
+OBJS=resdet.o image.o methods.o
 LIB=lib/libresdet.a
 TOOLS=resdet stat profile imgread
 
@@ -37,6 +37,10 @@ ifdef HAVE_MJPEGTOOLS
 endif
 ifdef HAVE_MAGICKWAND
 	OBJS += image/magickwand.o
+endif
+
+ifndef OMIT_NATIVE_PGM_READER
+	OBJS += image/pgm.o
 endif
 
 OBJS := $(addprefix lib/, $(OBJS))

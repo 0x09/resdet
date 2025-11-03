@@ -48,14 +48,18 @@ RDError resdet_read_image(const char* filename, const char* mimetype, float** im
 		c = mimetype_from_ext(filename);
 
 	struct image_reader* reader = NULL;
-	if(!strcmp(c,"image/x-portable-graymap")) {
+	if(false)
+		;
+#ifndef OMIT_NATIVE_PGM_READER
+	else if(!strcmp(c,"image/x-portable-graymap")) {
 		extern struct image_reader resdet_image_reader_pgm;
 		reader = &resdet_image_reader_pgm;
 	}
-	if(!strcmp(c,"image/x-portable-floatmap")) {
+	else if(!strcmp(c,"image/x-portable-floatmap")) {
 		extern struct image_reader resdet_image_reader_pfm;
 		reader = &resdet_image_reader_pfm;
 	}
+#endif
 #ifdef HAVE_LIBJPEG
 	else if(!strcmp(c,"image/jpeg")) {
 		extern struct image_reader resdet_image_reader_libjpeg;
