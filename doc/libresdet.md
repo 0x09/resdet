@@ -11,7 +11,7 @@ Most library functions return `RDError` to indicate any failure. While not actua
 ---
 
 ```C
-	RDMethod* resdet_methods();
+	RDMethod* resdet_methods(void);
 ```
 
 Returns list of available methods, terminated by an empty RDMethod. The first element can be assumed to be the library default. Can be iterated using

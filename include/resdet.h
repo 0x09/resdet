@@ -47,7 +47,7 @@ typedef struct RDMethod {
 	const float threshold;
 } RDMethod;
 
-RDMethod* resdet_methods();
+RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);
 
 size_t resdet_default_range(void);
