@@ -109,7 +109,7 @@ function testbin() {
 	testcmd "$1" command -v "$1"
 }
 function testcc() {
-	testcmd "$1" "$CC" $CFLAGS -xc "${@:2}" -o /dev/null -
+	testcmd "$1" "$CC" $CFLAGS $LDFLAGS -xc "${@:2}" -o "$cctmp" -
 }
 function testinc() {
 	testcc "$1" -fsyntax-only $(printf -- "-include %s " "$@") <<< ""
