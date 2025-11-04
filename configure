@@ -209,8 +209,8 @@ echo
 expand lib/resdet.pc.in lib/resdet.pc
 
 if [ -n "$PCDEPS" ]; then
-	DEFS+=" $(pkg-config --cflags $PCDEPS 2> /dev/null)"
-	LIBS+=" $(pkg-config --libs $PCDEPS 2> /dev/null)"
+	DEFS+=" $(pkg-config $PKG_CONFIG_FLAGS --cflags $PCDEPS 2> /dev/null)"
+	LIBS+=" $(pkg-config $PKG_CONFIG_FLAGS --libs $PCDEPS 2> /dev/null)"
 fi
 
 echo "DEFS=$DEFS" >> config.mak
