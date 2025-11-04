@@ -5,7 +5,7 @@
 static float* read_pgm(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	*nimages = 1;
 	float* image = NULL;
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f)
 		return NULL;
 	uint16_t depth;
@@ -84,7 +84,7 @@ static bool read_pfm_plane(FILE* f, float* image, size_t width, size_t height, f
 static float* read_pfm(const char* filename, size_t* width, size_t* height, size_t* nimages) {
 	*nimages = 1;
 	float* image = NULL;
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f)
 		return NULL;
 	float endianness_scale;

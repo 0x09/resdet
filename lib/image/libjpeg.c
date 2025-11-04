@@ -10,7 +10,7 @@ static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1);
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
 
 static float* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages) {
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f)
 		return NULL;
 

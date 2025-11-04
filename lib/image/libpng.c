@@ -9,7 +9,7 @@ static void pngerr_error_fn(png_structp png_ptr, png_const_charp error_msg) { pn
 static void pngerr_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {}
 
 static float* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages) {
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f)
 		return NULL;
 
