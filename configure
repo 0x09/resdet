@@ -176,13 +176,7 @@ if $with_fftw && testpc $lfftw; then
 	PCDEPS+=" $lfftw"
 fi
 
-if $with_libjpeg && testinc stdio.h stddef.h jpeglib.h && testlib jpeg; then
-	echo "HAVE_LIBJPEG=1" >> config.mak
-	DEFS+=" -DHAVE_LIBJPEG"
-	LIBS+=" -ljpeg"
-fi
-
-for dep in libpng mjpegtools MagickWand; do
+for dep in libjpeg libpng mjpegtools MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
 		name="$(tr '[a-z]' '[A-Z]' <<< $dep)"
