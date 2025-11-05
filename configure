@@ -75,6 +75,7 @@ for o; do
 		--no-builtin-signbit) use_builtin_signbit=false;;
 		--verbose) verbose=true; testcmd_out=/dev/stdout; testcmd_err=/dev/stderr;;
 		--help) usage;;
+		*) printf "Unrecognized option %s\n" "$opt" >&2; exit 1;;
 	esac
 done
 
