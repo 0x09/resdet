@@ -29,7 +29,7 @@
 
 int main(int argc, char** argv) {
 	if(argc < 2) {
-		fprintf(stderr,"Usage: %s input_image output.pfm", argv[0]);
+		fprintf(stderr,"Usage: %s input_image output.pfm\n", argv[0]);
 		return 1;
 	}
 
