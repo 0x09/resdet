@@ -19,8 +19,10 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
 	unsigned char header[8];
-	if(fread(header,1,8,f) != 8) goto end;
-	if(png_sig_cmp(header,0,8)) goto end;
+	if(fread(header,1,8,f) != 8)
+		goto end;
+	if(png_sig_cmp(header,0,8))
+		goto end;
 	if(!(png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr_error_fn, pngerr_warning_fn)))
 		goto end;
 
@@ -44,12 +46,19 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 		png_set_tRNS_to_alpha(png_ptr);
 		color |= PNG_COLOR_MASK_ALPHA;
 	}
-	if(color & PNG_COLOR_MASK_ALPHA) png_set_strip_alpha(png_ptr);
-	if(color == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png_ptr);
-	if(color & PNG_COLOR_MASK_COLOR) png_set_rgb_to_gray(png_ptr,1,-1,-1);
-	if(bit_depth == 16) png_set_strip_16(png_ptr);
-	else if(bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
+	if(color & PNG_COLOR_MASK_ALPHA)
+		png_set_strip_alpha(png_ptr);
+	if(color == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb(png_ptr);
+	if(color & PNG_COLOR_MASK_COLOR)
+		png_set_rgb_to_gray(png_ptr,1,-1,-1);
+	if(bit_depth == 16)
+		png_set_strip_16(png_ptr);
+	else if(bit_depth < 8)
+		png_set_expand_gray_1_2_4_to_8(png_ptr);
+
 	png_read_update_info(png_ptr,info_ptr);
+
 	int passes = png_set_interlace_handling(png_ptr);
 
 	for(int i = 0; i < passes; i++) {
