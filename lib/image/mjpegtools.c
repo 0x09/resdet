@@ -41,6 +41,8 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 			break;
 		}
 	}
+	if(!image)
+		goto end;
 
 	if(!(imagef = malloc(*width * *height * *nimages * sizeof(*imagef))))
 		goto end;
