@@ -63,8 +63,8 @@ Additional libraries required to build and test kissfft include:
  - python 2/3 with Numpy to validate kissfft results against it.
  - OpenMP supported by GCC, Clang or MSVC for multi-core FFT transformations
 
-Environments like Cygwin and MinGW can be highly likely used to build kissfft
-targeting Windows platform, but no tests were performed to the date.
+While no tests have been performed to date, kissfft can likely be built using 
+environments like Cygwin and MinGW when targeting the Windows platform.
 
 Both Make and CMake builds are easily configurable:
 
@@ -76,7 +76,7 @@ Both Make and CMake builds are easily configurable:
    - double
    - int16_t
    - int32_t
-   - SIMD (requires SSE instruction set support on target CPU)
+   - simd (requires SSE instruction set support on target CPU)
 
  - `KISSFFT_OPENMP=1` (for Make) or `-DKISSFFT_OPENMP=ON` (for CMake) builds kissfft
    with OpenMP support. Please note that a supported compiler is required and this
