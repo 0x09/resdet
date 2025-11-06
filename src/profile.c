@@ -71,7 +71,7 @@ void readres(char* line, size_t** ar, size_t* ct) {
 
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
-		printf(
+		fprintf(stderr,
 "Usage: %s dict.txt\n"
 "\n"
 "dict.txt provides a set of images with known resolutions with the format\n"
@@ -82,9 +82,9 @@ int main(int argc, char* argv[]) {
 "\tfilename\n"
 "\t...\n"
 "\n"
-"one-line example: %s <<< \"lenna.png\\n512\\n512\\n\"\n"
+"one-line example: printf \"resized.png\\n512\\n512\\n\" | %s /dev/stdin\n"
 		,argv[0],argv[0]);
-		return 0;
+		return 1;
 	}
 
 	RDMethod* methods = resdet_methods();
@@ -106,12 +106,23 @@ int main(int argc, char* argv[]) {
 	ssize_t len;
 	size_t len2;
 	char* line = NULL;
-	while((len = getline(&line,&len2,dict)) > 1) {
+	while((len = getline(&line,&len2,dict)) > 0) {
+		if(*line == '\n')
+			continue;
 		line[len-1] = '\0';
 		puts(line);
-		unsigned char* image;
+		float* image;
 		size_t w, h, d;
 		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
+		if(e) {
+			fprintf(stderr, "Error reading %s: %s\n",line,RDErrStr[e]);
+			// skip over this image's resolution lists
+			if(getline(&line,&len2,dict) <= 0 ||
+			   getline(&line,&len2,dict) <= 0)
+				break;
+			continue;
+		}
+
 		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);

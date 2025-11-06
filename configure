@@ -10,8 +10,9 @@ with_libjpeg=true
 with_libpng=true
 with_mjpegtools=true
 with_MagicWand=true
+omit_native_pgm_reader=false
 
-prefer_builtin_signbit=true
+use_builtin_signbit=true
 
 verbose=false
 testcmd_out=/dev/null
@@ -23,6 +24,7 @@ function usage() {
 	echo "   --cc           \"$CC\""
 	echo "   --ar           \"$AR\""
 	echo "   --cflags       \"$CFLAGS\""
+	echo "   --ldflags      \"$LDFLAGS\""
 	echo "   --prefix       \"$PREFIX\""
 	echo "   --binprefix    \"$PREFIX/bin\""
 	echo "   --libprefix    \"$PREFIX/lib\""
@@ -35,6 +37,7 @@ function usage() {
 	echo "   --disable-mjpegtools"
 	echo "   --disable-MagickWand"
 	echo "   --disable-everything"
+	echo "   --omit-native-pgm-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [4|8|12] (4)"
@@ -53,6 +56,7 @@ for o; do
 		--cc) CC="$arg";;
 		--ar) AR="$arg";;
 		--cflags) CFLAGS="$arg";;
+		--ldflags) LDFLAGS="$arg";;
 		--prefix) PREFIX="$arg";;
 		--binprefix)   BINPREFIX="$arg";;
 		--libprefix)   LIBPREFIX="$arg";;
@@ -63,13 +67,15 @@ for o; do
 		--disable-mjpegtools) with_mjpegtools=false;;
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
+		--omit-native-pgm-reader) omit_native_pgm_reader=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
 		--pixel-max) PIXEL_MAX=$arg;;
-		--no-builtin-signbit) prefer_builtin_signbit=false;;
+		--no-builtin-signbit) use_builtin_signbit=false;;
 		--verbose) verbose=true; testcmd_out=/dev/stdout; testcmd_err=/dev/stderr;;
 		--help) usage;;
+		*) printf "Unrecognized option %s\n" "$opt" >&2; exit 1;;
 	esac
 done
 
@@ -77,6 +83,8 @@ BINPREFIX="${BINPREFIX:-$PREFIX/bin}"
 LIBPREFIX="${LIBPREFIX:-$PREFIX/lib}"
 INCPREFIX="${INCPREFIX:-$PREFIX/include}"
 PCPREFIX="${PCPREFIX:-$PREFIX/lib/pkgconfig}"
+
+cctmp=$(mktemp)
 
 function abort() {
 	echo "${1:-Aborting}"
@@ -104,13 +112,13 @@ function testbin() {
 	testcmd "$1" command -v "$1"
 }
 function testcc() {
-	testcmd "$1" "$CC" $CFLAGS -xc "${@:2}" -o /dev/null -
+	testcmd "$1" "$CC" $CFLAGS $LDFLAGS -xc "${@:2}" -o "$cctmp" -
 }
 function testinc() {
-	testcc "$1" -fsyntax-only $(printf -- "-include %s " "$@") <&-
+	testcc "$1" -fsyntax-only $(printf -- "-include %s " "$@") <<< ""
 }
 function testlib() {
-	testcc "$1" $(printf -- "-l%s " "$@") - <<< "int main(void){}"
+	testcc "$1" $(printf -- "-l%s " "$@") <<< "int main(void){}"
 }
 
 function define() {
@@ -141,6 +149,7 @@ rm -f config.mak
 define CC "$(command -v "$CC")"
 define AR "$(command -v "$AR")"
 define CFLAGS "$CFLAGS"
+define LDFLAGS "$LDFLAGS"
 define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
 define LIBPREFIX "$LIBPREFIX"
@@ -168,13 +177,7 @@ if $with_fftw && testpc $lfftw; then
 	PCDEPS+=" $lfftw"
 fi
 
-if $with_libjpeg && testinc stdio.h stddef.h jpeglib.h && testlib jpeg; then
-	echo "HAVE_LIBJPEG=1" >> config.mak
-	DEFS+=" -DHAVE_LIBJPEG"
-	LIBS+=" -ljpeg"
-fi
-
-for dep in libpng mjpegtools MagickWand; do
+for dep in libjpeg libpng mjpegtools MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
 		name="$(tr '[a-z]' '[A-Z]' <<< $dep)"
@@ -187,21 +190,22 @@ done
 
 testlib m && LIBS+=" -lm"
 
-if $prefer_builtin_signbit && testcc "__builtin_signbit" -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }"; then
-	if testcc "__builtin_signbitf/l" -fsyntax-only <<< "void f() { (void)__builtin_signbitf(1.0); (void)__builtin_signbitl(1.0); }"; then
-		DEFS+=" -DHAVE_BUILTIN_SIGNBIT_TYPED"
-	else
-		DEFS+=" -DHAVE_BUILTIN_SIGNBIT"
-	fi
+if $omit_native_pgm_reader; then
+	DEFS+=' -DOMIT_NATIVE_PGM_READER'
+	echo OMIT_NATIVE_PGM_READER=1 >> config.mak
 fi
+
+$use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
+
+rm -f -- "$cctmp"
 
 echo
 
 expand lib/resdet.pc.in lib/resdet.pc
 
 if [ -n "$PCDEPS" ]; then
-	DEFS+=" $(pkg-config --cflags $PCDEPS 2> /dev/null)"
-	LIBS+=" $(pkg-config --libs $PCDEPS 2> /dev/null)"
+	DEFS+=" $(pkg-config $PKG_CONFIG_FLAGS --cflags $PCDEPS 2> /dev/null)"
+	LIBS+=" $(pkg-config $PKG_CONFIG_FLAGS --libs $PCDEPS 2> /dev/null)"
 fi
 
 echo "DEFS=$DEFS" >> config.mak
@@ -209,4 +213,8 @@ echo "LIBS=$LIBS" >> config.mak
 
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"
+fi
+
+if $omit_native_pgm_reader && [[ ! "$DEFS" =~ .*HAVE_(MAGICKWAND|LIBPNG|LIBJPEG|MJPEGTOOLS).* ]]; then
+	echo "Warning: building with --omit-native-pgm-reader but no other image libraries were found, resdet will not be able to read any images."
 fi

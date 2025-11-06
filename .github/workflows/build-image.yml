@@ -1,0 +1,139 @@
+name: build-image
+
+on: [push]
+
+jobs:
+  image-name:
+    name: Image Name
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/library/fedora
+    outputs:
+      image-name: ${{ steps.image-name.outputs.image-name }}
+    steps:
+      - name: lowercase github.repository
+        id: image-name
+        run: |
+          echo "image-name=${GITHUB_REPOSITORY@L}" >> ${GITHUB_OUTPUT}
+  image-build:
+    name: Build image
+    runs-on: ubuntu-latest
+    needs: image-name
+    strategy:
+      fail-fast: false
+      matrix:
+        base-os:
+          - fedora
+          - debian
+          - distroless
+    container:
+      image: quay.io/buildah/stable:latest
+      options: --security-opt seccomp=/usr/share/containers/seccomp.json --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Buildah Login
+        id: buildah-login
+        run: >
+          echo "${{ secrets.GITHUB_TOKEN }}" | buildah login --username "${{ github.actor }}" --password-stdin ghcr.io/${{ needs.image-name.outputs.image-name }}
+
+      - name: Manifest Create
+        id: manifest-create
+        run: >
+          buildah manifest create ${{ needs.image-name.outputs.image-name }}
+
+      - name: Manifest Annotate
+        id: manifest-annotate
+        run: >
+          buildah manifest annotate
+          --index
+          --annotation org.opencontainers.image.revision="${{ github.sha }}"
+          ${{ needs.image-name.outputs.image-name }}
+
+      - name: Buildah Bud Debug
+        id: buildah-bud-debug
+        if: ${{ matrix.base-os == 'distroless' }}
+        run: >
+          buildah bud
+          --jobs=4
+          --platform=linux/amd64
+          --target=debug
+          --layers
+          --cache-from=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          --cache-to=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          -f ./${{ matrix.base-os }}.Containerfile
+          .
+      - name: Buildah Bud
+        id: buildah-bud
+        run: >
+          buildah bud
+          --jobs=4
+          --platform=linux/amd64
+          --manifest ${{ needs.image-name.outputs.image-name }}
+          --layers
+          --cache-from=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          --cache-to=ghcr.io/${{ needs.image-name.outputs.image-name }}/cache
+          -f ./${{ matrix.base-os }}.Containerfile
+          .
+
+      - name: Push To ghcr.io with SHA
+        id: push-to-ghcr-sha
+        run: >
+          buildah manifest push --all ${{ needs.image-name.outputs.image-name }}
+          docker://ghcr.io/${{ needs.image-name.outputs.image-name }}:${{ matrix.base-os }}-${{ github.sha }}
+      - name: Push To ghcr.io with latest
+        id: push-to-ghcr-latest
+        run:
+          buildah manifest push --all ${{ needs.image-name.outputs.image-name }}
+          docker://ghcr.io/${{ needs.image-name.outputs.image-name }}:${{ matrix.base-os }}-latest
+  test:
+    name: Test image
+    runs-on: ubuntu-latest
+    needs:
+      - image-name
+      - image-build
+    strategy:
+      fail-fast: false
+      matrix:
+        base-os:
+          - fedora
+          - debian
+    container:
+      image: ghcr.io/${{ needs.image-name.outputs.image-name }}:${{ matrix.base-os }}-${{ github.sha }}
+    steps:
+      - name: Install deps
+        id: install-deps-debian
+        if: ${{ matrix.base-os == 'debian' }}
+        run: |
+          apt-get update && apt-get install -y curl imagemagick ffmpeg
+      - name: Install deps
+        id: install-deps-fedora
+        if: ${{ matrix.base-os == 'fedora' }}
+        run: |
+          dnf install -y curl ImageMagick ffmpeg
+      - name: Download PNG
+        id: download-png
+        run: >
+          curl -LsfO https://0x09.net/i/g/blue_marble_2012.png
+      - name: Convert PNG
+        id: convert-png
+        run: >
+          convert blue_marble_2012.png -resize 150% blue_marble_2012_resized.png
+      - name: Run Resdet on PNG
+        id: run-resdet-png
+        run: >
+          resdet blue_marble_2012_resized.png
+      - name: Convert Y4M
+        id: convert-y4m
+        run: >
+          ffmpeg -i https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/Caminandes-_Llama_Drama_-_Short_Movie.ogv/Caminandes-_Llama_Drama_-_Short_Movie.ogv.240p.vp9.webm?download
+          -vf scale=iw*2:ih*2
+          -ss 15
+          -vframes 16
+          -pix_fmt yuv420p
+          Caminandes-_Llama_Drama_-_Short_Movie.ogv.240p.vp9_scaled.y4m
+      - name: Run Resdet on Y4M
+        id: run-resdet-y4m
+        run: >
+          resdet Caminandes-_Llama_Drama_-_Short_Movie.ogv.240p.vp9_scaled.y4m

@@ -47,21 +47,23 @@ typedef struct RDMethod {
 	const float threshold;
 } RDMethod;
 
-RDMethod* resdet_methods();
+const char* resdet_libversion(void);
+
+RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);
 
 size_t resdet_default_range(void);
 
-RDError resdet_read_image(const char* filename, const char* mimetype, unsigned char** image, size_t* nimages, size_t* width, size_t* height);
+RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
 
 
-RDError resdetect(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
+RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                   RDMethod* method);
 
 RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 
-RDError resdetect_with_params(unsigned char* restrict image, size_t nimages, size_t width, size_t height,
+RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
                               RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
                               RDMethod* method, size_t range, float threshold);
 

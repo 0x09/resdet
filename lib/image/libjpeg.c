@@ -9,24 +9,22 @@ static void jerr_emit_message(j_common_ptr cinfo, int msg_level) {}
 static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1); }
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
 
-static unsigned char* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages) {
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"r") : stdin;
+static float* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f)
 		return NULL;
 
 	*nimages = 1;
 	unsigned char* image = NULL;
+	float* imagef = NULL;
 	struct jpeg_decompress_struct cinfo;
 	cinfo.err = &(struct jpeg_error_mgr){
 		.error_exit      = jerr_error_exit,
 		.emit_message    = jerr_emit_message,
 		.reset_error_mgr = jerr_reset_error_mgr
 	};
-	if(setjmp(cinfo.client_data = (jmp_buf){0})) {
-		free(image);
-		image = NULL;
+	if(setjmp(cinfo.client_data = (jmp_buf){0}))
 		goto end;
-	}
 
 	jpeg_create_decompress(&cinfo);
 	jpeg_stdio_src(&cinfo,f);
@@ -35,7 +33,7 @@ static unsigned char* read_jpeg(const char* filename, size_t* width, size_t* hei
 	jpeg_start_decompress(&cinfo);
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
-	if(!(*width && *height) || (*width > PIXEL_MAX / *height) || !(image = malloc(*width * *height)))
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height)))
 		goto finish;
 
 	unsigned char* it = image;
@@ -45,13 +43,18 @@ static unsigned char* read_jpeg(const char* filename, size_t* width, size_t* hei
 			rows[i] = it+i*cinfo.output_width;
 		it += jpeg_read_scanlines(&cinfo,rows,cinfo.rec_outbuf_height) * cinfo.output_width;
 	}
+	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+		goto end;
+	for(size_t i = 0; i < *width * *height; i++)
+		imagef[i] = image[i]/255.f;
 finish:
 	jpeg_finish_decompress(&cinfo);
 end:
 	jpeg_destroy_decompress(&cinfo);
+    free(image);
 	if(f != stdin)
 		fclose(f);
-	return image;
+	return imagef;
 }
 
 struct image_reader resdet_image_reader_libjpeg = {

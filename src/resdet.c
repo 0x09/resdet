@@ -29,35 +29,42 @@
 
 #include "resdet.h"
 
+#define RESDET_VERSION_STRING "1.0.0"
+
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 int sortres(const void* left, const void* right) {
 	return ((const RDResolution*)right)->confidence*10000 - ((const RDResolution*)left)->confidence*10000;
 }
 
-void usage(const char* self, bool help) {
-	printf("Usage: %s [-m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
-	if(help) {
-		printf(
-			"\n"
-			" -m   Optional detection method, see below.\n"
-			" -v   verbosity: -1 - Human-readable output, default.\n"
-			"                  0 - Behave like a shell test, returning true if upscaling was detected, false if not or on error.\n"
-			"                  1 - Print only the best guess width and height.\n"
-			"                  2 - All detected widths and heights in confidence order.\n"
-			"                  3 - -v2 plus the floating point confidence value.\n"
-			" -t   mimetype: Override the input type.\n"
-			" -r   range: Number of neighboring values to search (%zu)\n"
-			" -x   threshold: Print all detection results above this method-specific confidence level (0-100)\n"
-			"\n",
-			resdet_default_range()
-		);
-		puts("Available detection methods and default thresholds:");
-		RDMethod* m = resdet_methods();
-		printf("   %-5s - %.0f%% (default method)\n",m->name,m->threshold*100);
-		for(m++; m->name; m++)
-			printf("   %-5s - %.0f%%\n",m->name,m->threshold*100);
-	}
+void usage(const char* self) {
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
+	exit(1);
+}
+
+void help(const char* self) {
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
+		" -h   This help text.\n"
+		" -V   Show the resdet CLI and library version.\n"
+		"\n"
+		" -m   Optional detection method, see below.\n"
+		" -v   verbosity: -1 - Human-readable output, default.\n"
+		"                  0 - Behave like a shell test, returning true if upscaling was detected, false if not or on error.\n"
+		"                  1 - Print only the best guess width and height.\n"
+		"                  2 - All detected widths and heights in confidence order.\n"
+		"                  3 - -v2 plus the floating point confidence value.\n"
+		" -t   mimetype: Override the input type.\n"
+		" -r   range: Number of neighboring values to search (%zu)\n"
+		" -x   threshold: Print all detection results above this method-specific confidence level (0-100)\n"
+		"\n",
+		self,
+		resdet_default_range()
+	);
+	puts("Available detection methods and default thresholds:");
+	RDMethod* m = resdet_methods();
+	printf("   %-5s - %.0f%% (default method)\n",m->name,m->threshold*100);
+	for(m++; m->name; m++)
+		printf("   %-5s - %.0f%%\n",m->name,m->threshold*100);
 	exit(0);
 }
 int main(int argc, char* argv[]) {
@@ -66,21 +73,24 @@ int main(int argc, char* argv[]) {
 	const char* method = NULL,* type = NULL;
 	double threshold = -1;
 	size_t range = 0;
-	while((c = getopt(argc,argv,"v:m:t:x:r:h")) != -1) {
+	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
 			case 'x': threshold = strtod(optarg,NULL)/100; break;
 			case 'r': range = strtol(optarg,NULL,10); break;
-			case 'h': usage(argv[0],true); break;
-			default: usage(argv[0],false);
+			case 'h': help(argv[0]); break;
+			case 'V':
+				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
+				return 0;
+			default: usage(argv[0]);
 		}
 	}
 
 	const char* input = argv[optind];
 	if(!input)
-		usage(argv[0],false);
+		usage(argv[0]);
 
 	RDMethod* m = resdet_get_method(method);
 	if(!m) {

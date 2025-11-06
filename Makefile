@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o image/pgm.o
+OBJS=resdet.o image.o methods.o
 LIB=lib/libresdet.a
 TOOLS=resdet stat profile imgread
 
@@ -10,7 +10,7 @@ ifdef HAVE_FFTW
 else
 	OBJS += transform/kiss_fft.o
 	EXTRAFLAGS += -Ilib/kissfft -Ilib/kissfft/tools
-	OBJS += $(addprefix kissfft/, kiss_fft.o $(addprefix tools/, kiss_fftnd.o kiss_fftndr.o kiss_fftr.o))
+	OBJS += $(addprefix kissfft/, kiss_fft.o kiss_fftnd.o kiss_fftndr.o kiss_fftr.o)
 endif
 
 ifdef DEFAULT_RANGE
@@ -39,6 +39,10 @@ ifdef HAVE_MAGICKWAND
 	OBJS += image/magickwand.o
 endif
 
+ifndef OMIT_NATIVE_PGM_READER
+	OBJS += image/pgm.o
+endif
+
 OBJS := $(addprefix lib/, $(OBJS))
 
 CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
@@ -49,23 +53,23 @@ $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 resdet: src/resdet.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 profile: src/profile.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 stat: src/stat.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 imgread: src/imgread.o $(LIB)
-	$(CC) -o $@ $(DEFS) $+ $(LIBS)
+	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 install-lib: $(LIB)
-	install include/resdet.h $(INCPREFIX)/
-	install $(LIB) $(LIBPREFIX)/
+	install -m644 include/resdet.h $(INCPREFIX)/
+	install -m644 $(LIB) $(LIBPREFIX)/
 ifneq ($(PCPREFIX),)
 	mkdir -p $(PCPREFIX)
-	install lib/resdet.pc $(PCPREFIX)/
+	install -m644 lib/resdet.pc $(PCPREFIX)/
 endif
 
 install: resdet

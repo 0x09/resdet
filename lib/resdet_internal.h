@@ -29,9 +29,9 @@
 #include "resdet.h"
 #include "precision.h"
 
-#ifdef HAVE_BUILTIN_SIGNBIT_TYPED
-#define coeff_signbit(x) mc(__builtin_signbit)((x))
-#elif defined(HAVE_BUILTIN_SIGNBIT)
+#define RESDET_LIBVERSION_STRING "1.0.0"
+
+#if USE_BUILTIN_SIGNBIT
 #define coeff_signbit(x) __builtin_signbit((x))
 #else
 #define coeff_signbit(x) signbit((x))
@@ -48,6 +48,12 @@ typedef uint32_t rdint_storage;
 typedef size_t rdint_index;
 typedef size_t rdint_storage;
 #endif
+
+#define resdet_dims_exceed_limit(width, height, nimages, buffer_type) !( \
+	(width) && (height) && (nimages) && \
+	((size_t)PIXEL_MAX) / (width) / (height) / (nimages) && \
+	SIZE_MAX / (width) / (height) / (nimages) / sizeof(buffer_type) \
+)
 
 #ifndef DEFAULT_RANGE
 //32 originally but diminishing returns after 8 (8 seems to be ideal). smaller is faster, lower accuracy

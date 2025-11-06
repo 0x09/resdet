@@ -54,13 +54,13 @@ void statres(RDResolution* rw, size_t cw) {
 }
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
-		printf("Usage: %s image <method>\n",argv[0]);
-		puts("Methods:");
+		fprintf(stderr,"Usage: %s image <method>\n",argv[0]);
+		fprintf(stderr,"Methods:\n");
 		RDMethod* m = resdet_methods();
-		printf("\t%s (default)\n",m->name);
+		fprintf(stderr,"\t%s (default)\n",m->name);
 		for(m++; m->name; m++)
-			printf("\t%s\n",m->name);
-		return 0;
+			fprintf(stderr,"\t%s\n",m->name);
+		return 1;
 	}
 
 	RDResolution* rw,* rh;

@@ -29,11 +29,11 @@
 
 int main(int argc, char** argv) {
 	if(argc < 2) {
-		printf("Usage: %s input_image output.pgm", argv[0]);
-		return 0;
+		fprintf(stderr,"Usage: %s input_image output.pfm\n", argv[0]);
+		return 1;
 	}
 
-	unsigned char* image;
+	float* image;
 	size_t nimages, width, height;
 	RDError e = resdet_read_image(argv[1], NULL, &image, &nimages, &width, &height);
 
@@ -43,11 +43,16 @@ int main(int argc, char** argv) {
 	}
 
 	FILE* out = fopen(argv[2], "w");
-	fprintf(out, "P2\n%zu %zu\n256", width, height);
-	for(size_t i = 0; i < width*height; i++) {
-		if(!(i%70)) fprintf(out, "\n");
-		fprintf(out, "%u ", image[i]);
+	if(!out) {
+		perror("error opening output");
+		free(image);
+		return 1;
 	}
+
+	fprintf(out, "Pf\n%zu %zu\n-1.0\n", width, height);
+	for(size_t i = height; i > 0; i--)
+		fwrite(image+(i-1)*width,sizeof(*image),width,out);
+
 	fclose(out);
 	free(image);
 }
