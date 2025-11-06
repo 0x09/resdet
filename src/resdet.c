@@ -29,6 +29,8 @@
 
 #include "resdet.h"
 
+#define RESDET_VERSION_STRING "1.0.0"
+
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 int sortres(const void* left, const void* right) {
@@ -36,13 +38,14 @@ int sortres(const void* left, const void* right) {
 }
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
-		" -h   This help text."
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
+		" -h   This help text.\n"
+		" -V   Show the resdet CLI and library version.\n"
 		"\n"
 		" -m   Optional detection method, see below.\n"
 		" -v   verbosity: -1 - Human-readable output, default.\n"
@@ -70,7 +73,7 @@ int main(int argc, char* argv[]) {
 	const char* method = NULL,* type = NULL;
 	double threshold = -1;
 	size_t range = 0;
-	while((c = getopt(argc,argv,"v:m:t:x:r:h")) != -1) {
+	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
@@ -78,6 +81,9 @@ int main(int argc, char* argv[]) {
 			case 'x': threshold = strtod(optarg,NULL)/100; break;
 			case 'r': range = strtol(optarg,NULL,10); break;
 			case 'h': help(argv[0]); break;
+			case 'V':
+				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
+				return 0;
 			default: usage(argv[0]);
 		}
 	}

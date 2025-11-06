@@ -47,6 +47,8 @@ typedef struct RDMethod {
 	const float threshold;
 } RDMethod;
 
+const char* resdet_libversion(void);
+
 RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);
 

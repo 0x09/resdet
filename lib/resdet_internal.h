@@ -29,6 +29,8 @@
 #include "resdet.h"
 #include "precision.h"
 
+#define RESDET_LIBVERSION_STRING "1.0.0"
+
 #if USE_BUILTIN_SIGNBIT
 #define coeff_signbit(x) __builtin_signbit((x))
 #else

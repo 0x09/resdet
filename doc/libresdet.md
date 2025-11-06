@@ -11,6 +11,14 @@ Most library functions return `RDError` to indicate any failure. While not actua
 ---
 
 ```C
+	const char* resdet_libversion(void);
+```
+
+Returns the resdet library version as a string.
+
+---
+
+```C
 	RDMethod* resdet_methods(void);
 ```
 

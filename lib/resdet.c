@@ -157,3 +157,7 @@ RDError resdetect_file(const char* filename, const char* mimetype, RDResolution*
 size_t resdet_default_range() {
 	return DEFAULT_RANGE;
 }
+
+const char* resdet_libversion() {
+	return RESDET_LIBVERSION_STRING;
+}
