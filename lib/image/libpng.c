@@ -37,10 +37,11 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	*width = png_get_image_width(png_ptr,info_ptr);
 	*height = png_get_image_height(png_ptr,info_ptr);
 
-	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height)))
-		goto end;
-
 	int bit_depth = png_get_bit_depth(png_ptr,info_ptr), color = png_get_color_type(png_ptr,info_ptr);
+	int channels = color & PNG_COLOR_MASK_COLOR ? 3 : 1;
+
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height * channels)))
+		goto end;
 
 	if(png_get_valid(png_ptr,info_ptr,PNG_INFO_tRNS)) {
 		png_set_tRNS_to_alpha(png_ptr);
@@ -50,8 +51,6 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 		png_set_strip_alpha(png_ptr);
 	if(color == PNG_COLOR_TYPE_PALETTE)
 		png_set_palette_to_rgb(png_ptr);
-	if(color & PNG_COLOR_MASK_COLOR)
-		png_set_rgb_to_gray(png_ptr,1,-1,-1);
 	if(bit_depth == 16)
 		png_set_strip_16(png_ptr);
 	else if(bit_depth < 8)
@@ -63,7 +62,7 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 
 	for(int i = 0; i < passes; i++) {
 		unsigned char* it = image;
-		for(rdint_index y = 0; y < *height; y++, it += *width)
+		for(rdint_index y = 0; y < *height; y++, it += *width * channels)
 			png_read_row(png_ptr,it,NULL);
 	}
 
@@ -71,8 +70,12 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 
 	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
 		goto end;
-	for(size_t i = 0; i < *width * *height; i++)
-		imagef[i] = image[i]/255.f;
+	for(size_t i = 0; i < *width * *height; i++) {
+		imagef[i] = 0;
+		for(int c = 0; c < channels; c++)
+			imagef[i] += image[i*channels+c]/255.f;
+		imagef[i] /= channels;
+	}
 
 end:
 	if(png_ptr)
