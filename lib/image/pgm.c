@@ -116,17 +116,12 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	    !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
 	    (next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))
 	) {
-		if(!next_image) {
-            free(image);
-			image = NULL;
-			goto end;
-		}
 		image = next_image;
 		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,endianness_scale,next_format))
 			break;
 	}
 
-	if(next_char != EOF) {
+	if(!next_image || next_char != EOF) {
 		free(image);
 		image = NULL;
 	}
