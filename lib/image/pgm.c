@@ -34,7 +34,7 @@ static float* read_pgm(const char* filename, size_t* width, size_t* height, size
 #define little_endian() (union { int i; char c; }){1}.c
 
 static bool read_pfm_plane_gray(FILE* f, float* image, size_t width, size_t height, float endianness_scale) {
-	if(endianness_scale < 0 == little_endian()) {
+	if((endianness_scale < 0) == little_endian()) {
 		for(size_t j = 0; j < height; j++)
 			if(fread(image+(height-j-1)*width,sizeof(float),width,f) < width)
 				return false;
@@ -53,7 +53,7 @@ static bool read_pfm_plane_gray(FILE* f, float* image, size_t width, size_t heig
 
 static bool read_pfm_plane_rgb(FILE* f, float* image, size_t width, size_t height, float endianness_scale) {
     // PF is packed RGB
-	if(endianness_scale < 0 == little_endian()) {
+	if((endianness_scale < 0) == little_endian()) {
 		for(size_t j = 0; j < height; j++)
 			for(size_t i = 0; i < width; i++) {
 				float pixel[3];
@@ -116,17 +116,12 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	    !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
 	    (next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))
 	) {
-		if(!next_image) {
-            free(image);
-			image = NULL;
-			goto end;
-		}
 		image = next_image;
 		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,endianness_scale,next_format))
 			break;
 	}
 
-	if(next_char != EOF) {
+	if(!next_image || next_char != EOF) {
 		free(image);
 		image = NULL;
 	}
