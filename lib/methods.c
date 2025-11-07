@@ -26,7 +26,7 @@
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // Sweeps the image looking for boundaries with many sign inversions.
-// Fastest, simplest, and conveniently one of the most accurate methods.
+// Fast, simple, and conveniently one of the most accurate methods.
 static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, double* result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage sign_diff = 0;
