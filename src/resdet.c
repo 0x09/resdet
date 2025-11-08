@@ -29,7 +29,7 @@
 
 #include "resdet.h"
 
-#define RESDET_VERSION_STRING "1.0.1"
+#define RESDET_VERSION_STRING "1.0.2"
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
