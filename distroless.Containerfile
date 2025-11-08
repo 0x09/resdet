@@ -31,7 +31,7 @@ rm -rf /var/lib/apt/lists/*
 APT
 
 COPY . .
-RUN ./configure
+RUN CFLAGS='-O0 -mtune=generic' ./configure
 RUN make
 
 RUN <<CP
