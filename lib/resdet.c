@@ -29,6 +29,13 @@ todo:
 
 #include "resdet_internal.h"
 
+static int sortres(const void* left, const void* right) {
+	float left_confidence = ((const RDResolution*)left)->confidence,
+	      right_confidence = ((const RDResolution*)right)->confidence;
+
+	return left_confidence < right_confidence ? 1 : (left_confidence > right_confidence ? -1 : 0);
+}
+
 static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
 	if(!detect)
 		return RDEOK;
@@ -104,6 +111,11 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	for(rdint_index i = 0; yresult && i < ybound[1]-ybound[0]; i++)
 		if(yresult[i]/nimages >= threshold)
 			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/nimages};
+
+	if(rw)
+		qsort(*rw,*cw,sizeof(**rw),sortres);
+	if(rh)
+		qsort(*rh,*ch,sizeof(**rh),sortres);
 
 end:
 	free(xresult);

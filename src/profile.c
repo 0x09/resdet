@@ -144,8 +144,8 @@ int main(int argc, char* argv[]) {
 			tvs[m-methods].tv_usec = (tvs[m-methods].tv_usec + after.tv_usec) % 1000000;
 
 			size_t plus = 0, minus = 0;
-			diffres(knownw,knownwct,rw+1,cw-1,&plus,&minus);
-			diffres(knownh,knownhct,rh+1,ch-1,&plus,&minus);
+			diffres(knownw,knownwct,rw,cw-1,&plus,&minus);
+			diffres(knownh,knownhct,rh,ch-1,&plus,&minus);
 			diffplus[m-methods] += plus;
 			diffminus[m-methods] += minus;
 

@@ -37,10 +37,6 @@
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-int sortres(const void* left, const void* right) {
-	return ((const RDResolution*)right)->confidence*10000 - ((const RDResolution*)left)->confidence*10000;
-}
-
 void usage(const char* self) {
 	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
 	exit(1);
@@ -115,9 +111,6 @@ int main(int argc, char* argv[]) {
 	RDError e = resdetect_file_with_params(input,type,&rw,&cw,&rh,&ch,m,range,threshold);
 	if(e || !verbosity)
 		goto end;
-
-	qsort(rw,cw,sizeof(*rw),sortres);
-	qsort(rh,ch,sizeof(*rh),sortres);
 
 	if(verbosity == 1) {
 		printf("%zu %zu\n",rw[0].index,rh[0].index);
