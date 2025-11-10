@@ -55,18 +55,20 @@ static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_
 
 static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
 	size_t nresults = 1;
-	for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-		if(result[i]/nimages >= threshold)
-			nresults++;
+	if(result)
+		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+			if(result[i]/nimages >= threshold)
+				nresults++;
 
 	if(!(*res = malloc(nresults*sizeof(**res))))
 		return RDENOMEM;
 
 	(*res)[(*count)++] = (RDResolution){length,-1};
 
-	for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-		if(result[i]/nimages >= threshold)
-			(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/nimages};
+	if(result)
+		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+			if(result[i]/nimages >= threshold)
+				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/nimages};
 
 	qsort(*res,*count,sizeof(**res),sortres);
 
