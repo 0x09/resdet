@@ -26,14 +26,16 @@ typedef enum RDError {
 	RDEOK = 0,
 	RDENOMEM,
 	RDEINTERNAL,
-	RDEINVAL
+	RDEINVAL,
+	RDEUNSUPP,
 } RDError;
 
 static const char* const RDErrStr[] = {
 	[RDEOK]       = "",
 	[RDENOMEM]    = "Out of memory",
 	[RDEINTERNAL] = "Internal error",
-	[RDEINVAL]    = "Invalid image"
+	[RDEINVAL]    = "Invalid image",
+	[RDEUNSUPP]   = "Unsupported image file format",
 };
 
 typedef struct RDResolution {
