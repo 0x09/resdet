@@ -118,6 +118,19 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		qsort(*rh,*ch,sizeof(**rh),sortres);
 
 end:
+	if(ret != RDEOK) {
+		if(rw) {
+			free(*rw);
+			*rw = NULL;
+			*cw = 0;
+		}
+		if(rh) {
+			free(*rh);
+			*rh = NULL;
+			*ch = 0;
+		}
+	}
+
 	free(xresult);
 	free(yresult);
 	resdet_free_plan(p);
