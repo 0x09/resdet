@@ -60,6 +60,18 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 	return RDEOK;
 }
 
+static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
+	(*res)[(*count)++] = (RDResolution){length,-1};
+
+	for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+		if(result[i]/nimages >= threshold)
+			(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/nimages};
+
+	qsort(*res,*count,sizeof(**res),sortres);
+
+	return RDEOK;
+}
+
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
                                     RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
@@ -104,18 +116,10 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 			goto end;
 	}
 
-	for(rdint_index i = 0; xresult && i < xbound[1]-xbound[0]; i++)
-		if(xresult[i]/nimages >= threshold)
-			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/nimages};
-
-	for(rdint_index i = 0; yresult && i < ybound[1]-ybound[0]; i++)
-		if(yresult[i]/nimages >= threshold)
-			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/nimages};
-
-	if(rw)
-		qsort(*rw,*cw,sizeof(**rw),sortres);
-	if(rh)
-		qsort(*rh,*ch,sizeof(**rh),sortres);
+	if(rw && (ret = generate_dimension_results(width,nimages,threshold,rw,cw,xresult,xbound)) != RDEOK)
+		goto end;
+	if(rh && (ret = generate_dimension_results(height,nimages,threshold,rh,ch,yresult,ybound)) != RDEOK)
+		goto end;
 
 end:
 	if(ret != RDEOK) {
