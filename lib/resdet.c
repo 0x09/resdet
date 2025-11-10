@@ -36,17 +36,10 @@ static int sortres(const void* left, const void* right) {
 	return left_confidence < right_confidence ? 1 : (left_confidence > right_confidence ? -1 : 0);
 }
 
-static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
-	if(!detect)
-		return RDEOK;
-
+static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_index bounds[2]) {
 	size_t maxlen = 0;
 	if(range < (length+1)/2)
 		maxlen = length - range*2;
-
-	if(!(*detect = malloc(sizeof(**detect) * (maxlen+1))))
-		return RDENOMEM;
-	(*detect)[(*count)++] = (RDResolution){length,-1};
 
 	if(!maxlen)
 		return RDEOK;
@@ -61,6 +54,14 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 }
 
 static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
+	size_t nresults = 1;
+	for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+		if(result[i]/nimages >= threshold)
+			nresults++;
+
+	if(!(*res = malloc(nresults*sizeof(**res))))
+		return RDENOMEM;
+
 	(*res)[(*count)++] = (RDResolution){length,-1};
 
 	for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
@@ -95,9 +96,9 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		goto end;
 
 	rdint_index xbound[2], ybound[2];
-	if((ret = setup_dimension(width,range,rw,cw,&xresult,xbound)) != RDEOK)
+	if(rw && (ret = setup_dimension(width,range,&xresult,xbound)) != RDEOK)
 		goto end;
-	if((ret = setup_dimension(height,range,rh,ch,&yresult,ybound)) != RDEOK)
+	if(rh && (ret = setup_dimension(height,range,&yresult,ybound)) != RDEOK)
 		goto end;
 
 	for(size_t z = 0; z < nimages; z++) {
