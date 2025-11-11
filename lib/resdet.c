@@ -82,7 +82,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!(method && range))
-		return RDEINVAL;
+		return RDEPARAM;
 
 	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
 		return RDETOOBIG;
@@ -181,7 +181,7 @@ RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDR
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
-		return RDEINVAL;
+		return RDEPARAM;
 
 	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
@@ -204,7 +204,7 @@ RDError resdetect_file(const char* filename, const char* mimetype, RDResolution*
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
-		return RDEINVAL;
+		return RDEPARAM;
 
 	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
@@ -225,6 +225,7 @@ const char* resdet_error_str(RDError e) {
 		[RDEINVAL]    = "Invalid image",
 		[RDEUNSUPP]   = "Unsupported image file format",
 		[RDETOOBIG]   = "Image size exceeds limit",
+		[RDEPARAM]    = "Invalid method or range supplied"
 	};
 
 	if(e < 0)

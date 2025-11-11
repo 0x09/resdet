@@ -31,6 +31,7 @@ enum RDErrors {
 	RDEINVAL,
 	RDEUNSUPP,
 	RDETOOBIG,
+	RDEPARAM,
 };
 
 typedef struct RDResolution {
