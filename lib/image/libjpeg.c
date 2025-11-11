@@ -39,7 +39,7 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
 	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
-		*error = RDEINVAL;
+		*error = RDETOOBIG;
 		goto finish;
 	}
 	if(!(image = malloc(*width * *height))) {

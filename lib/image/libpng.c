@@ -53,7 +53,7 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	int channels = color & PNG_COLOR_MASK_COLOR ? 3 : 1;
 
 	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
-		*error = RDEINVAL;
+		*error = RDETOOBIG;
 		goto end;
 	}
 	if(!(image = malloc(*width * *height * channels))) {

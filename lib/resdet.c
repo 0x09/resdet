@@ -85,7 +85,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		return RDEINVAL;
 
 	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
-		return RDEINVAL;
+		return RDETOOBIG;
 	coeff* f = NULL;
 	if(!(f = resdet_alloc_coeffs(width,height)))
 		return RDENOMEM;
@@ -201,6 +201,7 @@ const char* resdet_error_str(RDError e) {
 		[RDEINTERNAL] = "Internal error",
 		[RDEINVAL]    = "Invalid image",
 		[RDEUNSUPP]   = "Unsupported image file format",
+		[RDETOOBIG]   = "Image size exceeds limit",
 	};
 
 	if(e < 0)

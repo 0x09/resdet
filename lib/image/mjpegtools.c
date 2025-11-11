@@ -24,7 +24,11 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 	*width = y4m_si_get_width(&st);
 	*height = y4m_si_get_height(&st);
 	int frame_length = y4m_si_get_framelength(&st);
-	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || frame_length < 0 || (size_t)frame_length < *width * *height) {
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
+		*error = RDETOOBIG;
+		goto end;
+	}
+	if(frame_length < 0 || (size_t)frame_length < *width * *height) {
 		*error = RDEINVAL;
 		goto end;
 	}
