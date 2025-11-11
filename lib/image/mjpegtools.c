@@ -22,7 +22,8 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || frame_length < 0 || (size_t)frame_length < *width * *height)
 		goto end;
 	frame_length -= *width * *height; // u/v plane skip
-	discard = malloc(frame_length);
+	if(!(discard = malloc(frame_length)))
+		goto end;
 	while(y4m_read_frame_header(fd,&st,&frame) == Y4M_OK) {
 		(*nimages)++;
 		unsigned char* tmp;
