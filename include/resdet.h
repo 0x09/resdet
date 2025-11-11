@@ -22,13 +22,15 @@
 
 #include <stddef.h>
 
-typedef enum RDError {
+typedef int RDError;
+
+enum RDErrors {
 	RDEOK = 0,
 	RDENOMEM,
 	RDEINTERNAL,
 	RDEINVAL,
 	RDEUNSUPP,
-} RDError;
+};
 
 typedef struct RDResolution {
 	size_t index;
