@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
+#include <errno.h>
 
 #include "resdet.h"
 #include "precision.h"

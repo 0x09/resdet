@@ -203,7 +203,10 @@ const char* resdet_error_str(RDError e) {
 		[RDEUNSUPP]   = "Unsupported image file format",
 	};
 
-	if(e < 0 || e >= sizeof(RDErrStr)/sizeof(*RDErrStr))
+	if(e < 0)
+		return strerror(-e);
+
+	if(e >= sizeof(RDErrStr)/sizeof(*RDErrStr))
 		return NULL;
 
 	return RDErrStr[e];
