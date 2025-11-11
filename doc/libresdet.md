@@ -3,10 +3,10 @@ libresdet is a small library for analyzing potential original resolutions in an 
 # Functions
 
 ```C
-	RDErrStr[]
+	const char* resdet_error_str(RDError);
 ```
 
-Most library functions return `RDError` to indicate any failure. While not actually a function, use `RDErrStr[error]` to map an `RDError` to a descriptive string.
+Most library functions return `RDError` to indicate any failure. Use `resdet_error_str(error)` to map an `RDError` to a descriptive string. The returned value is statically allocated and does not need to be freed. Returns NULL if the provided error does not map to a valid RDError.
 
 ---
 

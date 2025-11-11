@@ -69,6 +69,6 @@ int main(int argc, char* argv[]) {
 end:
 	free(rw);
 	free(rh);
-	if(e) fprintf(stderr,"%s\n",RDErrStr[e]);
+	if(e) fprintf(stderr,"%s\n",resdet_error_str(e));
 	return e;
 }

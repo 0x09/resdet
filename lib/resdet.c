@@ -193,3 +193,18 @@ size_t resdet_default_range(void) {
 const char* resdet_libversion(void) {
 	return RESDET_LIBVERSION_STRING;
 }
+
+const char* resdet_error_str(RDError e) {
+	static const char* const RDErrStr[] = {
+		[RDEOK]       = "",
+		[RDENOMEM]    = "Out of memory",
+		[RDEINTERNAL] = "Internal error",
+		[RDEINVAL]    = "Invalid image",
+		[RDEUNSUPP]   = "Unsupported image file format",
+	};
+
+	if(e < 0 || e >= sizeof(RDErrStr)/sizeof(*RDErrStr))
+		return NULL;
+
+	return RDErrStr[e];
+}

@@ -30,14 +30,6 @@ typedef enum RDError {
 	RDEUNSUPP,
 } RDError;
 
-static const char* const RDErrStr[] = {
-	[RDEOK]       = "",
-	[RDENOMEM]    = "Out of memory",
-	[RDEINTERNAL] = "Internal error",
-	[RDEINVAL]    = "Invalid image",
-	[RDEUNSUPP]   = "Unsupported image file format",
-};
-
 typedef struct RDResolution {
 	size_t index;
 	float confidence;
@@ -50,6 +42,8 @@ typedef struct RDMethod {
 } RDMethod;
 
 const char* resdet_libversion(void);
+
+const char* resdet_error_str(RDError);
 
 RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);

@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
 		size_t w, h, d;
 		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
 		if(e) {
-			fprintf(stderr, "Error reading %s: %s\n",line,RDErrStr[e]);
+			fprintf(stderr, "Error reading %s: %s\n",line,resdet_error_str(e));
 			// skip over this image's resolution lists
 			if(getline(&line,&len2,dict) <= 0 ||
 			   getline(&line,&len2,dict) <= 0)
