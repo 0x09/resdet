@@ -22,7 +22,7 @@
 
 #include <stddef.h>
 
-typedef int RDError;
+typedef int RDError; // an RDErrors value or negated errno code
 
 enum RDErrors {
 	RDEOK = 0,
