@@ -121,7 +121,7 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 			break;
 	}
 
-	if(next_char != EOF) {
+	if(next_char != EOF || !feof(f)) {
 		free(image);
 		image = NULL;
 	}
