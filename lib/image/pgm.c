@@ -8,7 +8,7 @@ static float* read_pgm(const char* filename, size_t* width, size_t* height, size
 	float* image = NULL;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f) {
-		*error = RDEINVAL;
+		*error = -errno;
 		return NULL;
 	}
 	uint16_t depth;
@@ -97,7 +97,7 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	float* image = NULL;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f) {
-		*error = RDEINVAL;
+		*error = -errno;
 		return NULL;
 	}
 	float endianness_scale;

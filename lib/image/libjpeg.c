@@ -13,7 +13,7 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 	*error = RDEOK;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f) {
-		*error = RDEINVAL;
+		*error = -errno;
 		return NULL;
 	}
 

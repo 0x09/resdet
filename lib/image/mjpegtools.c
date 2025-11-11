@@ -9,7 +9,7 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 	float* imagef = NULL;
 	int fd = strcmp(filename,"-") ? open(filename,O_RDONLY) : 0;
 	if(fd < 0) {
-		*error = RDEINVAL;
+		*error = -errno;
 		return NULL;
 	}
 

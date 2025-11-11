@@ -12,7 +12,7 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	*error = RDEOK;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!f) {
-		*error = RDEINVAL;
+		*error = -errno;
 		return NULL;
 	}
 
