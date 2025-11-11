@@ -88,7 +88,8 @@ RDError resdet_read_image(const char* filename, const char* mimetype, float** im
 	if(!reader)
 		return RDEUNSUPP;
 
-	*image = reader->read(filename,width,height,nimages);
+	RDError e;
+	*image = reader->read(filename,width,height,nimages,&e);
 
-	return *image ? RDEOK : RDEINVAL;
+	return e;
 }

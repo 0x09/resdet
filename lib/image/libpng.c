@@ -8,10 +8,13 @@
 static void pngerr_error_fn(png_structp png_ptr, png_const_charp error_msg) { png_longjmp(png_ptr,1); }
 static void pngerr_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {}
 
-static float* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_png(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+	*error = RDEOK;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f)
+	if(!f) {
+		*error = RDEINVAL;
 		return NULL;
+	}
 
 	*nimages = 1;
 	unsigned char* image = NULL;
@@ -19,17 +22,26 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
 	unsigned char header[8];
-	if(fread(header,1,8,f) != 8)
+	if(fread(header,1,8,f) != 8) {
+		*error = RDEINVAL;
 		goto end;
-	if(png_sig_cmp(header,0,8))
+	}
+	if(png_sig_cmp(header,0,8)) {
+		*error = RDEINVAL;
 		goto end;
-	if(!(png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr_error_fn, pngerr_warning_fn)))
+	}
+	if(!(png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, pngerr_error_fn, pngerr_warning_fn))) {
+		*error = RDENOMEM;
 		goto end;
-
-	if(!(info_ptr = png_create_info_struct(png_ptr)))
+	}
+	if(!(info_ptr = png_create_info_struct(png_ptr))) {
+		*error = RDENOMEM;
 		goto end;
-	if(setjmp(png_jmpbuf(png_ptr)))
+	}
+	if(setjmp(png_jmpbuf(png_ptr))) {
+		*error = RDEINVAL;
 		goto end;
+	}
 
 	png_init_io(png_ptr,f);
 	png_set_sig_bytes(png_ptr,8);
@@ -40,8 +52,14 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 	int bit_depth = png_get_bit_depth(png_ptr,info_ptr), color = png_get_color_type(png_ptr,info_ptr);
 	int channels = color & PNG_COLOR_MASK_COLOR ? 3 : 1;
 
-	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height * channels)))
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
+		*error = RDEINVAL;
 		goto end;
+	}
+	if(!(image = malloc(*width * *height * channels))) {
+		*error = RDENOMEM;
+		goto end;
+	}
 
 	if(png_get_valid(png_ptr,info_ptr,PNG_INFO_tRNS)) {
 		png_set_tRNS_to_alpha(png_ptr);
@@ -68,8 +86,10 @@ static float* read_png(const char* filename, size_t* width, size_t* height, size
 
 	png_read_end(png_ptr, NULL);
 
-	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+	if(!(imagef = malloc(*width * *height * sizeof(*imagef)))) {
+		*error = RDENOMEM;
 		goto end;
+	}
 	for(size_t i = 0; i < *width * *height; i++) {
 		imagef[i] = 0;
 		for(int c = 0; c < channels; c++)
