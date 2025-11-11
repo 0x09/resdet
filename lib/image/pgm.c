@@ -112,12 +112,12 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	    (next_char = fgetc(f)) == 'P' &&
 	    fscanf(f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) == 4 &&
 	    (next_format == 'f' || next_format == 'F') &&
-	    next_width == *width && next_height == *height && next_endianness_scale == endianness_scale &&
+	    next_width == *width && next_height == *height &&
 	    !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
 	    (next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))
 	) {
 		image = next_image;
-		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,endianness_scale,next_format))
+		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,next_endianness_scale,next_format))
 			break;
 	}
 
