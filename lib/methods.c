@@ -131,6 +131,6 @@ static RDMethod methods[] = {
 	{0}
 };
 
-RDMethod* resdet_methods() {
+RDMethod* resdet_methods(void) {
 	return methods;
 }
