@@ -6,7 +6,7 @@
 #include "resdet_internal.h"
 
 struct image_reader {
-	float* (*read)(const char*,size_t*,size_t*,size_t*);
+	float* (*read)(const char*,size_t*,size_t*,size_t*,RDError*);
 };
 
 #endif

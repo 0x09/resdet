@@ -29,13 +29,13 @@
 
 #include "resdet.h"
 
-#define RESDET_VERSION_STRING "1.0.2"
+#ifndef VERSION_SUFFIX
+#define VERSION_SUFFIX
+#endif
+
+#define RESDET_VERSION_STRING "1.0.2" VERSION_SUFFIX
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
-
-int sortres(const void* left, const void* right) {
-	return ((const RDResolution*)right)->confidence*10000 - ((const RDResolution*)left)->confidence*10000;
-}
 
 void usage(const char* self) {
 	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
@@ -112,9 +112,6 @@ int main(int argc, char* argv[]) {
 	if(e || !verbosity)
 		goto end;
 
-	qsort(rw,cw,sizeof(*rw),sortres);
-	qsort(rh,ch,sizeof(*rh),sortres);
-
 	if(verbosity == 1) {
 		printf("%zu %zu\n",rw[0].index,rh[0].index);
 		goto end;
@@ -154,7 +151,7 @@ end:
 	free(rw);
 	free(rh);
 	if(e) {
-		fprintf(stderr,"%s\n",RDErrStr[e]);
+		fprintf(stderr,"%s\n",resdet_error_str(e));
 		return e + 64;
 	}
 	return !verbosity ? (cw==1 && ch==1) : 0;

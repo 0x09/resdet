@@ -22,18 +22,15 @@
 
 #include <stddef.h>
 
-typedef enum RDError {
+typedef int RDError; // an RDErrors value or negated errno code
+
+enum RDErrors {
 	RDEOK = 0,
 	RDENOMEM,
 	RDEINTERNAL,
-	RDEINVAL
-} RDError;
-
-static const char* const RDErrStr[] = {
-	[RDEOK]       = "",
-	[RDENOMEM]    = "Out of memory",
-	[RDEINTERNAL] = "Internal error",
-	[RDEINVAL]    = "Invalid image"
+	RDEINVAL,
+	RDEUNSUPP,
+	RDETOOBIG,
 };
 
 typedef struct RDResolution {
@@ -48,6 +45,8 @@ typedef struct RDMethod {
 } RDMethod;
 
 const char* resdet_libversion(void);
+
+const char* resdet_error_str(RDError);
 
 RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);

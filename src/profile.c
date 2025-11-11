@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
 		size_t w, h, d;
 		RDError e = resdet_read_image(line,NULL,&image,&d,&w,&h);
 		if(e) {
-			fprintf(stderr, "Error reading %s: %s\n",line,RDErrStr[e]);
+			fprintf(stderr, "Error reading %s: %s\n",line,resdet_error_str(e));
 			// skip over this image's resolution lists
 			if(getline(&line,&len2,dict) <= 0 ||
 			   getline(&line,&len2,dict) <= 0)
@@ -144,8 +144,8 @@ int main(int argc, char* argv[]) {
 			tvs[m-methods].tv_usec = (tvs[m-methods].tv_usec + after.tv_usec) % 1000000;
 
 			size_t plus = 0, minus = 0;
-			diffres(knownw,knownwct,rw+1,cw-1,&plus,&minus);
-			diffres(knownh,knownhct,rh+1,ch-1,&plus,&minus);
+			diffres(knownw,knownwct,rw,cw-1,&plus,&minus);
+			diffres(knownh,knownhct,rh,ch-1,&plus,&minus);
 			diffplus[m-methods] += plus;
 			diffminus[m-methods] += minus;
 

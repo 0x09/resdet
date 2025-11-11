@@ -29,17 +29,17 @@ todo:
 
 #include "resdet_internal.h"
 
-static RDError setup_dimension(size_t length, size_t range, RDResolution** detect, size_t* count, double** buf, rdint_index bounds[2]) {
-	if(!detect)
-		return RDEOK;
+static int sortres(const void* left, const void* right) {
+	float left_confidence = ((const RDResolution*)left)->confidence,
+	      right_confidence = ((const RDResolution*)right)->confidence;
 
+	return left_confidence < right_confidence ? 1 : (left_confidence > right_confidence ? -1 : 0);
+}
+
+static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_index bounds[2]) {
 	size_t maxlen = 0;
 	if(range < (length+1)/2)
 		maxlen = length - range*2;
-
-	if(!(*detect = malloc(sizeof(**detect) * (maxlen+1))))
-		return RDENOMEM;
-	(*detect)[(*count)++] = (RDResolution){length,-1};
 
 	if(!maxlen)
 		return RDEOK;
@@ -53,6 +53,28 @@ static RDError setup_dimension(size_t length, size_t range, RDResolution** detec
 	return RDEOK;
 }
 
+static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
+	size_t nresults = 1;
+	if(result)
+		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+			if(result[i]/nimages >= threshold)
+				nresults++;
+
+	if(!(*res = malloc(nresults*sizeof(**res))))
+		return RDENOMEM;
+
+	(*res)[(*count)++] = (RDResolution){length,-1};
+
+	if(result)
+		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
+			if(result[i]/nimages >= threshold)
+				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/nimages};
+
+	qsort(*res,*count,sizeof(**res),sortres);
+
+	return RDEOK;
+}
+
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
                                     RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
@@ -63,7 +85,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		return RDEINVAL;
 
 	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
-		return RDEINVAL;
+		return RDETOOBIG;
 
 	RDError ret = RDEOK;
 	coeff* fx = NULL,* fy = NULL;
@@ -89,9 +111,9 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	}
 
 	rdint_index xbound[2], ybound[2];
-	if((ret = setup_dimension(width,range,rw,cw,&xresult,xbound)) != RDEOK)
+	if(rw && (ret = setup_dimension(width,range,&xresult,xbound)) != RDEOK)
 		goto end;
-	if((ret = setup_dimension(height,range,rh,ch,&yresult,ybound)) != RDEOK)
+	if(rh && (ret = setup_dimension(height,range,&yresult,ybound)) != RDEOK)
 		goto end;
 
 	for(size_t z = 0; z < nimages; z++) {
@@ -116,15 +138,25 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		}
 	}
 
-	for(rdint_index i = 0; rw && *rw && i < xbound[1]-xbound[0]; i++)
-		if(xresult[i]/(height*nimages) >= threshold)
-			(*rw)[(*cw)++] = (RDResolution){i+xbound[0],xresult[i]/(height*nimages)};
-
-	for(rdint_index i = 0; rh && *rh && i < ybound[1]-ybound[0]; i++)
-		if(yresult[i]/(width*nimages) >= threshold)
-			(*rh)[(*ch)++] = (RDResolution){i+ybound[0],yresult[i]/(width*nimages)};
+	if(rw && (ret = generate_dimension_results(width,nimages,threshold,rw,cw,xresult,xbound)) != RDEOK)
+		goto end;
+	if(rh && (ret = generate_dimension_results(height,nimages,threshold,rh,ch,yresult,ybound)) != RDEOK)
+		goto end;
 
 end:
+	if(ret != RDEOK) {
+		if(rw) {
+			free(*rw);
+			*rw = NULL;
+			*cw = 0;
+		}
+		if(rh) {
+			free(*rh);
+			*rh = NULL;
+			*ch = 0;
+		}
+	}
+
 	free(xresult);
 	free(yresult);
 	resdet_free_plan(px);
@@ -177,10 +209,29 @@ RDError resdetect_file(const char* filename, const char* mimetype, RDResolution*
 	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
-size_t resdet_default_range() {
+size_t resdet_default_range(void) {
 	return DEFAULT_RANGE;
 }
 
-const char* resdet_libversion() {
+const char* resdet_libversion(void) {
 	return RESDET_LIBVERSION_STRING;
+}
+
+const char* resdet_error_str(RDError e) {
+	static const char* const RDErrStr[] = {
+		[RDEOK]       = "",
+		[RDENOMEM]    = "Out of memory",
+		[RDEINTERNAL] = "Internal error",
+		[RDEINVAL]    = "Invalid image",
+		[RDEUNSUPP]   = "Unsupported image file format",
+		[RDETOOBIG]   = "Image size exceeds limit",
+	};
+
+	if(e < 0)
+		return strerror(-e);
+
+	if(e >= sizeof(RDErrStr)/sizeof(*RDErrStr))
+		return NULL;
+
+	return RDErrStr[e];
 }

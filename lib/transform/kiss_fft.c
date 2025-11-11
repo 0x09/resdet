@@ -34,8 +34,6 @@ struct resdet_plan {
 };
 
 coeff* resdet_alloc_coeffs(size_t length) {
-	if(length > SIZE_MAX/sizeof(coeff))
-		return NULL;
 	return malloc(sizeof(coeff)*length);
 }
 

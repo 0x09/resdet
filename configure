@@ -166,6 +166,11 @@ DEFS=
 LIBS=
 PCDEPS=
 
+if git rev-parse &> /dev/null && ! git describe --exact-match --tags &> /dev/null; then
+	version_suffix=+$(git rev-parse --short HEAD)
+	DEFS+=" -DVERSION_SUFFIX=\\\"$version_suffix\\\""
+fi
+
 lfftw="fftw3f"
 case "$COEFF_PRECISION" in
 	8)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;

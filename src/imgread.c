@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 	RDError e = resdet_read_image(argv[1], NULL, &image, &nimages, &width, &height);
 
 	if(e) {
-		fprintf(stderr,"%s\n",RDErrStr[e]);
+		fprintf(stderr,"%s\n",resdet_error_str(e));
 		return 1;
 	}
 

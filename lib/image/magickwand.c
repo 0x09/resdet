@@ -6,16 +6,25 @@
 #include <wand/MagickWand.h>
 #endif
 
-static float* read_magick(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_magick(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+	*error = RDEOK;
 	float* image = NULL;
 	MagickWand* wand = NewMagickWand();
-	if(!MagickReadImage(wand,filename))
+	if(!MagickReadImage(wand,filename)) {
+		*error = RDEINVAL;
 		goto end;
+	}
 	*width = MagickGetImageWidth(wand);
 	*height = MagickGetImageHeight(wand);
 	*nimages = MagickGetNumberImages(wand);
-	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image) || !(image = malloc(sizeof(*image) * *width * *height * *nimages)))
+	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
+		*error = RDETOOBIG;
 		goto end;
+	}
+	if(!(image = malloc(sizeof(*image) * *width * *height * *nimages))) {
+		*error = RDENOMEM;
+		goto end;
+	}
 	MagickResetIterator(wand);
 	for(size_t i = 0; i < *nimages; i++) {
 		MagickNextImage(wand);

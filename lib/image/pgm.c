@@ -2,30 +2,43 @@
 
 #include <inttypes.h>
 
-static float* read_pgm(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_pgm(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+	*error = RDEOK;
 	*nimages = 1;
 	float* image = NULL;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f)
+	if(!f) {
+		*error = -errno;
 		return NULL;
+	}
 	uint16_t depth;
 	if(
-		fscanf(f,"P5 %zu %zu %" SCNu16,width,height,&depth) == 3 &&
-		fgetc(f) != EOF &&
-		depth < 256 &&
-		!resdet_dims_exceed_limit(*width,*height,1,*image) &&
-		(image = malloc(sizeof(*image) * *width * *height))
+		fscanf(f,"P5 %zu %zu %" SCNu16,width,height,&depth) != 3 ||
+		fgetc(f) == EOF ||
+		depth > 255
 	) {
-		int c;
-		for(size_t i = 0; i < *width * *height; i++) {
-			if((c = fgetc(f)) == EOF) {
-				free(image);
-				image = NULL;
-				break;
-			}
-			else image[i] = c/(float)depth;
-		}
+		*error = RDEINVAL;
+		goto end;
 	}
+	if(resdet_dims_exceed_limit(*width,*height,1,*image)) {
+		*error = RDETOOBIG;
+		goto end;
+	}
+	if(!(image = malloc(sizeof(*image) * *width * *height))) {
+		*error = RDENOMEM;
+		goto end;
+	}
+	int c;
+	for(size_t i = 0; i < *width * *height; i++) {
+		if((c = fgetc(f)) == EOF) {
+			*error = RDEINVAL;
+			free(image);
+			image = NULL;
+			break;
+		}
+		else image[i] = c/(float)depth;
+	}
+end:
 	if(f != stdin)
 		fclose(f);
 	return image;
@@ -81,23 +94,35 @@ static bool read_pfm_plane(FILE* f, float* image, size_t width, size_t height, f
 	return format == 'f' ? read_pfm_plane_gray(f,image,width,height,endianness_scale) : read_pfm_plane_rgb(f,image,width,height,endianness_scale);
 }
 
-static float* read_pfm(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_pfm(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+	*error = RDEOK;
 	*nimages = 1;
 	float* image = NULL;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f)
+	if(!f) {
+		*error = -errno;
 		return NULL;
+	}
 	float endianness_scale;
 	char format;
-	if(!(
-	   fscanf(f,"P%c %zu %zu %f\n",&format,width,height,&endianness_scale) == 4 &&
-	   (format == 'f' || format == 'F') &&
-	   !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
-	   (image = malloc(sizeof(*image) * *width * *height))
-	))
+	if(
+	   fscanf(f,"P%c %zu %zu %f\n",&format,width,height,&endianness_scale) != 4 ||
+	   !(format == 'f' || format == 'F')
+	) {
+		*error = RDEINVAL;
 		goto end;
+	}
+	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
+		*error = RDETOOBIG;
+		goto end;
+	}
+	if(!(image = malloc(sizeof(*image) * *width * *height))) {
+		*error = RDENOMEM;
+		goto end;
+	}
 
 	if(!read_pfm_plane(f,image,*width,*height,endianness_scale,format)) {
+		*error = RDEINVAL;
         free(image);
 		image = NULL;
 		goto end;
@@ -112,16 +137,28 @@ static float* read_pfm(const char* filename, size_t* width, size_t* height, size
 	    (next_char = fgetc(f)) == 'P' &&
 	    fscanf(f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) == 4 &&
 	    (next_format == 'f' || next_format == 'F') &&
-	    next_width == *width && next_height == *height && next_endianness_scale == endianness_scale &&
-	    !resdet_dims_exceed_limit(*width,*height,*nimages,*image) &&
-	    (next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))
+	    next_width == *width && next_height == *height
 	) {
+		if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
+			*error = RDETOOBIG;
+			free(image);
+			image = NULL;
+			goto end;
+		}
+		if(!(next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))) {
+			*error = RDENOMEM;
+			free(image);
+			image = NULL;
+			goto end;
+		}
+
 		image = next_image;
-		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,endianness_scale,next_format))
+		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,next_endianness_scale,next_format))
 			break;
 	}
 
-	if(next_char != EOF) {
+	if(next_char != EOF || !feof(f)) {
+		*error = RDEINVAL;
 		free(image);
 		image = NULL;
 	}

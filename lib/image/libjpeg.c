@@ -9,10 +9,13 @@ static void jerr_emit_message(j_common_ptr cinfo, int msg_level) {}
 static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1); }
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
 
-static float* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages) {
+static float* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+	*error = RDEOK;
 	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f)
+	if(!f) {
+		*error = -errno;
 		return NULL;
+	}
 
 	*nimages = 1;
 	unsigned char* image = NULL;
@@ -23,8 +26,10 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 		.emit_message    = jerr_emit_message,
 		.reset_error_mgr = jerr_reset_error_mgr
 	};
-	if(setjmp(cinfo.client_data = (jmp_buf){0}))
+	if(setjmp(cinfo.client_data = (jmp_buf){0})) {
+		*error = RDEINVAL;
 		goto end;
+	}
 
 	jpeg_create_decompress(&cinfo);
 	jpeg_stdio_src(&cinfo,f);
@@ -33,8 +38,14 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 	jpeg_start_decompress(&cinfo);
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
-	if(resdet_dims_exceed_limit(*width,*height,1,*imagef) || !(image = malloc(*width * *height)))
+	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
+		*error = RDETOOBIG;
 		goto finish;
+	}
+	if(!(image = malloc(*width * *height))) {
+		*error = RDENOMEM;
+		goto finish;
+	}
 
 	unsigned char* it = image;
 	while(cinfo.output_scanline < cinfo.output_height) {
@@ -43,8 +54,10 @@ static float* read_jpeg(const char* filename, size_t* width, size_t* height, siz
 			rows[i] = it+i*cinfo.output_width;
 		it += jpeg_read_scanlines(&cinfo,rows,cinfo.rec_outbuf_height) * cinfo.output_width;
 	}
-	if(!(imagef = malloc(*width * *height * sizeof(*imagef))))
+	if(!(imagef = malloc(*width * *height * sizeof(*imagef)))) {
+		*error = RDENOMEM;
 		goto end;
+	}
 	for(size_t i = 0; i < *width * *height; i++)
 		imagef[i] = image[i]/255.f;
 finish:
