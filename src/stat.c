@@ -7,8 +7,6 @@
 
 #include "resdet.h"
 
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-
 void statres(RDResolution* rw, size_t cw) {
 	float median = (rw[cw/2].confidence + rw[(cw+1)/2].confidence) / 2;
 	float lq = rw[cw/4].confidence*(cw/4.0-cw/4) + rw[(cw+1)/4].confidence*(1-(cw/4.0-cw/4));
