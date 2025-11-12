@@ -41,7 +41,7 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 		(*nimages)++;
 		unsigned char* tmp;
 		if(*width * *height > PIXEL_MAX / *nimages) {
-			*error = RDEINVAL;
+			*error = RDETOOBIG;
 			free(image);
 			image = NULL;
 			break;
