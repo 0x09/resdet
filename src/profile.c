@@ -103,10 +103,12 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 
-		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
+		len = getline(&line,&len2,dict);
+		line[len-1] = '\0';
 		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);
-		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
+		len = getline(&line,&len2,dict);
+		line[len-1] = '\0';
 		readres(line,&knownh,&knownhct);
 
 		for(RDMethod* m = methods; m->name; m++) {
