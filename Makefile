@@ -45,14 +45,15 @@ endif
 
 OBJS := $(addprefix lib/, $(OBJS))
 
-CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
-
 all: $(TOOLS)
 
+$(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 vpath %.o src
+
+CFLAGS := -Iinclude/ $(CLIDEFS) $(CFLAGS)
 
 resdet: src/resdet.o $(LIB)
 profile: src/profile.o $(LIB)

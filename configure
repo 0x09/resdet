@@ -163,12 +163,14 @@ define PCPREFIX "$PCPREFIX"
 echo
 
 DEFS=
+CLIDEFS=
 LIBS=
 PCDEPS=
 
 if git rev-parse &> /dev/null && ! git describe --exact-match --tags &> /dev/null; then
 	version_suffix=+$(git rev-parse --short HEAD)
 	DEFS+=" -DVERSION_SUFFIX=\\\"$version_suffix\\\""
+	CLIDEFS+=" -DVERSION_SUFFIX=\\\"$version_suffix\\\""
 fi
 
 lfftw="fftw3f"
@@ -214,6 +216,7 @@ if [ -n "$PCDEPS" ]; then
 fi
 
 echo "DEFS=$DEFS" >> config.mak
+echo "CLIDEFS=$CLIDEFS" >> config.mak
 echo "LDLIBS=$LIBS" >> config.mak
 
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
