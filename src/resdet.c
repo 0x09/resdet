@@ -98,17 +98,17 @@ int main(int argc, char* argv[]) {
 	}
 	if(verbosity == 2 || verbosity == 3) {
 		for(size_t i = 0; i < cw; i++) {
-			if(verbosity == 2)
-				printf("%zu ",rw[i].index);
-			else
-				printf("%zu:%f ",rw[i].index,rw[i].confidence);
+			printf("%zu",rw[i].index);
+			if(verbosity == 3)
+				printf(":%f",rw[i].confidence);
+			putchar(' ');
 		}
 		putchar('\n');
 		for(size_t i = 0; i < ch; i++) {
-			if(verbosity == 2)
-				printf("%zu ",rh[i].index);
-			else
-				printf("%zu:%f ",rh[i].index,rh[i].confidence);
+			printf("%zu",rh[i].index);
+			if(verbosity == 3)
+				printf(":%f",rh[i].confidence);
+			putchar(' ');
 		}
 		putchar('\n');
 		goto end;
