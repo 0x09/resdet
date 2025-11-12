@@ -138,6 +138,7 @@ int main(int argc, char* argv[]) {
 		free(knownh);
 		free(image);
 	}
+	free(line);
 	fclose(dict);
 
 	puts("totals");
