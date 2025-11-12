@@ -1,3 +1,8 @@
+/*
+ * Image reader for yuv4mpeg files using libmjpegutils from the mjpegtools project.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #include <mjpegtools/yuv4mpeg.h>

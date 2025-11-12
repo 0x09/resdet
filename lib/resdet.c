@@ -1,3 +1,8 @@
+/*
+ * resdet core routines.
+ * This file is part of libresdet.
+ */
+
 #include <stdio.h>
 #include <math.h>
 

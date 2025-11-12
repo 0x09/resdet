@@ -1,5 +1,7 @@
 /*
- * libresdet - Detect source resolution of upscaled images.
+ * resdet - Detect source resolution of upscaled images.
+ * Public API header.
+ * This file is part of libresdet.
  */
 
 #ifndef RESDET_H

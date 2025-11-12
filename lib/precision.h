@@ -1,3 +1,8 @@
+/*
+ * Defines macros for toggling floating point precision of specific types at compile time.
+ * This file is part of libresdet.
+ */
+
 #ifndef PRECISION_H
 #define PRECISION_H
 

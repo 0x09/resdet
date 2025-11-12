@@ -1,3 +1,8 @@
+/*
+ * Core image reading routines.
+ * This file is part of libresdet.
+ */
+
 #ifndef IMAGE_H
 #define IMAGE_H
 

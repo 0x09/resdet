@@ -1,3 +1,8 @@
+/*
+ * Image reader for JPEG files using libjpeg.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #include <stdlib.h>

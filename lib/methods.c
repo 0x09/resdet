@@ -1,3 +1,8 @@
+/*
+ * Upscaling detection methods.
+ * This file is part of libresdet.
+ */
+
 #include <math.h>
 #include <float.h>
 

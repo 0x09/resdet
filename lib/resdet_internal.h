@@ -1,3 +1,8 @@
+/*
+ * resdet internal API
+ * This file is part of libresdet.
+ */
+
 #ifndef RESDET_INTERNAL_H
 #define RESDET_INTERNAL_H
 

@@ -1,3 +1,8 @@
+/*
+ * KISS FFT transform backend.
+ * This file is part of libresdet.
+ */
+
 #include "resdet_internal.h"
 
 #if COEFF_PRECISION > 8

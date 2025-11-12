@@ -1,3 +1,8 @@
+/*
+ * FFTW transform backend.
+ * This file is part of libresdet.
+ */
+
 #include "resdet_internal.h"
 #include <fftw3.h>
 

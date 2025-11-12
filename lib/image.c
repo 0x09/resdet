@@ -1,3 +1,8 @@
+/*
+ * Core image reading routines.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 static const char* mimetype_from_ext(const char* filename) {
