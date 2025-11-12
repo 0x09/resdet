@@ -214,7 +214,7 @@ if [ -n "$PCDEPS" ]; then
 fi
 
 echo "DEFS=$DEFS" >> config.mak
-echo "LIBS=$LIBS" >> config.mak
+echo "LDLIBS=$LIBS" >> config.mak
 
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"

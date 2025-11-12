@@ -52,17 +52,12 @@ all: $(TOOLS)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
+vpath %.o src
+
 resdet: src/resdet.o $(LIB)
-	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
-
 profile: src/profile.o $(LIB)
-	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
-
 stat: src/stat.o $(LIB)
-	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
-
 imgread: src/imgread.o $(LIB)
-	$(CC) -o $@ $(DEFS) $(LDFLAGS) $+ $(LIBS)
 
 install-lib: $(LIB)
 	install -m644 include/resdet.h $(INCPREFIX)/
@@ -76,9 +71,9 @@ install: resdet
 	install resdet $(BINPREFIX)/
 
 uninstall:
-	rm -f $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
+	$(RM) $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
 	
 clean:
-	rm -f -- src/*.o $(OBJS) $(LIB) $(TOOLS)
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS)
 
 .PHONY: all install uninstall clean
