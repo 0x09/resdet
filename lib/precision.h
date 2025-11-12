@@ -14,15 +14,17 @@
 #define INTER_PRECISION 8
 #endif
 
-#if COEFF_PRECISION == 8
+#if COEFF_PRECISION == 4
+	#define COEFF_SUFFIX f
+	typedef float coeff;
+#elif COEFF_PRECISION == 8
 	#define COEFF_SUFFIX
 	typedef double coeff;
 #elif COEFF_PRECISION == 12
 	#define COEFF_SUFFIX l
 	typedef long double coeff;
 #else
-	#define COEFF_SUFFIX f
-	typedef float coeff;
+	#error "Invalid value for COEFF_PRECISION"
 #endif
 
 #if INTER_PRECISION < COEFF_PRECISION
@@ -35,14 +37,16 @@
 	#define EPSILON FLT_EPSILON
 	#define INTER_SUFFIX f
 	typedef float intermediate;
+#elif INTER_PRECISION == 8
+	#define EPSILON DBL_EPSILON
+	#define INTER_SUFFIX
+	typedef double intermediate;
 #elif INTER_PRECISION == 12
 	#define EPSILON LDBL_EPSILON
 	#define INTER_SUFFIX l
 	typedef long double intermediate;
 #else
-	#define EPSILON DBL_EPSILON
-	#define INTER_SUFFIX
-	typedef double intermediate;
+	#error "Invalid value for INTER_PRECISION"
 #endif
 
 #define CAT_(x,y) x##y
