@@ -42,7 +42,6 @@ typedef size_t rdint_storage;
 )
 
 #ifndef DEFAULT_RANGE
-//32 originally but diminishing returns after 8 (8 seems to be ideal). smaller is faster, lower accuracy
 #define DEFAULT_RANGE 12
 #endif
 

@@ -1,10 +1,3 @@
-/*
-todo:
-	statistical selection
-	union/intersect results
-	other methods from RDView
-*/
-
 #include <stdio.h>
 #include <math.h>
 
