@@ -133,7 +133,11 @@ int main(int argc, char* argv[]) {
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
-			e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m);
+			if((e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m))) {
+				fprintf(stderr, "Error during detection: %s\n",resdet_error_str(e));
+				ret = 1;
+				goto detect_end;
+			}
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval after = rusage.ru_utime;
 
@@ -148,7 +152,7 @@ int main(int argc, char* argv[]) {
 			diffminus[m-methods] += minus;
 
 			printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,after.tv_sec,(long)after.tv_usec,plus,minus);
-
+detect_end:
 			free(rw);
 			free(rh);
 		}
