@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/resource.h>
+#include <errno.h>
 
 #include "resdet.h"
 
@@ -83,10 +84,15 @@ int main(int argc, char* argv[]) {
 	memset(diffminus,0,sizeof(diffminus));
 
 	FILE* dict = fopen(argv[1],"r");
+	if(!dict) {
+		fprintf(stderr,"Error opening dictionary file: %s\n",strerror(errno));
+		return 1;
+	}
+	int ret = 0;
 	ssize_t len;
 	size_t len2;
 	char* line = NULL;
-	while((len = getline(&line,&len2,dict)) > 0) {
+	while(!ret && (len = getline(&line,&len2,dict)) > 0) {
 		if(*line == '\n')
 			continue;
 		line[len-1] = '\0';
@@ -98,16 +104,26 @@ int main(int argc, char* argv[]) {
 			fprintf(stderr, "Error reading %s: %s\n",line,resdet_error_str(e));
 			// skip over this image's resolution lists
 			if(getline(&line,&len2,dict) <= 0 ||
-			   getline(&line,&len2,dict) <= 0)
+			   getline(&line,&len2,dict) <= 0) {
+				ret = 1;
 				break;
+			}
 			continue;
 		}
 
-		len = getline(&line,&len2,dict);
+		size_t* knownw = NULL,* knownh  = NULL;
+		size_t knownwct, knownhct;
+		if((len = getline(&line,&len2,dict)) <= 0) {
+			ret = 1;
+			goto read_end;
+		}
 		line[len-1] = '\0';
-		size_t* knownw, knownwct,* knownh, knownhct;
 		readres(line,&knownw,&knownwct);
-		len = getline(&line,&len2,dict);
+
+		if((len = getline(&line,&len2,dict)) <= 0) {
+			ret = 1;
+			goto read_end;
+		}
 		line[len-1] = '\0';
 		readres(line,&knownh,&knownhct);
 
@@ -136,6 +152,7 @@ int main(int argc, char* argv[]) {
 			free(rw);
 			free(rh);
 		}
+read_end:
 		free(knownw);
 		free(knownh);
 		free(image);
@@ -146,5 +163,5 @@ int main(int argc, char* argv[]) {
 	puts("totals");
 	for(RDMethod* m = methods; m->name; m++)
 		printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,tvs[m-methods].tv_sec,(long)tvs[m-methods].tv_usec,diffplus[m-methods],diffminus[m-methods]);
-	return 0;
+	return ret;
 }
