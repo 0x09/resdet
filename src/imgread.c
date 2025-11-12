@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	FILE* out = fopen(argv[2], "w");
+	FILE* out = fopen(argv[2], "wb");
 	if(!out) {
 		perror("error opening output");
 		free(image);
