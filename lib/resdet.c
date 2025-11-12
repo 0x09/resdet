@@ -126,21 +126,21 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 				fx[x] = image[z*width*height+y*width+x];
 			}
 			resdet_transform(px);
-			if(rw && *rw && (ret = ((RDetectFunc)method->func)(fx,width,range,xresult,xbound,xbound+1)) != RDEOK)
+			if(rw && (ret = ((RDetectFunc)method->func)(fx,width,range,xresult,xbound,xbound+1)) != RDEOK)
 				goto end;
 		}
 		for(rdint_index x = 0; x < width; x++) {
 			for(rdint_index y = 0; y < height; y++)
 				fy[y] = image[z*width*height+y*width+x];
 			resdet_transform(py);
-			if(rh && *rh && (ret = ((RDetectFunc)method->func)(fy,height,range,yresult,ybound,ybound+1)) != RDEOK)
+			if(rh && (ret = ((RDetectFunc)method->func)(fy,height,range,yresult,ybound,ybound+1)) != RDEOK)
 				goto end;
 		}
 	}
 
-	if(rw && (ret = generate_dimension_results(width,nimages,threshold,rw,cw,xresult,xbound)) != RDEOK)
+	if(rw && (ret = generate_dimension_results(width,height*nimages,threshold,rw,cw,xresult,xbound)) != RDEOK)
 		goto end;
-	if(rh && (ret = generate_dimension_results(height,nimages,threshold,rh,ch,yresult,ybound)) != RDEOK)
+	if(rh && (ret = generate_dimension_results(height,width*nimages,threshold,rh,ch,yresult,ybound)) != RDEOK)
 		goto end;
 
 end:
