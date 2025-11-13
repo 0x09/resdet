@@ -15,6 +15,6 @@
 
 ---
 
-**1.0.0 tagged here**
+**libresdet 1.0.0 released here**
 
 ---
