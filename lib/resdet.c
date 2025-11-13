@@ -84,7 +84,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 
 	for(size_t z = 0; z < nimages; z++) {
 		for(rdint_index i = 0; i < width*height; i++) {
-			if(!isfinite(image[z*width*height+i])) {
+			if(isinf(image[z*width*height+i]) || isnan(image[z*width*height+i])) {
 				ret = RDEINVAL;
 				goto end;
 			}
