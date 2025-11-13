@@ -21,7 +21,7 @@ libresdet is a small library for analyzing potential original resolutions in an 
 <a name="resdet_error_str"></a>
 
 ```C
-	const char* resdet_error_str(RDError);
+const char* resdet_error_str(RDError);
 ```
 
 Most library functions return `RDError` to indicate any failure. Use `resdet_error_str(error)` to map an `RDError` to a descriptive string. The returned value is statically allocated and does not need to be freed. Returns NULL if the provided error does not map to a valid RDError.
@@ -30,7 +30,7 @@ Most library functions return `RDError` to indicate any failure. Use `resdet_err
 <a name="resdet_libversion"></a>
 
 ```C
-	const char* resdet_libversion(void);
+const char* resdet_libversion(void);
 ```
 
 Returns the resdet library version as a string.
@@ -39,21 +39,21 @@ Returns the resdet library version as a string.
 <a name="resdet_methods"></a>
 
 ```C
-	RDMethod* resdet_methods(void);
+RDMethod* resdet_methods(void);
 ```
 
 Returns list of available methods, terminated by an empty RDMethod. The first element can be assumed to be the library default. Can be iterated using
 
 ```C
-	for(RDMethod* m = resdet_methods(); m->name; m++)
-		...;
+for(RDMethod* m = resdet_methods(); m->name; m++)
+	...;
 ```
 
 ---
 <a name="resdet_get_method"></a>
 
 ```C
-	RDMethod* resdet_get_method(const char* name);
+RDMethod* resdet_get_method(const char* name);
 ```
 
 Lookup a method by name.
@@ -66,7 +66,7 @@ Returns NULL if no name matches.
 <a name="resdet_default_range"></a>
 
 ```C
-	size_t resdet_default_range(void);
+size_t resdet_default_range(void);
 ```
 
 Returns the library default search range, as used when not explicitly specifying the range via the `redetect_with_params`.
@@ -79,7 +79,7 @@ Higher values are more accurate up to a point, while lower values are faster.
 <a name="resdetect_file"></a>
 
 ```C
-	RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
 ```
 
 * filename - Path of the image, or "-" for standard input.
@@ -92,9 +92,9 @@ Higher values are more accurate up to a point, while lower values are faster.
 <a name="resdetect_file_with_params"></a>
 
 ```C
-	RDError resdetect_file_with_params(const char* filename,
-	                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
-	                                   RDMethod* method, size_t range, float threshold);
+RDError resdetect_file_with_params(const char* filename,
+                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                                   RDMethod* method, size_t range, float threshold);
 ```
 
 Detect with specified parameters.
@@ -108,7 +108,7 @@ This function takes the same arguments as [`resdetect_file`](#resdetect_file) pl
 <a name="resdet_read_image"></a>
 
 ```C
-	RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
+RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
 ```
 
 Read an image using whatever image loaders the library was built with.
@@ -123,9 +123,9 @@ Read an image using whatever image loaders the library was built with.
 <a name="resdetect"></a>
 
 ```C
-	RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
-	                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
-	                   RDMethod* method);
+RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                   RDMethod* method);
 ```
 
 Detect from a bitmap or series of bitmaps directly.
@@ -141,9 +141,9 @@ Detect from a bitmap or series of bitmaps directly.
 <a name="resdetect_with_params"></a>
 
 ```C
-	RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-	                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
-	                              RDMethod* method, size_t range, float threshold);
+RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
+                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                              RDMethod* method, size_t range, float threshold);
 ```
 
 Detect from a bitmap directly with specified parameters.
@@ -158,16 +158,16 @@ This function takes the same arguments as [`resdetect`](#resdetect) plus the fol
 Detect potential widths in a file, using the defaults:
 
 ```C
-	const char* filename = ...;
+const char* filename = ...;
 	
-	RDResolution* rw;
-	size_t cw;
-	RDError e = resdetect_file(filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
-	if(e)
-		//handle error
-	
-	for(size_t i = 0; i < cw; i++)
-		printf("%zu\n", rw[i].index);
+RDResolution* rw;
+size_t cw;
+RDError e = resdetect_file(filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
+if(e)
+	//handle error
+
+for(size_t i = 0; i < cw; i++)
+	printf("%zu\n", rw[i].index);
 ```
 
 # Memory Requirements
