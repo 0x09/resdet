@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:12-slim AS base
+FROM docker.io/library/debian:13-slim AS base
 
 WORKDIR /workdir
 
@@ -8,7 +8,7 @@ apt-get --no-install-recommends install -y \
     libpng16-16 \
     libjpeg62-turbo \
     libmjpegutils-2.1-0 \
-    libmagickwand-6.q16-6 \
+    libmagickwand-7.q16-10 \
     libfftw3-bin \
     # keep this line
 rm -rf /var/lib/apt/lists/*
@@ -24,7 +24,7 @@ apt-get --no-install-recommends install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libmjpegtools-dev \
-    libmagickwand-6.q16-dev \
+    libmagickwand-7.q16-dev \
     libfftw3-dev \
     # keep this line
 rm -rf /var/lib/apt/lists/*
