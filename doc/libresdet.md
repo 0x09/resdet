@@ -98,11 +98,8 @@ Higher values are more accurate up to a point, while lower values are faster.
 
 Detect with specified parameters.
 
-* filename - Path of the image, or "-" for standard input.
-* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
-* countw, counth - Size of resw and resh respectively.
-* method - A detection method returned by `resdet_methods` or `resdet_get_method`.
+This function takes the same arguments as [`resdetect_file`](#resdetect_file) plus the following:
+
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
@@ -150,12 +147,8 @@ Detect from a bitmap or series of bitmaps directly.
 
 Detect from a bitmap directly with specified parameters.
 
-* image - floating point grayscale image data.
-* nimages - Number of contiguous images in the buffer. Must be at least 1.
-* width, height - Dimensions of the bitmap.
-* resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
-* countw, counth - Size of resw and resh respectively.
-* method - A detection method returned by `resdet_methods` or `resdet_get_method`.
+This function takes the same arguments as [`resdetect`](#resdetect) plus the following:
+
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
