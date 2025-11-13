@@ -2,7 +2,6 @@ include config.mak
 
 OBJS=resdet.o image.o methods.o
 LIB=lib/libresdet.a
-TOOLS=resdet stat profile imgread
 
 EXTRAFLAGS=
 ifdef HAVE_FFTW
