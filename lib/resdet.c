@@ -15,7 +15,7 @@ static int sortres(const void* left, const void* right) {
 	return left_confidence < right_confidence ? 1 : (left_confidence > right_confidence ? -1 : 0);
 }
 
-static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_index bounds[2]) {
+static RDError setup_dimension(size_t length, size_t range, intermediate** buf, rdint_index bounds[2]) {
 	size_t maxlen = 0;
 	if(range < (length+1)/2)
 		maxlen = length - range*2;
@@ -32,7 +32,7 @@ static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_
 	return RDEOK;
 }
 
-static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
+static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, intermediate* result, rdint_index bounds[2]) {
 	size_t nresults = 1;
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
@@ -70,7 +70,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 		return RDENOMEM;
 
 	RDError ret = RDEOK;
-	double* xresult = NULL,* yresult = NULL;
+	intermediate* xresult = NULL,* yresult = NULL;
 
 	resdet_plan* p;
 	if((ret = resdet_create_plan(&p,f,width,height)))

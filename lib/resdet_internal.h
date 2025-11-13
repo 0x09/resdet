@@ -50,7 +50,7 @@ typedef size_t rdint_storage;
 #define DEFAULT_RANGE 12
 #endif
 
-typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,double*,rdint_index*restrict,rdint_index*restrict);
+typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,intermediate*,rdint_index*restrict,rdint_index*restrict);
 
 typedef struct resdet_plan resdet_plan;
 
