@@ -18,6 +18,7 @@ libresdet is a small library for analyzing potential original resolutions in an 
 * [Thread Safety](#thread-safety)
 
 # Functions
+<a name="resdet_error_str"></a>
 
 ```C
 	const char* resdet_error_str(RDError);
