@@ -80,7 +80,7 @@ Detect with specified parameters.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12, with reasonable values between 8-32 (DEFAULT_RANGE).
+* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
 ---
@@ -130,7 +130,7 @@ Detect from a bitmap directly with specified parameters.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12, with reasonable values between 8-32 (DEFAULT_RANGE).
+* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
 # Example
