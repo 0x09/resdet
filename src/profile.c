@@ -48,10 +48,25 @@ void diffres(size_t* left, size_t leftlen, RDResolution* right, size_t rightlen,
 void readres(char* line, size_t** ar, size_t* ct) {
 	*ar = NULL; *ct = 0;
 	char* token;
-	if(*line) while((token = strsep(&line," "))) {
-		*ar = realloc(*ar,sizeof(**ar)*++(*ct));
-		(*ar)[*ct-1] = strtoull(token,NULL,10);
+
+	while((token = strsep(&line," "))) {
+		size_t* tmp = realloc(*ar,sizeof(**ar)*++(*ct));
+		if(!tmp)
+			goto error;
+		*ar = tmp;
+
+		char* endptr;
+		(*ar)[*ct-1] = strtoull(token,&endptr,10);
+		if(token == endptr)
+			goto error;
 	}
+
+	return;
+
+error:
+	free(*ar);
+	*ar = NULL;
+	*ct = 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -122,14 +137,24 @@ int main(int argc, char* argv[]) {
 			goto read_end;
 		}
 		line[len-1] = '\0';
+
 		readres(line,&knownw,&knownwct);
+		if(!knownwct) {
+			ret = 1;
+			goto read_end;
+		}
 
 		if((len = getline(&line,&len2,dict)) <= 0) {
 			ret = 1;
 			goto read_end;
 		}
 		line[len-1] = '\0';
+
 		readres(line,&knownh,&knownhct);
+		if(!knownhct) {
+			ret = 1;
+			goto read_end;
+		}
 
 		for(RDMethod* m = methods; m->name; m++) {
 			RDResolution* rw = NULL,* rh = NULL;
