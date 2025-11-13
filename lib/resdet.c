@@ -1,28 +1,7 @@
 /*
- * libresdet - Detect source resolution of upscaled images.
- * Copyright (C) 2012-2017 0x09.net
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * resdet core routines.
+ * This file is part of libresdet.
  */
-
-/*
-todo:
-	statistical selection
-	union/intersect results
-	other methods from RDView
-*/
 
 #include <stdio.h>
 #include <math.h>
@@ -36,7 +15,7 @@ static int sortres(const void* left, const void* right) {
 	return left_confidence < right_confidence ? 1 : (left_confidence > right_confidence ? -1 : 0);
 }
 
-static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_index bounds[2]) {
+static RDError setup_dimension(size_t length, size_t range, intermediate** buf, rdint_index bounds[2]) {
 	size_t maxlen = 0;
 	if(range < (length+1)/2)
 		maxlen = length - range*2;
@@ -53,7 +32,7 @@ static RDError setup_dimension(size_t length, size_t range, double** buf, rdint_
 	return RDEOK;
 }
 
-static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, double* result, rdint_index bounds[2]) {
+static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, intermediate* result, rdint_index bounds[2]) {
 	size_t nresults = 1;
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
@@ -89,7 +68,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 
 	RDError ret = RDEOK;
 	coeff* fx = NULL,* fy = NULL;
-	double* xresult = NULL,* yresult = NULL;
+	intermediate* xresult = NULL,* yresult = NULL;
 	resdet_plan* px = NULL,* py = NULL;
 
 	if(!(fx = resdet_alloc_coeffs(width)))
@@ -119,7 +98,7 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	for(size_t z = 0; z < nimages; z++) {
 		for(rdint_index y = 0; y < height; y++) {
 			for(rdint_index x = 0; x < width; x++) {
-				if(!isfinite(image[z*width*height+y*width+x])) {
+				if(isinf(image[z*width*height+y*width+x]) || isnan(image[z*width*height+y*width+x])) {
 					ret = RDEINVAL;
 					goto end;
 				}

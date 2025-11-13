@@ -1,3 +1,8 @@
+/*
+ * Image reader for yuv4mpeg files using libmjpegutils from the mjpegtools project.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #include <mjpegtools/yuv4mpeg.h>
@@ -41,7 +46,7 @@ static float* read_y4m(const char* filename, size_t* width, size_t* height, size
 		(*nimages)++;
 		unsigned char* tmp;
 		if(*width * *height > PIXEL_MAX / *nimages) {
-			*error = RDEINVAL;
+			*error = RDETOOBIG;
 			free(image);
 			image = NULL;
 			break;

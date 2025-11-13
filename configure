@@ -40,8 +40,8 @@ function usage() {
 	echo "   --omit-native-pgm-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
-	echo "   --coeff-precision [4|8|12] (4)"
-	echo "   --inter-precision [4|8|12] (8)"
+	echo "   --coeff-precision [F|D|L] (F)"
+	echo "   --inter-precision [F|D|L] (D)"
 	echo "   --pixel-max (SIZE_MAX)"
 	echo "   --no-builtin-signbit"
 	echo ""
@@ -163,18 +163,20 @@ define PCPREFIX "$PCPREFIX"
 echo
 
 DEFS=
+CLIDEFS=
 LIBS=
 PCDEPS=
 
 if git rev-parse &> /dev/null && ! git describe --exact-match --tags &> /dev/null; then
 	version_suffix=+$(git rev-parse --short HEAD)
 	DEFS+=" -DVERSION_SUFFIX=\\\"$version_suffix\\\""
+	CLIDEFS+=" -DVERSION_SUFFIX=\\\"$version_suffix\\\""
 fi
 
 lfftw="fftw3f"
 case "$COEFF_PRECISION" in
-	8)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;
-	12) lfftw="fftw3l"; DEFS+=" -Dkiss_fft_scalar=double";;
+	D)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;
+	L) lfftw="fftw3l"; DEFS+=" -Dkiss_fft_scalar=double";;
 esac
 
 if $with_fftw && testpc $lfftw; then
@@ -213,8 +215,19 @@ if [ -n "$PCDEPS" ]; then
 	LIBS+=" $(pkg-config $PKG_CONFIG_FLAGS --libs $PCDEPS 2> /dev/null)"
 fi
 
+TOOLS=(resdet stat imgread)
+if ! $CC -v 2>&1 | grep -Fq 'Target: x86_64-w64-mingw32'; then
+	TOOLS+=(profile)
+fi
+
+echo
+echo "Tools: ${TOOLS[@]}"
+echo
+
 echo "DEFS=$DEFS" >> config.mak
-echo "LIBS=$LIBS" >> config.mak
+echo "CLIDEFS=$CLIDEFS" >> config.mak
+echo "LDLIBS=$LIBS" >> config.mak
+echo "TOOLS=${TOOLS[@]}" >> config.mak
 
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"

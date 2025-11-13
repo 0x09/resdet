@@ -1,25 +1,5 @@
 /*
  * profile - Profile and check accuracy of resdet methods.
- * Copyright (C) 2013-2017 0x09.net.
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <stdio.h>
@@ -27,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/resource.h>
+#include <errno.h>
 
 #include "resdet.h"
 
@@ -48,14 +29,18 @@ void diffres(size_t* left, size_t leftlen, RDResolution* right, size_t rightlen,
 	int l = 0, r = 0;
 	while(l < leftlen && r < rightlen)
 		if(left[l] > right[r].index) {
-			(*plus)++; r++;
+			(*plus)++;
+			r++;
 		}
 		else if(left[l] < right[r].index) {
-			(*minus)++; l++;
+			(*minus)++;
+			l++;
 		}
 		else {
-			l++; r++;
+			l++;
+			r++;
 		}
+
 	*plus += rightlen - r;
 	*minus += leftlen - l;
 }
@@ -63,10 +48,25 @@ void diffres(size_t* left, size_t leftlen, RDResolution* right, size_t rightlen,
 void readres(char* line, size_t** ar, size_t* ct) {
 	*ar = NULL; *ct = 0;
 	char* token;
-	if(*line) while((token = strsep(&line," "))) {
-		*ar = realloc(*ar,sizeof(**ar)*++(*ct));
-		(*ar)[*ct-1] = strtoull(token,NULL,10);
+
+	while((token = strsep(&line," "))) {
+		size_t* tmp = realloc(*ar,sizeof(**ar)*++(*ct));
+		if(!tmp)
+			goto error;
+		*ar = tmp;
+
+		char* endptr;
+		(*ar)[*ct-1] = strtoull(token,&endptr,10);
+		if(token == endptr)
+			goto error;
 	}
+
+	return;
+
+error:
+	free(*ar);
+	*ar = NULL;
+	*ct = 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -103,10 +103,15 @@ int main(int argc, char* argv[]) {
 	memset(diffminus,0,sizeof(diffminus));
 
 	FILE* dict = fopen(argv[1],"r");
+	if(!dict) {
+		fprintf(stderr,"Error opening dictionary file: %s\n",strerror(errno));
+		return 1;
+	}
+	int ret = 0;
 	ssize_t len;
 	size_t len2;
 	char* line = NULL;
-	while((len = getline(&line,&len2,dict)) > 0) {
+	while(!ret && (len = getline(&line,&len2,dict)) > 0) {
 		if(*line == '\n')
 			continue;
 		line[len-1] = '\0';
@@ -118,16 +123,38 @@ int main(int argc, char* argv[]) {
 			fprintf(stderr, "Error reading %s: %s\n",line,resdet_error_str(e));
 			// skip over this image's resolution lists
 			if(getline(&line,&len2,dict) <= 0 ||
-			   getline(&line,&len2,dict) <= 0)
+			   getline(&line,&len2,dict) <= 0) {
+				ret = 1;
 				break;
+			}
 			continue;
 		}
 
-		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
-		size_t* knownw, knownwct,* knownh, knownhct;
+		size_t* knownw = NULL,* knownh  = NULL;
+		size_t knownwct, knownhct;
+		if((len = getline(&line,&len2,dict)) <= 0) {
+			ret = 1;
+			goto read_end;
+		}
+		line[len-1] = '\0';
+
 		readres(line,&knownw,&knownwct);
-		free(line); line = NULL; len = getline(&line,&len2,dict); line[len-1] = '\0';
+		if(!knownwct) {
+			ret = 1;
+			goto read_end;
+		}
+
+		if((len = getline(&line,&len2,dict)) <= 0) {
+			ret = 1;
+			goto read_end;
+		}
+		line[len-1] = '\0';
+
 		readres(line,&knownh,&knownhct);
+		if(!knownhct) {
+			ret = 1;
+			goto read_end;
+		}
 
 		for(RDMethod* m = methods; m->name; m++) {
 			RDResolution* rw = NULL,* rh = NULL;
@@ -135,7 +162,11 @@ int main(int argc, char* argv[]) {
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
-			e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m);
+			if((e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m))) {
+				fprintf(stderr, "Error during detection: %s\n",resdet_error_str(e));
+				ret = 1;
+				goto detect_end;
+			}
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval after = rusage.ru_utime;
 
@@ -150,18 +181,20 @@ int main(int argc, char* argv[]) {
 			diffminus[m-methods] += minus;
 
 			printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,after.tv_sec,(long)after.tv_usec,plus,minus);
-
+detect_end:
 			free(rw);
 			free(rh);
 		}
+read_end:
 		free(knownw);
 		free(knownh);
 		free(image);
 	}
+	free(line);
 	fclose(dict);
 
 	puts("totals");
 	for(RDMethod* m = methods; m->name; m++)
 		printf("%-*s   %2ld.%.9ld   (+%zu -%zu)\n",padding,m->name,tvs[m-methods].tv_sec,(long)tvs[m-methods].tv_usec,diffplus[m-methods],diffminus[m-methods]);
-	return 0;
+	return ret;
 }

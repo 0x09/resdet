@@ -1,3 +1,8 @@
+/*
+ * Image reader for PNG files using libpng.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #include <png.h>

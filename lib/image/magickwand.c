@@ -1,3 +1,8 @@
+/*
+ * Image reader for multiple file formats using ImageMagick's MagickWand library.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #if HAVE_MAGICKWAND > 6

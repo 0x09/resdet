@@ -1,3 +1,8 @@
+/*
+ * resdet-native image reader for PGM and PFM files.
+ * This file is part of libresdet.
+ */
+
 #include "image.h"
 
 #include <inttypes.h>

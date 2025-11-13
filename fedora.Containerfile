@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:42 AS base
+FROM quay.io/fedora/fedora:43 AS base
 
 WORKDIR /workdir
 
@@ -33,7 +33,7 @@ dnf clean all
 DNF
 
 COPY . .
-RUN CFLAGS='-O0 -mtune=generic' ./configure
+RUN ./configure
 RUN make
 
 FROM base AS runtime
