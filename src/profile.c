@@ -29,14 +29,18 @@ void diffres(size_t* left, size_t leftlen, RDResolution* right, size_t rightlen,
 	int l = 0, r = 0;
 	while(l < leftlen && r < rightlen)
 		if(left[l] > right[r].index) {
-			(*plus)++; r++;
+			(*plus)++;
+			r++;
 		}
 		else if(left[l] < right[r].index) {
-			(*minus)++; l++;
+			(*minus)++;
+			l++;
 		}
 		else {
-			l++; r++;
+			l++;
+			r++;
 		}
+
 	*plus += rightlen - r;
 	*minus += leftlen - l;
 }
