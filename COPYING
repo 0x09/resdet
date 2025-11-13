@@ -2,7 +2,7 @@ resdet bundles KISS FFT under the lib/kissfft/ subdirectory and includes it in s
 
 All other source files are copyright the resdet authors and distributed according to the terms below:
 
-libresdet (the contents of the include/ and lib/ directories excluding lib/kissfft) is distributed under the terms of the LGPL v2.1. See COPYING.LGPL.
+libresdet (the contents of the include/ and lib/ directories excluding lib/kissfft) is distributed under the terms of the LGPL v2.1. See COPYING.LGPL.txt.
 It is the author's interpretation of the LGPL that the static linking exception applies -- an application statically linking with libresdet need not be distributed under the LGPL itself so long as any included changes to libresdet are made available under the terms of the LGPL.
 
-Source files outside of lib/ such as the resdet CLI tools and build scripts are distributed under the more permissive MIT license. See COPYING.MIT.
+Source files outside of lib/ such as the resdet CLI tools and build scripts are distributed under the more permissive MIT license. See COPYING.MIT.txt.
