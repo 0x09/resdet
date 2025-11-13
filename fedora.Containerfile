@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:42 AS base
+FROM quay.io/fedora/fedora:43 AS base
 
 WORKDIR /workdir
 
