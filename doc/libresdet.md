@@ -1,5 +1,22 @@
 libresdet is a small library for analyzing potential original resolutions in an image.
 
+# Table of Contents
+
+* [Functions](#functions)
+  * [resdet_error_str](#resdet_error_str)
+  * [resdet_libversion](#resdet_libversion)
+  * [resdet_methods](#resdet_methods)
+  * [resdet_get_method](#resdet_get_method)
+  * [resdet_default_range](#resdet_default_range)
+  * [resdetect_file](#resdetect_file)
+  * [resdetect_file_with_params](#resdetect_file_with_params)
+  * [resdet_read_image](#resdet_read_image)
+  * [resdetect](#resdetect)
+  * [resdetect_with_params](#resdetect_with_params)
+* [Example](#example)
+* [Memory Requirements](#memory-requirements)
+* [Thread Safety](#thread-safety)
+
 # Functions
 
 ```C
@@ -9,6 +26,7 @@ libresdet is a small library for analyzing potential original resolutions in an 
 Most library functions return `RDError` to indicate any failure. Use `resdet_error_str(error)` to map an `RDError` to a descriptive string. The returned value is statically allocated and does not need to be freed. Returns NULL if the provided error does not map to a valid RDError.
 
 ---
+<a name="resdet_libversion"></a>
 
 ```C
 	const char* resdet_libversion(void);
@@ -17,6 +35,7 @@ Most library functions return `RDError` to indicate any failure. Use `resdet_err
 Returns the resdet library version as a string.
 
 ---
+<a name="resdet_methods"></a>
 
 ```C
 	RDMethod* resdet_methods(void);
@@ -30,6 +49,7 @@ Returns list of available methods, terminated by an empty RDMethod. The first el
 ```
 
 ---
+<a name="resdet_get_method"></a>
 
 ```C
 	RDMethod* resdet_get_method(const char* name);
@@ -42,6 +62,7 @@ Lookup a method by name.
 Returns NULL if no name matches.
 
 ---
+<a name="resdet_default_range"></a>
 
 ```C
 	size_t resdet_default_range(void);
@@ -54,6 +75,7 @@ Most detection methods use this value to determine how many neighboring values t
 Higher values are more accurate up to a point, while lower values are faster.
 
 ---
+<a name="resdetect_file"></a>
 
 ```C
 	RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
@@ -66,6 +88,7 @@ Higher values are more accurate up to a point, while lower values are faster.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 
 ---
+<a name="resdetect_file_with_params"></a>
 
 ```C
 	RDError resdetect_file_with_params(const char* filename,
@@ -84,6 +107,7 @@ Detect with specified parameters.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
 ---
+<a name="resdet_read_image"></a>
 
 ```C
 	RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
@@ -98,6 +122,7 @@ Read an image using whatever image loaders the library was built with.
 * width, height - Out parameters containing the bitmap dimensions.
 
 ---
+<a name="resdetect"></a>
 
 ```C
 	RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
@@ -115,6 +140,7 @@ Detect from a bitmap or series of bitmaps directly.
 * method - A detection method returned by `resdet_methods` or `resdet_get_method`.
 
 ---
+<a name="resdetect_with_params"></a>
 
 ```C
 	RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
