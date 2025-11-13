@@ -40,8 +40,8 @@ function usage() {
 	echo "   --omit-native-pgm-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
-	echo "   --coeff-precision [4|8|12] (4)"
-	echo "   --inter-precision [4|8|12] (8)"
+	echo "   --coeff-precision [F|D|L] (F)"
+	echo "   --inter-precision [F|D|L] (D)"
 	echo "   --pixel-max (SIZE_MAX)"
 	echo "   --no-builtin-signbit"
 	echo ""
@@ -175,8 +175,8 @@ fi
 
 lfftw="fftw3f"
 case "$COEFF_PRECISION" in
-	8)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;
-	12) lfftw="fftw3l"; DEFS+=" -Dkiss_fft_scalar=double";;
+	D)  lfftw="fftw3";  DEFS+=" -Dkiss_fft_scalar=double";;
+	L) lfftw="fftw3l"; DEFS+=" -Dkiss_fft_scalar=double";;
 esac
 
 if $with_fftw && testpc $lfftw; then
