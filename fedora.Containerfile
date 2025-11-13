@@ -33,7 +33,7 @@ dnf clean all
 DNF
 
 COPY . .
-RUN CFLAGS='-O0 -mtune=generic' ./configure
+RUN ./configure
 RUN make
 
 FROM base AS runtime

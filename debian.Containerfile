@@ -31,7 +31,7 @@ rm -rf /var/lib/apt/lists/*
 APT
 
 COPY . .
-RUN CFLAGS='-O0 -mtune=generic' ./configure
+RUN ./configure
 RUN make
 
 FROM base AS runtime
