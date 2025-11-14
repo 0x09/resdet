@@ -1,0 +1,57 @@
+name: build
+on: [push]
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev libjpeg-dev libmjpegtools-dev libmagickwand-6.q16-dev libfftw3-dev curl
+      - name: Build and install resdet
+        run: |
+          ./configure
+          make
+          sudo make install
+      - name: Download PNG
+        run: curl -LsfO https://0x09.net/i/g/blue_marble_2012_resized.png
+      - name: Run resdet
+        run: resdet -v0 blue_marble_2012_resized.png
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install mjpegtools fftw imagemagick #libpng and libjpeg are already installed
+      - name: Build and install resdet
+        run: |
+          ./configure
+          make
+          sudo make install
+      - name: Download PNG
+        run: curl -LsfO https://0x09.net/i/g/blue_marble_2012_resized.png
+      - name: Run resdet
+        run: resdet -v0 blue_marble_2012_resized.png
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick
+      - name: Build resdet
+        run: |
+          ./configure
+          make
+      - name: Download PNG
+        run: curl -LsfO https://0x09.net/i/g/blue_marble_2012_resized.png
+      - name: Run resdet
+        run: ./resdet.exe -v0 blue_marble_2012_resized.png
