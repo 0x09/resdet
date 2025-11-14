@@ -5,21 +5,30 @@
 
 #include "image.h"
 
+#include <ctype.h>
+
+static bool resdet_strieq(const char* left, const char* right) {
+	while(*left && *right)
+		if(tolower(*left++) != tolower(*right++))
+			return false;
+	return *left == *right;
+}
+
 static const char* mimetype_from_ext(const char* filename) {
 	char* ext = strrchr(filename,'.');
 	if(!ext)
 		return "";
 
 	ext++;
-	if(!strcasecmp(ext,"jpg") || !strcasecmp(ext,"jpeg"))
+	if(resdet_strieq(ext,"jpg") || resdet_strieq(ext,"jpeg"))
 		return "image/jpeg";
-	if(!strcasecmp(ext,"png"))
+	if(resdet_strieq(ext,"png"))
 		return "image/png";
-	if(!strcasecmp(ext,"y4m"))
+	if(resdet_strieq(ext,"y4m"))
 		return "video/yuv4mpeg";
-	if(!strcasecmp(ext,"pgm"))
+	if(resdet_strieq(ext,"pgm"))
 		return "image/x-portable-graymap";
-	if(!strcasecmp(ext,"pfm"))
+	if(resdet_strieq(ext,"pfm"))
 		return "image/x-portable-floatmap";
 	return "";
 }
