@@ -8,7 +8,7 @@ ifdef HAVE_FFTW
 	OBJS += transform/fftw.o
 else
 	OBJS += transform/kiss_fft.o
-	EXTRAFLAGS += -Ilib/kissfft -Ilib/kissfft/tools
+	EXTRAFLAGS += -Ilib/kissfft
 	OBJS += $(addprefix kissfft/, kiss_fft.o kiss_fftnd.o kiss_fftndr.o kiss_fftr.o)
 endif
 
