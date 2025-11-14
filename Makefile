@@ -44,6 +44,9 @@ endif
 
 OBJS := $(addprefix lib/, $(OBJS))
 
+DEPS := $(OBJS:.o=.d) $(src/%.c:.c=.d)
+CPPFLAGS += -MMD -MP
+
 all: $(TOOLS)
 
 $(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(CFLAGS_LIB) $(CFLAGS)
@@ -74,6 +77,8 @@ uninstall:
 	$(RM) $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
 	
 clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS)
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS)
 
 .PHONY: all install uninstall clean
+
+-include $(DEPS)
