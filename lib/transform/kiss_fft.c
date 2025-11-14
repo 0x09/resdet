@@ -5,10 +5,6 @@
 
 #include "resdet_internal.h"
 
-#if COEFF_PRECISION > 8
-	#pragma message("KISS FFT does not support long or higher precision, KISS operations will use double instead.")
-	#define kiss_fft_scalar double
-#endif
 #include "kiss_fftndr.h"
 
 struct resdet_plan {
