@@ -50,12 +50,12 @@ RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t heigh
 
 	// Precalculating this offers a decent speedup, especially with multiple frames
 	for(size_t x = 0; x < width; x++) {
-		(*p)->shift[0][x].r = mi(cos)(-M_PI*x/(2*width));
-		(*p)->shift[0][x].i = mi(sin)(-M_PI*x/(2*width));
+		(*p)->shift[0][x].r = mi(cos)(-(mi(atan)(1)*4)*x/(2*width));
+		(*p)->shift[0][x].i = mi(sin)(-(mi(atan)(1)*4)*x/(2*width));
 	}
 	for(size_t y = 0; width != height && y < height; y++) {
-		(*p)->shift[1][y].r = mi(cos)(-M_PI*y/(2*height));
-		(*p)->shift[1][y].i = mi(sin)(-M_PI*y/(2*height));
+		(*p)->shift[1][y].r = mi(cos)(-(mi(atan)(1)*4)*y/(2*height));
+		(*p)->shift[1][y].i = mi(sin)(-(mi(atan)(1)*4)*y/(2*height));
 	}
 	return RDEOK;
 }
