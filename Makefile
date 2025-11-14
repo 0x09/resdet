@@ -46,13 +46,13 @@ OBJS := $(addprefix lib/, $(OBJS))
 
 all: $(TOOLS)
 
-$(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS)
+$(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS_LIB) $(CFLAGS)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
 vpath %.o src
 
-CFLAGS := -Iinclude/ $(CLIDEFS) $(CFLAGS)
+CFLAGS := -Iinclude/ $(CLIDEFS) $(CFLAGS_CLI) $(CFLAGS)
 
 resdet: src/resdet.o $(LIB)
 profile: src/profile.o $(LIB)

@@ -3,7 +3,8 @@
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
-CFLAGS="-O3 -march=native -mtune=native -std=gnu99 $CFLAGS"
+CFLAGS_LIB="-O3 -march=native -mtune=native -std=gnu99 $CFLAGS"
+CFLAGS_CLI="-O3 -march=native -mtune=native -std=gnu99 $CFLAGS"
 
 with_fftw=true
 with_libjpeg=true
@@ -23,7 +24,8 @@ function usage() {
 	echo ""
 	echo "   --cc           \"$CC\""
 	echo "   --ar           \"$AR\""
-	echo "   --cflags       \"$CFLAGS\""
+	echo "   --cflags-lib   \"$CFLAGS_LIB\""
+	echo "   --cflags-cli   \"$CFLAGS_CLI\""
 	echo "   --ldflags      \"$LDFLAGS\""
 	echo "   --prefix       \"$PREFIX\""
 	echo "   --binprefix    \"$PREFIX/bin\""
@@ -55,7 +57,8 @@ for o; do
 	case "$opt" in
 		--cc) CC="$arg";;
 		--ar) AR="$arg";;
-		--cflags) CFLAGS="$arg";;
+		--cflags-lib) CFLAGS_LIB="$arg";;
+		--cflags-cli) CFLAGS_CLI="$arg";;
 		--ldflags) LDFLAGS="$arg";;
 		--prefix) PREFIX="$arg";;
 		--binprefix)   BINPREFIX="$arg";;
@@ -148,7 +151,8 @@ rm -f config.mak
 
 define CC "$(command -v "$CC")"
 define AR "$(command -v "$AR")"
-define CFLAGS "$CFLAGS"
+define CFLAGS_LIB "$CFLAGS_LIB"
+define CFLAGS_CLI "$CFLAGS_CLI"
 define LDFLAGS "$LDFLAGS"
 define PREFIX "$PREFIX"
 define BINPREFIX "$BINPREFIX"
