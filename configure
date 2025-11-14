@@ -3,7 +3,7 @@
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
-CFLAGS_LIB="-O3 -march=native -mtune=native -std=gnu99 $CFLAGS"
+CFLAGS_LIB="-O3 -march=native -mtune=native -std=c99 $CFLAGS"
 CFLAGS_CLI="-O3 -march=native -mtune=native -std=gnu99 $CFLAGS"
 
 with_fftw=true
