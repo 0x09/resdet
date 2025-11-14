@@ -8,21 +8,21 @@ ifdef HAVE_FFTW
 	OBJS += transform/fftw.o
 else
 	OBJS += transform/kiss_fft.o
-	EXTRAFLAGS += -Ilib/kissfft
+	CFLAGS_LIB += -Ilib/kissfft
 	OBJS += $(addprefix kissfft/, kiss_fft.o kiss_fftnd.o kiss_fftndr.o kiss_fftr.o)
 endif
 
 ifdef DEFAULT_RANGE
-	EXTRAFLAGS += -DDEFAULT_RANGE=$(DEFAULT_RANGE)
+	CFLAGS_LIB += -DDEFAULT_RANGE=$(DEFAULT_RANGE)
 endif
 ifdef COEFF_PRECISION
-	EXTRAFLAGS += -DCOEFF_PRECISION=$(COEFF_PRECISION)
+	CFLAGS_LIB += -DCOEFF_PRECISION=$(COEFF_PRECISION)
 endif
 ifdef INTER_PRECISION
-	EXTRAFLAGS += -DINTER_PRECISION=$(INTER_PRECISION)
+	CFLAGS_LIB += -DINTER_PRECISION=$(INTER_PRECISION)
 endif
 ifdef PIXEL_MAX
-	EXTRAFLAGS += -DPIXEL_MAX=$(PIXEL_MAX)
+	CFLAGS_LIB += -DPIXEL_MAX=$(PIXEL_MAX)
 endif
 
 ifdef HAVE_LIBJPEG
@@ -46,7 +46,7 @@ OBJS := $(addprefix lib/, $(OBJS))
 
 all: $(TOOLS)
 
-$(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(EXTRAFLAGS) $(CFLAGS_LIB) $(CFLAGS)
+$(LIB): CFLAGS := -Iinclude/ -Ilib/ $(DEFS) $(CFLAGS_LIB) $(CFLAGS)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
