@@ -31,7 +31,7 @@ jobs:
       options: --security-opt seccomp=/usr/share/containers/seccomp.json --privileged
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Buildah Login
         id: buildah-login
