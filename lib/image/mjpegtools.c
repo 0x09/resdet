@@ -5,7 +5,7 @@
 
 #include "image.h"
 
-#include <mjpegtools/yuv4mpeg.h>
+#include <yuv4mpeg.h>
 #include <fcntl.h>
 
 static float* read_y4m(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
