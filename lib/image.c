@@ -9,15 +9,17 @@ static const char* mimetype_from_ext(const char* filename) {
 	char* ext = strrchr(filename,'.');
 	if(!ext)
 		return "";
-	if(!strcasecmp(ext+1,"jpg") || !strcasecmp(ext+1,"jpeg"))
+
+	ext++;
+	if(!strcasecmp(ext,"jpg") || !strcasecmp(ext,"jpeg"))
 		return "image/jpeg";
-	if(!strcasecmp(ext+1,"png"))
+	if(!strcasecmp(ext,"png"))
 		return "image/png";
-	if(!strcasecmp(ext+1,"y4m"))
+	if(!strcasecmp(ext,"y4m"))
 		return "video/yuv4mpeg";
-	if(!strcasecmp(ext+1,"pgm"))
+	if(!strcasecmp(ext,"pgm"))
 		return "image/x-portable-graymap";
-	if(!strcasecmp(ext+1,"pfm"))
+	if(!strcasecmp(ext,"pfm"))
 		return "image/x-portable-floatmap";
 	return "";
 }
