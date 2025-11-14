@@ -186,6 +186,7 @@ esac
 if $with_fftw && testpc $lfftw; then
 	echo "HAVE_FFTW=$(pcver $lfftw)" >> config.mak
 	PCDEPS+=" $lfftw"
+	printf "CFLAGS_FFTW=%s\n" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $lfftw)" >> config.mak
 fi
 
 for dep in libjpeg libpng mjpegtools MagickWand; do
@@ -196,6 +197,7 @@ for dep in libjpeg libpng mjpegtools MagickWand; do
 		echo "HAVE_$name=$ver" >> config.mak
 		DEFS+=" -DHAVE_$name=$ver"
 		PCDEPS+=" $dep"
+		printf "CFLAGS_%s=%s\n" "$dep" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $dep)" >> config.mak
 	fi
 done
 
@@ -215,7 +217,6 @@ echo
 expand lib/resdet.pc.in lib/resdet.pc
 
 if [ -n "$PCDEPS" ]; then
-	DEFS+=" $(pkg-config $PKG_CONFIG_FLAGS --cflags $PCDEPS 2> /dev/null)"
 	LIBS+=" $(pkg-config $PKG_CONFIG_FLAGS --libs $PCDEPS 2> /dev/null)"
 fi
 
