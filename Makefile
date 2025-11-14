@@ -54,9 +54,9 @@ vpath %.o src
 
 CFLAGS := -Iinclude/ $(CLIDEFS) $(CFLAGS_CLI) $(CFLAGS)
 
-resdet: src/resdet.o $(LIB)
+resdet:  src/resdet.o $(LIB)
 profile: src/profile.o $(LIB)
-stat: src/stat.o $(LIB)
+stat:    src/stat.o $(LIB)
 imgread: src/imgread.o $(LIB)
 
 install-lib: $(LIB)
