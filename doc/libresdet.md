@@ -19,6 +19,15 @@ libresdet is a small library for analyzing potential original resolutions in an 
   * [resdet_read_image](#resdet_read_image)
   * [resdetect](#resdetect)
   * [resdetect_with_params](#resdetect_with_params)
+* [Configuration Macros](#configuration-macros)
+  * [PIXEL_MAX](#pixel_max)
+  * [DEFAULT_RANGE](#default_range)
+  * [COEFF_PRECISION](#coeff_precision)
+  * [INTER_PRECISION](#inter_precision)
+  * [VERSION_SUFFIX](#version_suffix)
+  * [USE_BUILTIN_SIGNBIT](#use_builtin_signbit)
+  * [HAVE_x](#have_x)
+  * [OMIT_NATIVE_PGM_READER](#omit_native_pgm_reader)
 * [Thread Safety](#thread-safety)
 
 # Example
@@ -170,7 +179,7 @@ Detect with specified parameters.
 
 This function takes the same arguments as [`resdetect_file`](#resdetect_file) plus the following:
 
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
+* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
 ---
@@ -219,8 +228,97 @@ Detect from a bitmap directly with specified parameters.
 
 This function takes the same arguments as [`resdetect`](#resdetect) plus the following:
 
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
+* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
+
+# Configuration Macros
+Macros that may be defined when building libresdet which affect the behavior of the library.
+
+When using the provided build scripts, these are either exposed as arguments to `configure` or automatically detected as appropriate.
+
+Note: outside of their use during compilation of the library itself, these macros are not exposed by libresdet. 
+
+---
+<a name="pixel_max"></a>
+
+`PIXEL_MAX`
+
+Limits the maximum size of images processed by the library as a product of the dimensions. Larger images result in an `RDETOOBIG` error. May be used to indirectly limit memory use.
+
+Default: `SIZE_MAX`
+
+---
+<a name="default_range"></a>
+
+`DEFAULT_RANGE`
+
+The default range used in detection methods and returned by [`resdet_default_range`](#resdet_default_range). Reasonable values are between 8 and 32. A different value for this may be provided at runtime with the `_with_params` resdet method variants.
+
+Default: `12`
+
+---
+<a name="coeff_precision"></a>
+
+`COEFF_PRECISION`
+
+Floating point precision used by the library for DCT transforms and coefficient buffers. May be defined to `F`, `D`, or `L` for float, double, or long double precision respectively.
+
+Default: `F`
+
+Note that this value impacts the FFT libraries used by resdet in the following ways:
+* When building with FFTW, affects the version of the FFTW library that should be linked (`libfftw3f`, `libfftw3`, or `libfftw3l` respectively).
+* When building with KISS FFT and a precision greater than `F`, the `kiss_fft_scalar` macro should be defined to `double` while building libresdet and the embedded KISS FFT subtree.
+
+These are handled automatically when building libresdet using the provided build scripts and using the libresdet pkg-config file.
+
+---
+<a name="inter_precision"></a>
+
+`INTER_PRECISION`
+
+Floating point precision used by the library for intermediate floating point calculations. May be defined to `F`, `D`, or `L` for float, double, or long double precision respectively. Must be at least as precise or more precise than [`COEFF_PRECISION`](#coeff_precision).  
+Unlike [`COEFF_PRECISION`](#coeff_precision) this has no extra implications for the FFT libraries.
+
+Default: `D`
+
+---
+<a name="version_suffix"></a>
+
+`VERSION_SUFFIX`
+
+Append a string to the version returned by [`resdet_libversion`](#resdet_libversion). resdet's build script uses this to append the git revision in non-release builds. Custom builds may use this to append metadata if desired.
+
+Default: conditionally defined by the build script. Not defined otherwise.
+
+---
+<a name="use_builtin_signbit"></a>
+
+`USE_BUILTIN_SIGNBIT`
+
+Use the compiler's `__builtin_signbit` implementation in calculations instead of the libc `signbit`. When configured with the provided build scripts this is enabled automatically if the compiler supports it.
+
+Default: conditionally defined by the build script. Not defined otherwise.
+
+---
+<a name="have_x"></a>
+
+`HAVE_x`
+
+Where `x` is one of the optional external libraries used by resdet for image reading. Currently this includes `LIBJPEG`, `LIBPNG`, `MJPEGTOOLS`, and `MAGICKWAND`.  
+Should be defined if resdet will be built with the corresponding image reader and external library.  
+
+For `HAVE_MAGICKWAND`, the value should be the specific library version (e.g. 6 or 7) as this affects the header location. Otherwise no value is needed.
+
+Default: conditionally defined by the build script. Not defined otherwise.
+
+---
+<a name="omit_native_pgm_reader"></a>
+
+`OMIT_NATIVE_PGM_READER`
+
+Should be defined if the library's own PGM and PFM image readers (lib/image/pgm.c) will not be built. This may be desired to e.g. have the MagickWand reader handle these file types, or if no built-in image reading functionality is needed by the application.
+
+Default: conditionally defined by the build script. Not defined otherwise.
 
 # Thread Safety
 libresdet's own routines are thread safe, but some of its optional supporting libraries rely on global state. As libresdet does not mandate a threading model itself, it cannot enforce their safe execution in a multithreaded app.  
