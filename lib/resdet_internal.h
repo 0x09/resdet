@@ -32,7 +32,9 @@
 #define PIXEL_MAX SIZE_MAX
 #endif
 
-#if PIXEL_MAX <= UINT32_MAX
+#if PIXEL_MAX <= 0
+#error "PIXEL_MAX must be greater than 0"
+#elif PIXEL_MAX <= UINT32_MAX
 typedef uint_fast32_t rdint_index;
 typedef uint32_t rdint_storage;
 #else
@@ -48,6 +50,10 @@ typedef size_t rdint_storage;
 
 #ifndef DEFAULT_RANGE
 #define DEFAULT_RANGE 12
+#endif
+
+#if DEFAULT_RANGE <= 0
+#error "DEFAULT_RANGE must be greater than 0"
 #endif
 
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,intermediate*,rdint_index*restrict,rdint_index*restrict);
