@@ -9,16 +9,19 @@ libresdet is a small library for analyzing potential original resolutions in an 
   * [RDResolution](#rdresolution)
   * [RDMethod](#rdmethod)
 * [Functions](#functions)
-  * [resdet_error_str](#resdet_error_str)
-  * [resdet_libversion](#resdet_libversion)
-  * [resdet_methods](#resdet_methods)
-  * [resdet_get_method](#resdet_get_method)
-  * [resdet_default_range](#resdet_default_range)
-  * [resdetect_file](#resdetect_file)
-  * [resdetect_file_with_params](#resdetect_file_with_params)
-  * [resdet_read_image](#resdet_read_image)
-  * [resdetect](#resdetect)
-  * [resdetect_with_params](#resdetect_with_params)
+  * [Utility Functions](#utility-functions)
+    * [resdet_error_str](#resdet_error_str)
+    * [resdet_libversion](#resdet_libversion)
+    * [resdet_methods](#resdet_methods)
+    * [resdet_get_method](#resdet_get_method)
+    * [resdet_default_range](#resdet_default_range)
+  * [Image Reading](#image-reading) 
+    * [resdet_read_image](#resdet_read_image)
+  * [Detection Functions](#detection-functions) 
+    * [resdetect_file](#resdetect_file)
+    * [resdetect_file_with_params](#resdetect_file_with_params)
+    * [resdetect](#resdetect)
+    * [resdetect_with_params](#resdetect_with_params)
 * [Configuration Macros](#configuration-macros)
   * [PIXEL_MAX](#pixel_max)
   * [DEFAULT_RANGE](#default_range)
@@ -96,6 +99,9 @@ Const struct type encapsulating an upscaling detection method.
 
 
 # Functions
+
+## Utility Functions
+
 <a name="resdet_error_str"></a>
 
 ```C
@@ -153,6 +159,24 @@ Most detection methods use this value to determine how many neighboring values t
 
 Higher values are more accurate up to a point, while lower values are faster.
 
+## Image Reading
+
+---
+<a name="resdet_read_image"></a>
+
+```C
+RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
+```
+
+Read an image using whatever image loaders the library was built with.
+
+* filename - Path of the image, or "-" for standard input.
+* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
+* image - Out parameter containing the floating point grayscale image data, normalized to a range of 0-1. Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of image + width * height. Allocated by the library, must be freed by caller.
+* nimages - Out parameter containing the number of images returned.
+
+## Detection Functions
+
 ---
 <a name="resdetect_file"></a>
 
@@ -182,19 +206,6 @@ This function takes the same arguments as [`resdetect_file`](#resdetect_file) pl
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
 
----
-<a name="resdet_read_image"></a>
-
-```C
-RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
-```
-
-Read an image using whatever image loaders the library was built with.
-
-* filename - Path of the image, or "-" for standard input.
-* mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
-* image - Out parameter containing the floating point grayscale image data, normalized to a range of 0-1. Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of image + width * height. Allocated by the library, must be freed by caller.
-* nimages - Out parameter containing the number of images returned.
 * width, height - Out parameters containing the bitmap dimensions.
 
 ---
