@@ -1,5 +1,6 @@
 **2025-11-15**
 * The `method` argument to all resdetect functions may now be `NULL`, in which case the library default method will be used. Previously this caused an `RDEPARAM` error to be returned. (4a6acdd)
+* The underlying struct type of `RDMethod` is now const. (bcfa100)
 
 **2025-11-11**
 
