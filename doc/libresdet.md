@@ -86,13 +86,13 @@ Struct type representing detection results and returned in an array for each dim
 
 `RDMethod`
 
-Struct type encapsulating an upscaling detection method.
+Const struct type encapsulating an upscaling detection method.
 
 |Member|Type|Description|
 |---|---|---|
 |name|`const char*`|Method name.|
-|func|`void (*const)(void)`|Opaque pointer to the method's implementation.|
-|threshold|`const float`|Appropriate default threshold for this method's detection results.|
+|func|`void (*)(void)`|Opaque pointer to the method's implementation.|
+|threshold|`float`|Appropriate default threshold for this method's detection results.|
 
 
 # Functions

@@ -26,10 +26,10 @@ typedef struct RDResolution {
 	float confidence;
 } RDResolution;
 
-typedef struct RDMethod {
+typedef const struct RDMethod {
 	const char* name;
-	void (*const func)(void);
-	const float threshold;
+	void (*func)(void);
+	float threshold;
 } RDMethod;
 
 const char* resdet_libversion(void);
