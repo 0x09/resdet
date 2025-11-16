@@ -2,6 +2,7 @@ libresdet is a small library for analyzing potential original resolutions in an 
 
 # Table of Contents
 
+* [Example](#example)
 * [Types](#types)
   * [RDError](#rderror)
   * [RDErrors](#rderrors)
@@ -18,9 +19,33 @@ libresdet is a small library for analyzing potential original resolutions in an 
   * [resdet_read_image](#resdet_read_image)
   * [resdetect](#resdetect)
   * [resdetect_with_params](#resdetect_with_params)
-* [Example](#example)
 * [Memory Requirements](#memory-requirements)
 * [Thread Safety](#thread-safety)
+
+# Example
+
+Detect potential resolutions in a file, using the defaults:
+
+```C
+const char *filename = ...;
+	
+RDResolution *widths, *heights;
+size_t num_widths, num_heights;
+
+RDError e = resdetect_file(filename, NULL, &widths, &num_widths, &heights, &num_heights, NULL);
+
+if(e)
+    // handle error
+
+puts("Widths:")
+for(size_t i = 0; i < num_widths; i++)
+    printf("%zu\n", widths[i].index);
+
+puts("Heights:")
+for(size_t i = 0; i < num_heights; i++)
+    printf("%zu\n", heights[i].index);
+
+```
 
 # Types
 <a name="rderror"></a>
@@ -197,23 +222,6 @@ This function takes the same arguments as [`resdetect`](#resdetect) plus the fol
 
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
-
-# Example
-
-Detect potential widths in a file, using the defaults:
-
-```C
-const char* filename = ...;
-	
-RDResolution* rw;
-size_t cw;
-RDError e = resdetect_file(filename, NULL, &rw, &cw, NULL, NULL, resdet_get_method(NULL));
-if(e)
-	//handle error
-
-for(size_t i = 0; i < cw; i++)
-	printf("%zu\n", rw[i].index);
-```
 
 # Memory Requirements
 libresdet's peak requirements when built with FFTW support (including the primary image buffer) can be calculated by:
