@@ -29,9 +29,11 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	fprintf(out, "Pf\n%zu %zu\n-1.0\n", width, height);
-	for(size_t i = height; i > 0; i--)
-		fwrite(image+(i-1)*width,sizeof(*image),width,out);
+	for(size_t j = 0; j < nimages; j++) {
+		fprintf(out, "Pf\n%zu %zu\n-1.0\n", width, height);
+		for(size_t i = height; i > 0; i--)
+			fwrite(image + width*height*j + (i-1)*width, sizeof(*image), width, out);
+	}
 
 	fclose(out);
 	free(image);
