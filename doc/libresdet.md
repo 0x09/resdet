@@ -19,7 +19,6 @@ libresdet is a small library for analyzing potential original resolutions in an 
   * [resdet_read_image](#resdet_read_image)
   * [resdetect](#resdetect)
   * [resdetect_with_params](#resdetect_with_params)
-* [Memory Requirements](#memory-requirements)
 * [Thread Safety](#thread-safety)
 
 # Example
@@ -222,24 +221,6 @@ This function takes the same arguments as [`resdetect`](#resdetect) plus the fol
 
 * range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 (DEFAULT_RANGE), with reasonable values between 8-32.
 * threshold - Method-specific value (RDMethod->threshold) under which detected resolutions won't be considered meaningful. A value of 0 will return an RDResolution result for every single line/column.
-
-# Memory Requirements
-libresdet's peak requirements when built with FFTW support (including the primary image buffer) can be calculated by:
-
-	width * height * nimages * sizeof(float) +
-	width * height * COEFF_PRECISION +
-	width  * sizeof(double) +
-	height * sizeof(double) +
-	width  * sizeof(RDResolution) +
-	height * sizeof(RDResolution)
-
-The KISS FFT transform requirements are more slightly more complex.
-
-The above requirements may be limited indirectly by setting the PIXEL_MAX macro, which restricts the product of width, height, and nimages for valid images (SIZE_MAX by default).
-
-Note that image libraries used by `resdet_read_image` will have their own separate requirements not included in this calculation.
-
-Note also that at the time of this writing, multiple image formats like y4m are read into the buffer in their entirety. Therefore `resdetect_file` is not suitable for files with a large number of frames.
 
 # Thread Safety
 libresdet's own routines are thread safe, but some of its optional supporting libraries rely on global state. As libresdet does not mandate a threading model itself, it cannot enforce their safe execution in a multithreaded app.  
