@@ -1,3 +1,6 @@
+**2025-11-15**
+* The `method` argument to all resdetect functions may now be `NULL`, in which case the library default method will be used. Previously this caused an `RDEPARAM` error to be returned. (4a6acdd)
+
 **2025-11-11**
 
 * The `RDErrStr` array is replaced with a function `resdet_error_str(RDError)`. (8aee400)
