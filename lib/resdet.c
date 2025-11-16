@@ -126,15 +126,6 @@ end:
 	return ret;
 }
 
-RDMethod* resdet_get_method(const char* name) {
-	if(!name)
-		return resdet_methods(); //default
-	for(RDMethod* m = resdet_methods(); m->name; m++)
-		if(!strcmp(m->name,name))
-			return m;
-	return NULL;
-}
-
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
 	if(!method)
 		method = resdet_get_method(NULL);
@@ -161,6 +152,15 @@ RDError resdetect_file(const char* filename, const char* mimetype, RDResolution*
 		method = resdet_get_method(NULL);
 
 	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
+}
+
+RDMethod* resdet_get_method(const char* name) {
+	if(!name)
+		return resdet_methods(); //default
+	for(RDMethod* m = resdet_methods(); m->name; m++)
+		if(!strcmp(m->name,name))
+			return m;
+	return NULL;
 }
 
 size_t resdet_default_range(void) {
