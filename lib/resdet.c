@@ -179,7 +179,7 @@ const char* resdet_error_str(RDError e) {
 		[RDEINVAL]    = "Invalid image",
 		[RDEUNSUPP]   = "Unsupported image file format",
 		[RDETOOBIG]   = "Image size exceeds limit",
-		[RDEPARAM]    = "Invalid range supplied"
+		[RDEPARAM]    = "Parameter missing or invalid"
 	};
 
 	if(e < 0)
