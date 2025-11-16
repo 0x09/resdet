@@ -131,7 +131,7 @@ RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw
 * mimetype - Optional MIME type of the image, for choosing an image reader. If NULL the file's extension will be used.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
-* method - A detection method returned by `resdet_methods` or `resdet_get_method`.
+* method - A detection method returned by `resdet_methods` or `resdet_get_method`. May be `NULL` to use the library default method.
 
 ---
 <a name="resdetect_file_with_params"></a>
@@ -180,7 +180,7 @@ Detect from a bitmap or series of bitmaps directly.
 * width, height - Dimensions of the bitmap.
 * resw, resh - Output arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be NULL to skip analyzing that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
-* method - A detection method returned by `resdet_methods` or `resdet_get_method`.
+* method - A detection method returned by `resdet_methods` or `resdet_get_method`. May be `NULL` to use the library default method.
 
 ---
 <a name="resdetect_with_params"></a>

@@ -60,7 +60,9 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
-	if(!(method && range))
+	if(!method)
+		method = resdet_get_method(NULL);
+	if(!range)
 		return RDEPARAM;
 
 	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
@@ -134,10 +136,8 @@ RDMethod* resdet_get_method(const char* name) {
 }
 
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
-	if(rw) { *rw = NULL; *cw = 0; }
-	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
-		return RDEPARAM;
+		method = resdet_get_method(NULL);
 
 	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
@@ -157,10 +157,8 @@ RDError resdetect_file_with_params(const char* filename, const char* mimetype, R
 }
 
 RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
-	if(rw) { *rw = NULL; *cw = 0; }
-	if(rh) { *rh = NULL; *ch = 0; }
 	if(!method)
-		return RDEPARAM;
+		method = resdet_get_method(NULL);
 
 	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
@@ -181,7 +179,7 @@ const char* resdet_error_str(RDError e) {
 		[RDEINVAL]    = "Invalid image",
 		[RDEUNSUPP]   = "Unsupported image file format",
 		[RDETOOBIG]   = "Image size exceeds limit",
-		[RDEPARAM]    = "Invalid method or range supplied"
+		[RDEPARAM]    = "Invalid range supplied"
 	};
 
 	if(e < 0)
