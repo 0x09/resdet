@@ -32,11 +32,104 @@ static RDError setup_dimension(size_t length, size_t range, intermediate** buf, 
 	return RDEOK;
 }
 
-static RDError generate_dimension_results(size_t length, size_t nimages, float threshold, RDResolution** res, size_t* count, intermediate* result, rdint_index bounds[2]) {
+RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold) {
+	RDError e;
+
+	RDAnalysis* analysis = malloc(sizeof(*analysis));
+	if(!analysis) {
+		e = RDENOMEM;
+		goto error;
+	}
+
+	if(!method)
+		method = resdet_get_method(NULL);
+
+	if(!range) {
+		e = RDEPARAM;
+		goto error;
+	}
+
+	if(resdet_dims_exceed_limit(width,height,1,coeff)) {
+		e = RDETOOBIG;
+		goto error;
+	}
+
+	analysis->method = method;
+	analysis->width = width;
+	analysis->height = height;
+	analysis->range = range;
+	analysis->threshold = threshold;
+	analysis->nimages = 0;
+	analysis->xresult = analysis->yresult = NULL;
+	analysis->p = NULL;
+
+	if(!(analysis->f = resdet_alloc_coeffs(width,height))) {
+		e = RDENOMEM;
+		goto error;
+	}
+
+	if((e = resdet_create_plan(&analysis->p,analysis->f,width,height)))
+		goto error;
+
+	if((e = setup_dimension(width,range,&analysis->xresult,analysis->xbound)) != RDEOK)
+		goto error;
+	if((e = setup_dimension(height,range,&analysis->yresult,analysis->ybound)) != RDEOK)
+		goto error;
+
+	if(error)
+		*error = RDEOK;
+
+	return analysis;
+
+error:
+	resdet_destroy_analysis(analysis);
+
+	if(error)
+		*error = e;
+
+	return NULL;
+}
+
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error) {
+	if(!method)
+		method = resdet_get_method(NULL);
+
+	return resdet_create_analysis_with_params(method, width, height, error, DEFAULT_RANGE, method->threshold);
+}
+
+RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
+	if(!analysis)
+		return RDEPARAM;
+
+	RDError ret;
+	size_t width = analysis->width, height = analysis->height;
+
+	for(rdint_index i = 0; i < width*height; i++) {
+		if(!isfinite(image[i])) {
+			ret = RDEINVAL;
+			goto end;
+		}
+		analysis->f[i] = image[i];
+	}
+
+	resdet_transform(analysis->p);
+
+	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,width,height,width,1,analysis->range,analysis->xresult,analysis->xbound,analysis->xbound+1)) != RDEOK)
+		goto end;
+	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,height,width,1,width,analysis->range,analysis->yresult,analysis->ybound,analysis->ybound+1)) != RDEOK)
+		goto end;
+
+	analysis->nimages++;
+
+end:
+	return ret;
+}
+
+static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, rdint_index bounds[2], intermediate* result, RDResolution** res, size_t* count) {
 	size_t nresults = 1;
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/nimages >= threshold)
+			if(result[i]/analysis->nimages >= analysis->threshold)
 				nresults++;
 
 	if(!(*res = malloc(nresults*sizeof(**res))))
@@ -46,84 +139,72 @@ static RDError generate_dimension_results(size_t length, size_t nimages, float t
 
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/nimages >= threshold)
-				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/nimages};
+			if(result[i]/analysis->nimages >= analysis->threshold)
+				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/analysis->nimages};
 
 	qsort(*res,*count,sizeof(**res),sortres);
 
 	return RDEOK;
 }
 
+RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch) {
+	if(!analysis)
+		return RDEPARAM;
+
+	RDError error;
+
+	if(rw && (error = generate_dimension_results(analysis,analysis->width,analysis->xbound,analysis->xresult,rw,cw)))
+		goto error;
+	if(rh && (error = generate_dimension_results(analysis,analysis->height,analysis->ybound,analysis->yresult,rh,ch)))
+		goto error;
+
+	return RDEOK;
+
+error:
+	if(rw) {
+		free(*rw);
+		*rw = NULL;
+		*cw = 0;
+	}
+	if(rh) {
+		free(*rh);
+		*rh = NULL;
+		*ch = 0;
+	}
+
+	return error;
+}
+
+void resdet_destroy_analysis(RDAnalysis* analysis) {
+	if(!analysis)
+		return;
+
+	free(analysis->xresult);
+	free(analysis->yresult);
+	resdet_free_plan(analysis->p);
+	resdet_free_coeffs(analysis->f);
+	free(analysis);
+}
+
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
                                     RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
                                     RDMethod* method, size_t range, float threshold) {
-
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
-	if(!method)
-		method = resdet_get_method(NULL);
-	if(!range)
-		return RDEPARAM;
 
-	if(resdet_dims_exceed_limit(width,height,nimages,coeff))
-		return RDETOOBIG;
-	coeff* f = NULL;
-	if(!(f = resdet_alloc_coeffs(width,height)))
-		return RDENOMEM;
+	RDError error;
+	RDAnalysis* analysis = resdet_create_analysis_with_params(method,width,height,&error,range,threshold);
+	if(!analysis)
+		return error;
 
-	RDError ret = RDEOK;
-	intermediate* xresult = NULL,* yresult = NULL;
+	for(size_t i = 0; i < nimages && !error; i++)
+		error = resdet_analyze_image(analysis,image+i*width*height);
 
-	resdet_plan* p;
-	if((ret = resdet_create_plan(&p,f,width,height)))
-		goto end;
+	if(!error)
+		error = resdet_analysis_results(analysis,rw,cw,rh,ch);
 
-	rdint_index xbound[2], ybound[2];
-	if(rw && (ret = setup_dimension(width,range,&xresult,xbound)) != RDEOK)
-		goto end;
-	if(rh && (ret = setup_dimension(height,range,&yresult,ybound)) != RDEOK)
-		goto end;
-
-	for(size_t z = 0; z < nimages; z++) {
-		for(rdint_index i = 0; i < width*height; i++) {
-			if(!isfinite(image[z*width*height+i])) {
-				ret = RDEINVAL;
-				goto end;
-			}
-			f[i] = image[z*width*height+i];
-		}
-		resdet_transform(p);
-
-		if(xresult && (ret = ((RDetectFunc)method->func)(f,width,height,width,1,range,xresult,xbound,xbound+1)) != RDEOK)
-			goto end;
-		if(yresult && (ret = ((RDetectFunc)method->func)(f,height,width,1,width,range,yresult,ybound,ybound+1)) != RDEOK)
-			goto end;
-	}
-
-	if(rw && (ret = generate_dimension_results(width,nimages,threshold,rw,cw,xresult,xbound)) != RDEOK)
-		goto end;
-	if(rh && (ret = generate_dimension_results(height,nimages,threshold,rh,ch,yresult,ybound)) != RDEOK)
-		goto end;
-
-end:
-	if(ret != RDEOK) {
-		if(rw) {
-			free(*rw);
-			*rw = NULL;
-			*cw = 0;
-		}
-		if(rh) {
-			free(*rh);
-			*rh = NULL;
-			*ch = 0;
-		}
-	}
-
-	free(xresult);
-	free(yresult);
-	resdet_free_plan(p);
-	resdet_free_coeffs(f);
-	return ret;
+	resdet_destroy_analysis(analysis);
+	return error;
 }
 
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {

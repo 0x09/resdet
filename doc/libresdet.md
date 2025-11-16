@@ -1,4 +1,4 @@
-libresdet is a small library for analyzing potential original resolutions in an image.
+libresdet is a library for analyzing potential original resolutions in an image.
 
 # Table of Contents
 
@@ -8,6 +8,7 @@ libresdet is a small library for analyzing potential original resolutions in an 
   * [RDErrors](#rderrors)
   * [RDResolution](#rdresolution)
   * [RDMethod](#rdmethod)
+  * [RDAnalysis](#rdanalysis)
 * [Functions](#functions)
   * [Utility Functions](#utility-functions)
     * [resdet_error_str](#resdet_error_str)
@@ -17,11 +18,17 @@ libresdet is a small library for analyzing potential original resolutions in an 
     * [resdet_default_range](#resdet_default_range)
   * [Image Reading](#image-reading)
     * [resdet_read_image](#resdet_read_image)
-  * [Detection Functions](#detection-functions)
-    * [resdetect_file](#resdetect_file)
-    * [resdetect_file_with_params](#resdetect_file_with_params)
+  * [Sequential Analysis](#sequential-analysis)
+    * [resdet_create_analysis](#resdet_create_analysis)
+    * [resdet_create_analysis_with_params](#resdet_create_analysis_with_params)
+    * [resdet_analyze_image](#resdet_analyze_image)
+    * [resdet_analysis_results](#resdet_analysis_results)
+    * [resdet_destroy_analysis](#resdet_destroy_analysis)
+  * [High Level Detection Functions](#high-level-detection-functions)
     * [resdetect](#resdetect)
     * [resdetect_with_params](#resdetect_with_params)
+    * [resdetect_file](#resdetect_file)
+    * [resdetect_file_with_params](#resdetect_file_with_params)
 * [Configuration Macros](#configuration-macros)
   * [PIXEL_MAX](#pixel_max)
   * [DEFAULT_RANGE](#default_range)
@@ -98,6 +105,13 @@ Const struct type encapsulating an upscaling detection method.
 |name|`const char*`|Method name.|
 |func|`void (*)(void)`|Opaque pointer to the method's implementation.|
 |threshold|`float`|Appropriate default threshold for this method's detection results.|
+
+---
+<a name="rdanalysis"></a>
+
+`RDAnalysis`
+
+Opaque type used for [sequential analysis](#sequential-analysis).
 
 
 # Functions
@@ -178,7 +192,79 @@ Read an image using whatever image loaders the library was built with.
 * nimages - Out parameter containing the number of images returned.
 * width, height - Out parameters containing the bitmap dimensions.
 
-## Detection Functions
+## Sequential Analysis
+
+Functions for analyzing an image or iterative sequence of images.
+
+---
+<a name="resdetect_file"></a>
+
+```C
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error);
+```
+
+Start a sequential analysis.  
+The returned [`RDAnalysis`](#rdanalysis) pointer should be passed to [`resdet_destroy_analysis`](#resdet_destroy_analysis) when finished.  
+If an error occurs the returned pointer will be `NULL` and the error pointer updated to indicate what went wrong. 
+
+* method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
+* width, height - Dimensions of the image which will be passed to [`resdet_analyze_image`](#resdet_analyze_image).
+* error - Out parameter containing the error if any, or `RDEOK`.
+
+---
+<a name="resdetect_file_with_params"></a>
+
+```C
+RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold);
+```
+
+Start a sequential analysis with the specified parameters.
+
+This function takes the same arguments as [`resdet_create_analysis`](#resdet_create_analysis) plus the following:
+
+* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
+* threshold - Method-specific value ([`RDMethod->threshold`](#rdmethod)) under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column.
+
+---
+<a name="resdet_analyze_image"></a>
+
+```C
+RDError resdet_analyze_image(RDAnalysis* analysis, float* image);
+```
+Analyze a single image. Call multiple times with the same [`RDAnalysis`](#rdanalysis) to include multiple frames of an image sequence in the analysis. 
+
+This function should not be called from parallel threads with the same [`RDAnalysis`](#rdanalysis).
+
+* analysis - An [`RDAnalysis`](#rdanalysis) returned from the [`resdet_create_analysis`](#resdet_create_analysis) functions.
+* image - The floating point grayscale image data.
+
+---
+<a name="resdet_analysis_results"></a>
+
+```C
+RDError resdet_analysis_results(RDAnalysis*, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth);
+```
+
+Get the detection results from an analysis.  
+Typically called after all images in a sequence have been analyzed with [`resdet_analyze_image`](#resdet_analyze_image). May be called multiple times with the same [`RDAnalysis`](#rdanalysis) to re-obtain results or before all images are analyzed to obtain preliminary results.
+
+* resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
+* countw, counth - Size of resw and resh respectively.
+
+---
+<a name="resdet_destroy_analysis"></a>
+
+```C
+void resdet_destroy_analysis(RDAnalysis* analysis);
+```
+
+Destroy an analysis. Should match all calls to the [`resdet_create_analysis`](#resdet_create_analysis) functions.
+
+* analysis - An [`RDAnalysis`](#rdanalysis) returned from the [`resdet_create_analysis`](#resdet_create_analysis) functions. May be `NULL`.
+
+## High Level Detection Functions
+
+These functions wrap the above  [image reading](#image-reading) and [sequential analysis](#sequential-analysis) APIs.
 
 ---
 <a name="resdetect_file"></a>
@@ -189,7 +275,7 @@ RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw
 
 * filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.
-* resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip analyzing that dimension. If provided, respective count param must point to valid `size_t` memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
+* resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
 
@@ -223,7 +309,7 @@ Detect from a bitmap or series of bitmaps directly.
 * image - floating point grayscale image data.
 * nimages - Number of contiguous images in the buffer. Must be at least 1.
 * width, height - Dimensions of the bitmap.
-* resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip analyzing that dimension. If provided, respective count param must point to valid `size_t` memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
+* resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
 
@@ -333,7 +419,7 @@ Should be defined if the library's own PGM and PFM image readers (lib/image/pgm.
 Default: conditionally defined by the build script. Not defined otherwise.
 
 # Thread Safety
-libresdet's own routines are thread safe, but some of its optional supporting libraries rely on global state. As libresdet does not mandate a threading model itself, it cannot enforce their safe execution in a multithreaded app.  
+libresdet's own routines are thread safe except where explicitly noted, but some of its optional supporting libraries rely on global state. As libresdet does not mandate a threading model itself, it cannot enforce their safe execution in a multithreaded app.  
 If your application will make calls to resdet from concurrent threads while one of these are enabled, your application must independently prepare these libraries for threaded use at the start of execution.
 
 These measures are only necessary when both:

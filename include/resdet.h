@@ -32,6 +32,8 @@ typedef const struct RDMethod {
 	float threshold;
 } RDMethod;
 
+typedef struct RDAnalysis RDAnalysis;
+
 const char* resdet_libversion(void);
 
 const char* resdet_error_str(RDError);
@@ -42,6 +44,17 @@ RDMethod* resdet_get_method(const char* name);
 size_t resdet_default_range(void);
 
 RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
+
+
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error);
+
+RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold);
+
+RDError resdet_analyze_image(RDAnalysis*, float* image);
+
+RDError resdet_analysis_results(RDAnalysis*, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth);
+
+void resdet_destroy_analysis(RDAnalysis*);
 
 
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
