@@ -130,6 +130,11 @@ error:
 }
 
 bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
+	if(!rdimage) {
+		*error = RDEPARAM;
+		return false;
+	}
+
 	RDError e;
 	bool ret = rdimage->reader->read_frame(rdimage->reader_ctx,image,rdimage->width,rdimage->height,&e);
 	if(e) {
