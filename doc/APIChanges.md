@@ -1,3 +1,6 @@
+**2025-12-17**
+* The `resw`, `countw`, `resh`, and `counth` output parameters to all detection functions are now marked `restrict`. (8da871d)
+
 **2025-11-16**
 * Addition of the sequential analysis API. Adds a new opaque type `RDAnalysis` and functions to more efficiently analyze image sequences: `resdet_create_analysis`, `resdet_create_analysis_with_params`, `resdet_analyze_image`, `resdet_analysis_results`, and `resdet_destroy_analysis`. (d38a23f)
 * Addition of the sequential image reading API. Adds a new opaque type `RDImage` and functions to read image sequences iteratively: `resdet_open_image`, `resdet_read_image_frame`, and `resdet_close_image`. (384eb93)
