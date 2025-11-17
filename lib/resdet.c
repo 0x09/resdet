@@ -148,7 +148,7 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 	return RDEOK;
 }
 
-RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch) {
+RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict  rh, size_t* restrict ch) {
 	if(!analysis)
 		return RDEPARAM;
 
@@ -188,7 +188,7 @@ void resdet_destroy_analysis(RDAnalysis* analysis) {
 }
 
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                                    RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+                                    RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch,
                                     RDMethod* method, size_t range, float threshold) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
@@ -208,14 +208,14 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	return error;
 }
 
-RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch, RDMethod* method) {
 	if(!method)
 		method = resdet_get_method(NULL);
 
 	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
-RDError resdetect_file_with_params(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch,
+RDError resdetect_file_with_params(const char* filename, const char* mimetype, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch,
                                    RDMethod* method, size_t range, float threshold) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
@@ -245,7 +245,7 @@ end:
 	return error;
 }
 
-RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
+RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch, RDMethod* method) {
 	if(!method)
 		method = resdet_get_method(NULL);
 

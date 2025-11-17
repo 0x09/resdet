@@ -62,23 +62,31 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 
 RDError resdet_analyze_image(RDAnalysis*, float* image);
 
-RDError resdet_analysis_results(RDAnalysis*, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth);
+RDError resdet_analysis_results(RDAnalysis*,
+                                RDResolution** restrict resw, size_t* restrict countw,
+                                RDResolution** restrict resh, size_t* restrict counth);
 
 void resdet_destroy_analysis(RDAnalysis*);
 
 
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
-                  RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                  RDResolution** restrict resw, size_t* restrict countw,
+                  RDResolution** restrict resh, size_t* restrict counth,
                   RDMethod* method);
 
-RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+RDError resdetect_file(const char* filename, const char* mimetype,
+                       RDResolution** restrict resw, size_t* restrict countw,
+                       RDResolution** restrict resh, size_t* restrict counth,
+                       RDMethod* method);
 
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                              RDResolution** restrict resw, size_t* restrict countw,
+                              RDResolution** restrict resh, size_t* restrict counth,
                               RDMethod* method, size_t range, float threshold);
 
 RDError resdetect_file_with_params(const char* filename, const char* mimetype,
-                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                                   RDResolution** restrict resw, size_t* restrict countw,
+                                   RDResolution** restrict resh, size_t* restrict counth,
                                    RDMethod* method, size_t range, float threshold);
 
 

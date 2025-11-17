@@ -302,7 +302,9 @@ This function should not be called from parallel threads with the same [`RDAnaly
 <a name="resdet_analysis_results"></a>
 
 ```C
-RDError resdet_analysis_results(RDAnalysis*, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth);
+RDError resdet_analysis_results(RDAnalysis*,
+                                RDResolution** restrict resw, size_t* restrict countw,
+                                RDResolution** restrict resh, size_t* restrict counth);
 ```
 
 Get the detection results from an analysis.  
@@ -330,7 +332,10 @@ These functions wrap the above  [image reading](#image-reading) and [sequential 
 <a name="resdetect_file"></a>
 
 ```C
-RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth, RDMethod* method);
+RDError resdetect_file(const char* filename,
+                       RDResolution** restrict resw, size_t* restrict countw,
+                       RDResolution** restrict resh, size_t* restrict counth,
+                       RDMethod* method);
 ```
 
 * filename - Path of the image, or "-" for standard input.
@@ -344,7 +349,8 @@ RDError resdetect_file(const char* filename, RDResolution** resw, size_t* countw
 
 ```C
 RDError resdetect_file_with_params(const char* filename,
-                                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                                   RDResolution** restrict resw, size_t* restrict countw,
+                                   RDResolution** restrict resh, size_t* restrict counth,
                                    RDMethod* method, size_t range, float threshold);
 ```
 
@@ -360,8 +366,9 @@ This function takes the same arguments as [`resdetect_file`](#resdetect_file) pl
 
 ```C
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
-                   RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
-                   RDMethod* method);
+                  RDResolution** restrict resw, size_t* restrict countw,
+                  RDResolution** restrict resh, size_t* restrict counth,
+                  RDMethod* method);
 ```
 
 Detect from a bitmap or series of bitmaps directly.
@@ -378,7 +385,8 @@ Detect from a bitmap or series of bitmaps directly.
 
 ```C
 RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                              RDResolution** resw, size_t* countw, RDResolution** resh, size_t* counth,
+                              RDResolution** restrict resw, size_t* restrict countw,
+                              RDResolution** restrict resh, size_t* restrict counth,
                               RDMethod* method, size_t range, float threshold);
 ```
 
