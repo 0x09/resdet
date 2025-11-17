@@ -72,7 +72,7 @@ FFmpeg: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
 
 mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
 
-Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, mjpegtools (y4m), and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames. Note that currently frames will be read in bulk, so choose only a small section of the video to avoid consuming too much memory. This is not an inherent limitation, and will likely change.
+Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, mjpegtools (y4m), and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames.
 
 ### JPEG
 Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.

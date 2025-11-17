@@ -219,13 +219,29 @@ RDError resdetect_file_with_params(const char* filename, const char* mimetype, R
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
-	float* image = NULL;
-	size_t width, height, nimages;
-	RDError ret = resdet_read_image(filename,mimetype,&image,&nimages,&width,&height);
-	if(ret == RDEOK)
-		ret = resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,range,threshold);
+	RDError error;
+	size_t width, height;
+	float* image;
+	RDImage* rdimage = resdet_open_image(filename,mimetype,&width,&height,&image,&error);
+	if(error)
+		return error;
+
+	RDAnalysis* analysis = resdet_create_analysis_with_params(method,width,height,&error,range,threshold);
+	if(error)
+		goto end;
+
+	while(resdet_read_image_frame(rdimage,image,&error))
+		if((error = resdet_analyze_image(analysis,image)))
+			break;
 	free(image);
-	return ret;
+
+	if(!error)
+		error = resdet_analysis_results(analysis,rw,cw,rh,ch);
+
+end:
+	resdet_destroy_analysis(analysis);
+	resdet_close_image(rdimage);
+	return error;
 }
 
 RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** rw, size_t* cw, RDResolution** rh, size_t* ch, RDMethod* method) {
