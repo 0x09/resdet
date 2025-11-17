@@ -11,35 +11,57 @@
 #include <wand/MagickWand.h>
 #endif
 
-static float* read_magick(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+struct magickwand_context {
+	MagickWand* wand;
+};
+
+static void magickwand_reader_close(void* reader_ctx) {
+	struct magickwand_context* ctx = (struct magickwand_context*)reader_ctx;
+	if(ctx) {
+		DestroyMagickWand(ctx->wand);
+		free(ctx);
+	}
+}
+
+static void* magickwand_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
 	*error = RDEOK;
-	float* image = NULL;
-	MagickWand* wand = NewMagickWand();
-	if(!MagickReadImage(wand,filename)) {
-		*error = RDEINVAL;
-		goto end;
-	}
-	*width = MagickGetImageWidth(wand);
-	*height = MagickGetImageHeight(wand);
-	*nimages = MagickGetNumberImages(wand);
-	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
-		*error = RDETOOBIG;
-		goto end;
-	}
-	if(!(image = malloc(sizeof(*image) * *width * *height * *nimages))) {
+	struct magickwand_context* ctx = malloc(sizeof(*ctx));
+	if(!ctx) {
 		*error = RDENOMEM;
-		goto end;
+		goto error;
 	}
-	MagickResetIterator(wand);
-	for(size_t i = 0; i < *nimages; i++) {
-		MagickNextImage(wand);
-		MagickExportImagePixels(wand,0,0,*width,*height,"I",FloatPixel,image + i * *width* *height);
+
+	ctx->wand = NewMagickWand();
+	if(MagickReadImage(ctx->wand,filename) == MagickFalse) {
+		*error = RDEINVAL;
+		goto error;
 	}
-end:
-	DestroyMagickWand(wand);
-	return image;
+
+	*width = MagickGetImageWidth(ctx->wand);
+	*height = MagickGetImageHeight(ctx->wand);
+
+	MagickResetIterator(ctx->wand);
+
+	return ctx;
+
+error:
+	magickwand_reader_close(ctx);
+	return NULL;
+}
+
+static bool magickwand_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct magickwand_context* ctx = (struct magickwand_context*)reader_ctx;
+
+	if(MagickNextImage(ctx->wand) == MagickFalse)
+		return false;
+
+	MagickExportImagePixels(ctx->wand,0,0,width,height,"I",FloatPixel,image);
+	return true;
 }
 
 struct image_reader resdet_image_reader_magickwand = {
-	.read = read_magick
+	.open = magickwand_reader_open,
+	.read_frame = magickwand_reader_read_frame,
+	.close = magickwand_reader_close
 };

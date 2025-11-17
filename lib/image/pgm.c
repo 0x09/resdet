@@ -7,47 +7,80 @@
 
 #include <inttypes.h>
 
-static float* read_pgm(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+struct pgm_context {
+	FILE* f;
+	bool eof;
+	uint16_t depth;
+};
+
+static void pgm_reader_close(void* reader_ctx) {
+	struct pgm_context* ctx = (struct pgm_context*)reader_ctx;
+	if(!ctx)
+		return;
+
+	if(ctx->f && ctx->f != stdin)
+		fclose(ctx->f);
+	free(ctx);
+}
+
+static void* pgm_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
 	*error = RDEOK;
-	*nimages = 1;
-	float* image = NULL;
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f) {
-		*error = -errno;
+	struct pgm_context* ctx = malloc(sizeof(*ctx));
+	if(!ctx) {
+		*error = RDENOMEM;
 		return NULL;
 	}
-	uint16_t depth;
+
+	ctx->eof = false;
+
+	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
+	if(!ctx->f) {
+		*error = -errno;
+		goto error;
+	}
+
 	if(
-		fscanf(f,"P5 %zu %zu %" SCNu16,width,height,&depth) != 3 ||
-		fgetc(f) == EOF ||
-		depth > 255
+		fscanf(ctx->f,"P5 %zu %zu %" SCNu16,width,height,&ctx->depth) != 3 ||
+		fgetc(ctx->f) == EOF ||
+		ctx->depth > 255
 	) {
 		*error = RDEINVAL;
-		goto end;
+		goto error;
 	}
-	if(resdet_dims_exceed_limit(*width,*height,1,*image)) {
-		*error = RDETOOBIG;
-		goto end;
-	}
-	if(!(image = malloc(sizeof(*image) * *width * *height))) {
-		*error = RDENOMEM;
-		goto end;
-	}
+
+	return ctx;
+
+error:
+	pgm_reader_close(ctx);
+	return NULL;
+}
+
+static bool pgm_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct pgm_context* ctx = (struct pgm_context*)reader_ctx;
+
+	if(ctx->eof)
+		return false;
+
 	int c;
-	for(size_t i = 0; i < *width * *height; i++) {
-		if((c = fgetc(f)) == EOF) {
+	for(size_t i = 0; i < width * height; i++) {
+		if((c = fgetc(ctx->f)) == EOF) {
 			*error = RDEINVAL;
-			free(image);
-			image = NULL;
 			break;
 		}
-		else image[i] = c/(float)depth;
+		else image[i] = c/(float)ctx->depth;
 	}
-end:
-	if(f != stdin)
-		fclose(f);
-	return image;
+
+	ctx->eof = true;
+	return *error == RDEOK;
 }
+
+struct pfm_context {
+	FILE* f;
+	float endianness_scale;
+	char format;
+	bool header_consumed;
+};
 
 #define little_endian() (union { int i; char c; }){1}.c
 
@@ -99,84 +132,94 @@ static bool read_pfm_plane(FILE* f, float* image, size_t width, size_t height, f
 	return format == 'f' ? read_pfm_plane_gray(f,image,width,height,endianness_scale) : read_pfm_plane_rgb(f,image,width,height,endianness_scale);
 }
 
-static float* read_pfm(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+static void pfm_reader_close(void* reader_ctx) {
+	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+	if(!ctx)
+		return;
+
+	if(ctx->f && ctx->f != stdin)
+		fclose(ctx->f);
+	free(ctx);
+}
+
+static void* pfm_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
 	*error = RDEOK;
-	*nimages = 1;
-	float* image = NULL;
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f) {
-		*error = -errno;
+	struct pfm_context* ctx = malloc(sizeof(*ctx));
+	if(!ctx) {
+		*error = RDENOMEM;
 		return NULL;
 	}
-	float endianness_scale;
-	char format;
+
+	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
+	if(!ctx->f) {
+		*error = -errno;
+		goto error;
+	}
+
 	if(
-	   fscanf(f,"P%c %zu %zu %f\n",&format,width,height,&endianness_scale) != 4 ||
-	   !(format == 'f' || format == 'F')
+	   fscanf(ctx->f,"P%c %zu %zu %f\n",&ctx->format,width,height,&ctx->endianness_scale) != 4 ||
+	   !(ctx->format == 'f' || ctx->format == 'F')
 	) {
 		*error = RDEINVAL;
-		goto end;
-	}
-	if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
-		*error = RDETOOBIG;
-		goto end;
-	}
-	if(!(image = malloc(sizeof(*image) * *width * *height))) {
-		*error = RDENOMEM;
-		goto end;
+		goto error;
 	}
 
-	if(!read_pfm_plane(f,image,*width,*height,endianness_scale,format)) {
-		*error = RDEINVAL;
-        free(image);
-		image = NULL;
-		goto end;
-	}
+	ctx->header_consumed = true;
 
-	size_t next_width, next_height;
-	float next_endianness_scale;
-	char next_format;
-	int next_char;
-	float* next_image = NULL;
-	while(
-	    (next_char = fgetc(f)) == 'P' &&
-	    fscanf(f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) == 4 &&
-	    (next_format == 'f' || next_format == 'F') &&
-	    next_width == *width && next_height == *height
-	) {
-		if(resdet_dims_exceed_limit(*width,*height,*nimages,*image)) {
-			*error = RDETOOBIG;
-			free(image);
-			image = NULL;
-			goto end;
-		}
-		if(!(next_image = realloc(image,sizeof(*image) * *width * *height * ++*nimages))) {
-			*error = RDENOMEM;
-			free(image);
-			image = NULL;
+	return ctx;
+
+error:
+	pfm_reader_close(ctx);
+	return NULL;
+}
+
+static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+
+	if(!ctx->header_consumed) {
+		size_t next_width, next_height;
+		float next_endianness_scale;
+		char next_format;
+
+		int next_char = fgetc(ctx->f);
+		if(next_char == EOF && feof(ctx->f))
+			return false;
+
+		if(
+		    next_char != 'P' ||
+		    fscanf(ctx->f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) != 4 ||
+		    !(next_format == 'f' || next_format == 'F') ||
+		    next_width != width ||
+			next_height != height
+		) {
+			*error = RDEINVAL;
 			goto end;
 		}
 
-		image = next_image;
-		if(!read_pfm_plane(f,image+*width * *height * (*nimages-1),*width,*height,next_endianness_scale,next_format))
-			break;
+		ctx->endianness_scale = next_endianness_scale;
+		ctx->format = next_format;
 	}
 
-	if(next_char != EOF || !feof(f)) {
+	if(!read_pfm_plane(ctx->f,image,width,height,ctx->endianness_scale,ctx->format)) {
 		*error = RDEINVAL;
-		free(image);
-		image = NULL;
+		goto end;
 	}
+
+	ctx->header_consumed = false;
 
 end:
-	if(f != stdin)
-		fclose(f);
-	return image;
+	return *error == RDEOK;
 }
 
 struct image_reader resdet_image_reader_pgm = {
-	.read = read_pgm
+	.open = pgm_reader_open,
+	.read_frame = pgm_reader_read_frame,
+	.close = pgm_reader_close
 };
+
 struct image_reader resdet_image_reader_pfm = {
-	.read = read_pfm
+	.open = pfm_reader_open,
+	.read_frame = pfm_reader_read_frame,
+	.close = pfm_reader_close
 };

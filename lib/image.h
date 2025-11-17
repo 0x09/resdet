@@ -11,7 +11,15 @@
 #include "resdet_internal.h"
 
 struct image_reader {
-	float* (*read)(const char*,size_t*,size_t*,size_t*,RDError*);
+	void* (*open)(const char* filename, size_t* width, size_t* height, RDError*);
+	bool (*read_frame)(void* reader_ctx, float* image, size_t width, size_t height, RDError*);
+	void (*close)(void*);
+};
+
+struct RDImage {
+	struct image_reader* reader;
+	void* reader_ctx;
+	size_t width, height;
 };
 
 #endif

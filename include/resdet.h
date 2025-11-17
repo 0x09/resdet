@@ -8,6 +8,7 @@
 #define RESDET_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef int RDError; // an RDErrors value or negated errno code
 
@@ -34,6 +35,8 @@ typedef const struct RDMethod {
 
 typedef struct RDAnalysis RDAnalysis;
 
+typedef struct RDImage RDImage;
+
 const char* resdet_libversion(void);
 
 const char* resdet_error_str(RDError);
@@ -42,6 +45,13 @@ RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);
 
 size_t resdet_default_range(void);
+
+
+RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error);
+
+bool resdet_read_image_frame(RDImage*, float* image, RDError* error);
+
+void resdet_close_image(RDImage*);
 
 RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
 

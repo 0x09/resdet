@@ -14,67 +14,103 @@ static void jerr_emit_message(j_common_ptr cinfo, int msg_level) {}
 static void jerr_error_exit(j_common_ptr cinfo) { longjmp(cinfo->client_data,1); }
 static void jerr_reset_error_mgr(j_common_ptr cinfo) {}
 
-static float* read_jpeg(const char* filename, size_t* width, size_t* height, size_t* nimages, RDError* error) {
+struct libjpeg_context {
+	FILE* f;
+	bool eof;
+	struct jpeg_decompress_struct cinfo;
+};
+
+static void libjpeg_reader_close(void* reader_ctx) {
+	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+	if(!ctx)
+		return;
+
+	jpeg_destroy_decompress(&ctx->cinfo);
+	if(ctx->f != stdin)
+		fclose(ctx->f);
+	free(ctx);
+}
+
+static void* libjpeg_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
 	*error = RDEOK;
-	FILE* f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
-	if(!f) {
-		*error = -errno;
+	struct libjpeg_context* ctx = malloc(sizeof(*ctx));
+	if(!ctx) {
+		*error = RDENOMEM;
 		return NULL;
 	}
 
-	*nimages = 1;
-	unsigned char* image = NULL;
-	float* imagef = NULL;
-	struct jpeg_decompress_struct cinfo;
-	cinfo.err = &(struct jpeg_error_mgr){
+	ctx->eof = false;
+
+	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
+	if(!ctx->f) {
+		*error = -errno;
+		free(ctx);
+		return NULL;
+	}
+
+	ctx->cinfo.err = &(struct jpeg_error_mgr){
 		.error_exit      = jerr_error_exit,
 		.emit_message    = jerr_emit_message,
 		.reset_error_mgr = jerr_reset_error_mgr
 	};
-	if(setjmp(cinfo.client_data = (jmp_buf){0})) {
+
+	if(setjmp(ctx->cinfo.client_data = (jmp_buf){0})) {
+		*error = RDEINVAL;
+		goto error;
+	}
+
+	jpeg_create_decompress(&ctx->cinfo);
+	jpeg_stdio_src(&ctx->cinfo,ctx->f);
+	jpeg_read_header(&ctx->cinfo,TRUE);
+	ctx->cinfo.out_color_space = JCS_GRAYSCALE;
+	jpeg_start_decompress(&ctx->cinfo);
+
+	*width = ctx->cinfo.output_width;
+	*height = ctx->cinfo.output_height;
+
+	return ctx;
+
+error:
+	libjpeg_reader_close(ctx);
+	return NULL;
+}
+
+static bool libjpeg_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+
+	if(ctx->eof)
+		return false;
+
+	unsigned char* imagec = malloc(width * height);
+	if(!imagec) {
+		*error = RDENOMEM;
+		goto end;
+	}
+
+	if(setjmp(ctx->cinfo.client_data = (jmp_buf){0})) {
 		*error = RDEINVAL;
 		goto end;
 	}
 
-	jpeg_create_decompress(&cinfo);
-	jpeg_stdio_src(&cinfo,f);
-	jpeg_read_header(&cinfo,TRUE);
-	cinfo.out_color_space = JCS_GRAYSCALE;
-	jpeg_start_decompress(&cinfo);
-	*width = cinfo.output_width;
-	*height = cinfo.output_height;
-	if(resdet_dims_exceed_limit(*width,*height,1,*imagef)) {
-		*error = RDETOOBIG;
-		goto finish;
+	unsigned char* it = imagec;
+	while(ctx->cinfo.output_scanline < ctx->cinfo.output_height) {
+		unsigned char* rows[ctx->cinfo.rec_outbuf_height];
+		for(int i = 0; i < ctx->cinfo.rec_outbuf_height; i++)
+			rows[i] = it+i*ctx->cinfo.output_width;
+		it += jpeg_read_scanlines(&ctx->cinfo,rows,ctx->cinfo.rec_outbuf_height) * ctx->cinfo.output_width;
 	}
-	if(!(image = malloc(*width * *height))) {
-		*error = RDENOMEM;
-		goto finish;
-	}
+	for(size_t i = 0; i < width * height; i++)
+		image[i] = imagec[i]/255.f;
 
-	unsigned char* it = image;
-	while(cinfo.output_scanline < cinfo.output_height) {
-		unsigned char* rows[cinfo.rec_outbuf_height];
-		for(int i = 0; i < cinfo.rec_outbuf_height; i++)
-			rows[i] = it+i*cinfo.output_width;
-		it += jpeg_read_scanlines(&cinfo,rows,cinfo.rec_outbuf_height) * cinfo.output_width;
-	}
-	if(!(imagef = malloc(*width * *height * sizeof(*imagef)))) {
-		*error = RDENOMEM;
-		goto end;
-	}
-	for(size_t i = 0; i < *width * *height; i++)
-		imagef[i] = image[i]/255.f;
-finish:
-	jpeg_finish_decompress(&cinfo);
 end:
-	jpeg_destroy_decompress(&cinfo);
-    free(image);
-	if(f != stdin)
-		fclose(f);
-	return imagef;
+	ctx->eof = true;
+	free(imagec);
+	return *error == RDEOK;
 }
 
 struct image_reader resdet_image_reader_libjpeg = {
-	.read = read_jpeg
+	.open = libjpeg_reader_open,
+	.read_frame = libjpeg_reader_read_frame,
+	.close = libjpeg_reader_close
 };

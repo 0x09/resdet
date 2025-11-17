@@ -9,6 +9,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
   * [RDResolution](#rdresolution)
   * [RDMethod](#rdmethod)
   * [RDAnalysis](#rdanalysis)
+  * [RDImage](#rdimage)
 * [Functions](#functions)
   * [Utility Functions](#utility-functions)
     * [resdet_error_str](#resdet_error_str)
@@ -17,6 +18,9 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_get_method](#resdet_get_method)
     * [resdet_default_range](#resdet_default_range)
   * [Image Reading](#image-reading)
+    * [resdet_open_image](#resdet_open_image)
+    * [resdet_read_image_frame](#resdet_read_image_frame)
+    * [resdet_close_image](#resdet_close_image)
     * [resdet_read_image](#resdet_read_image)
   * [Sequential Analysis](#sequential-analysis)
     * [resdet_create_analysis](#resdet_create_analysis)
@@ -113,6 +117,14 @@ Const struct type encapsulating an upscaling detection method.
 
 Opaque type used for [sequential analysis](#sequential-analysis).
 
+---
+<a name="rdimage"></a>
+
+`RDImage`
+
+Opaque type representing an open image handle, used by the [image reading](#image-reading) functions.
+
+---
 
 # Functions
 
@@ -177,6 +189,51 @@ Higher values are more accurate up to a point, while lower values are faster.
 
 ## Image Reading
 
+Functions for reading image data using the library's built-in image readers.
+
+---
+<a name="resdet_open_image"></a>
+
+```C
+RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error);
+```
+
+Open an image for reading with [`resdet_read_image_frame`](#resdet_read_image_frame).
+The returned RDImage pointer should be passed to [`resdet_close_image`](#resdet_close_image) when finished.
+If an error occurs the returned pointer will be `NULL` and the error pointer updated to indicate what went wrong. 
+
+* filename - Path of the image, or "-" for standard input.
+* mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.
+* width, height - Out parameters containing the bitmap dimensions.
+* imagebuf - If not `NULL`, on output points to an allocated buffer large enough to pass to [`resdet_read_image_frame`](#resdet_read_image_frame), or `NULL` on error. Its contents are uninitialized. Must be freed by the caller.
+* error - Out parameter containing the error if any, or `RDEOK`.
+
+---
+<a name="resdet_read_image_frame"></a>
+
+```C
+bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error);
+```
+
+Read one frame of an image or image sequence. Returns false if there are no more images left in the sequence or on error, true otherwise.
+
+`resdet_read_image_frame` should not be called from parallel threads with the same [`RDImage`](#rdimage).
+
+* rdimage - An [`RDImage`](#rdimage) pointer obtained from [`resdet_open_image`](resdet_open_image).
+* image - Buffer at least width x height large where the image data is written. Image data is grayscale and normalized to a range of 0-1.
+* error - Out parameter containing the error if any, or `RDEOK`.
+
+---
+<a name="resdet_close_image"></a>
+
+```C
+void resdet_close_image(RDImage* rdimage);
+```
+
+Close an image and free its resources.
+
+* rdimage - An [`RDImage`](#rdimage) returned from [`resdet_open_image`](resdet_open_image). May be `NULL`.
+
 ---
 <a name="resdet_read_image"></a>
 
@@ -184,7 +241,10 @@ Higher values are more accurate up to a point, while lower values are faster.
 RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
 ```
 
-Read an image using whatever image loaders the library was built with.
+Read an image or image sequence in bulk using the library's built-in image readers.
+This function is a wrapper for [`resdet_open_image`](#resdet_open_image), [`resdet_read_image_frame`](#resdet_read_image_frame), and [`resdet_close_image`](#resdet_close_image).
+
+Note that this function is not recommended for multiple frame sequences over the iterative API above due to the potentially high memory requirements of loading frames in bulk.
 
 * filename - Path of the image, or "-" for standard input.
 * mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.

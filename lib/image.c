@@ -33,60 +33,155 @@ static const char* mimetype_from_ext(const char* filename) {
 	return "";
 }
 
-RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height) {
-	*width = *height = *nimages = 0;
-	*image = NULL;
+RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
+	*width = *height = 0;
+	RDError e;
 
-	if(!filename)
-		return RDEINTERNAL;
+	if(error)
+		*error = RDEOK;
+	if(imagebuf)
+		*imagebuf = NULL;
+
+	RDImage* rdimage = NULL;
+
+	if(!filename) {
+		e = RDEINVAL;
+		goto error;
+	}
+
+	if(!(rdimage = malloc(sizeof(*rdimage)))) {
+		e = RDENOMEM;
+		goto error;
+	}
 
 	const char* c = mimetype;
 	if(!c)
 		c = mimetype_from_ext(filename);
 
-	struct image_reader* reader = NULL;
+	rdimage->reader = NULL;
 	if(false)
 		;
 #ifndef OMIT_NATIVE_PGM_READER
 	else if(!strcmp(c,"image/x-portable-graymap")) {
 		extern struct image_reader resdet_image_reader_pgm;
-		reader = &resdet_image_reader_pgm;
+		rdimage->reader = &resdet_image_reader_pgm;
 	}
 	else if(!strcmp(c,"image/x-portable-floatmap")) {
 		extern struct image_reader resdet_image_reader_pfm;
-		reader = &resdet_image_reader_pfm;
+		rdimage->reader = &resdet_image_reader_pfm;
 	}
 #endif
 #ifdef HAVE_LIBJPEG
 	else if(!strcmp(c,"image/jpeg")) {
 		extern struct image_reader resdet_image_reader_libjpeg;
-		reader = &resdet_image_reader_libjpeg;
+		rdimage->reader = &resdet_image_reader_libjpeg;
 	}
 #endif
 #ifdef HAVE_LIBPNG
 	else if(!strcmp(c,"image/png")) {
 		extern struct image_reader resdet_image_reader_libpng;
-		reader = &resdet_image_reader_libpng;
+		rdimage->reader = &resdet_image_reader_libpng;
 	}
 #endif
 #ifdef HAVE_MJPEGTOOLS
 	else if(!strcmp(c,"video/yuv4mpeg")) {
 		extern struct image_reader resdet_image_reader_mjpegtools;
-		reader = &resdet_image_reader_mjpegtools;
+		rdimage->reader = &resdet_image_reader_mjpegtools;
 	}
 #endif
 #ifdef HAVE_MAGICKWAND
 	else {
 		extern struct image_reader resdet_image_reader_magickwand;
-		reader = &resdet_image_reader_magickwand;
+		rdimage->reader = &resdet_image_reader_magickwand;
 	}
 #endif
 
-	if(!reader)
-		return RDEUNSUPP;
+	if(!rdimage->reader) {
+		e = RDEUNSUPP;
+		goto error;
+	}
 
+	rdimage->reader_ctx = rdimage->reader->open(filename,width,height,&e);
+	if(e)
+		goto error;
+
+	if(resdet_dims_exceed_limit(*width,*height,1,float)) {
+		e = RDETOOBIG;
+		goto error;
+	}
+
+	rdimage->width = *width;
+	rdimage->height = *height;
+
+	if(imagebuf && !(*imagebuf = malloc(*width * *height * sizeof(**imagebuf)))) {
+		e = RDENOMEM;
+		goto error;
+	}
+
+	return rdimage;
+
+error:
+	resdet_close_image(rdimage);
+
+	if(error)
+		*error = e;
+
+	return NULL;
+}
+
+bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
 	RDError e;
-	*image = reader->read(filename,width,height,nimages,&e);
+	bool ret = rdimage->reader->read_frame(rdimage->reader_ctx,image,rdimage->width,rdimage->height,&e);
+	if(e) {
+		if(error)
+			*error = e;
+		return false;
+	}
 
-	return e;
+	return ret;
+}
+
+void resdet_close_image(RDImage* rdimage) {
+	if(!rdimage)
+		return;
+
+	if(rdimage->reader)
+		rdimage->reader->close(rdimage->reader_ctx);
+	free(rdimage);
+}
+
+RDError resdet_read_image(const char* filename, const char* mimetype, float** images, size_t* nimages, size_t* width, size_t* height) {
+	*nimages = 0;
+	*images = NULL;
+
+	RDError error;
+	RDImage* image = resdet_open_image(filename,mimetype,width,height,images,&error);
+	if(error)
+		return error;
+
+	while(resdet_read_image_frame(image,*images + *width * *height * *nimages,&error)) {
+		(*nimages)++;
+
+		if(resdet_dims_exceed_limit(*width,*height,*nimages,float)) {
+			error = RDETOOBIG;
+			break;
+		}
+
+		float* img = realloc(*images,*width * *height * *nimages * sizeof(**images));
+		if(!img) {
+			error = RDENOMEM;
+			break;
+		}
+
+		*images = img;
+	}
+
+	if(error) {
+		free(*images);
+		*images = NULL;
+	}
+
+	resdet_close_image(image);
+
+	return error;
 }
