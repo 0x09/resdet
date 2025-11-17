@@ -54,7 +54,7 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 	analysis->p = NULL;
 	analysis->f = NULL;
 
-	if(!range) {
+	if(!range || isnan(threshold) || threshold < 0) {
 		e = RDEPARAM;
 		goto error;
 	}
