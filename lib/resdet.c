@@ -44,6 +44,16 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 	if(!method)
 		method = resdet_get_method(NULL);
 
+	analysis->method = method;
+	analysis->width = width;
+	analysis->height = height;
+	analysis->range = range;
+	analysis->threshold = threshold;
+	analysis->nimages = 0;
+	analysis->xresult = analysis->yresult = NULL;
+	analysis->p = NULL;
+	analysis->f = NULL;
+
 	if(!range) {
 		e = RDEPARAM;
 		goto error;
@@ -53,15 +63,6 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 		e = RDETOOBIG;
 		goto error;
 	}
-
-	analysis->method = method;
-	analysis->width = width;
-	analysis->height = height;
-	analysis->range = range;
-	analysis->threshold = threshold;
-	analysis->nimages = 0;
-	analysis->xresult = analysis->yresult = NULL;
-	analysis->p = NULL;
 
 	if(!(analysis->f = resdet_alloc_coeffs(width,height))) {
 		e = RDENOMEM;
