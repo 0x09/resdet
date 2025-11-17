@@ -13,28 +13,37 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	FILE* out = NULL;
+
 	float* image;
-	size_t nimages, width, height;
-	RDError e = resdet_read_image(argv[1], NULL, &image, &nimages, &width, &height);
+	size_t width, height;
+	RDError e;
+	RDImage* rdimage = resdet_open_image(argv[1],NULL,&width,&height,&image,&e);
 
-	if(e) {
-		fprintf(stderr,"%s\n",resdet_error_str(e));
-		return 1;
-	}
+	if(e)
+		goto end;
 
-	FILE* out = fopen(argv[2], "wb");
+	out = fopen(argv[2], "wb");
 	if(!out) {
 		perror("error opening output");
-		free(image);
-		return 1;
+		goto end;
 	}
 
-	for(size_t j = 0; j < nimages; j++) {
+	while(resdet_read_image_frame(rdimage,image,&e)) {
+		if(e)
+			goto end;
+
 		fprintf(out, "Pf\n%zu %zu\n-1.0\n", width, height);
 		for(size_t i = height; i > 0; i--)
-			fwrite(image + width*height*j + (i-1)*width, sizeof(*image), width, out);
+			fwrite(image+(i-1)*width,sizeof(*image),width,out);
 	}
 
-	fclose(out);
+end:
+	if(e)
+		fprintf(stderr,"%s\n",resdet_error_str(e));
+
+	resdet_close_image(rdimage);
+	if(out)
+		fclose(out);
 	free(image);
 }
