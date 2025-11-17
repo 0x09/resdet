@@ -90,7 +90,7 @@ The success value `RDEOK` is defined to be 0. All other error codes are nonzero.
 
 `RDResolution`
 
-Struct type representing detection results and returned in an array for each dimension from the resdetect_\* functions.
+Struct type representing detection results and returned in an array for each dimension from the resdetect_\* and [`resdet_analysis_results`](#resdet_analysis_results) functions.
 
 |Member|Type|Description|
 |---|---|---|
