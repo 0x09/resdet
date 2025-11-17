@@ -257,7 +257,7 @@ Note that this function is not recommended for multiple frame sequences over the
 Functions for analyzing an image or iterative sequence of images.
 
 ---
-<a name="resdetect_file"></a>
+<a name="resdet_create_analysis"></a>
 
 ```C
 RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error);
@@ -272,7 +272,7 @@ If an error occurs the returned pointer will be `NULL` and the error pointer upd
 * error - Out parameter containing the error if any, or `RDEOK`.
 
 ---
-<a name="resdetect_file_with_params"></a>
+<a name="resdet_create_analysis_with_params"></a>
 
 ```C
 RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold);
