@@ -57,6 +57,11 @@ static void* mjpegtools_reader_open(const char* filename, size_t* width, size_t*
 	*width = y4m_si_get_width(&ctx->st);
 	*height = y4m_si_get_height(&ctx->st);
 
+	if(resdet_dims_exceed_limit(*width,*height,1,float)) {
+		*error = RDETOOBIG;
+		goto error;
+	}
+
 	ctx->frame_length = y4m_si_get_framelength(&ctx->st);
 	if(ctx->frame_length < 0 || (size_t)ctx->frame_length < *width * *height) {
 		*error = RDEINVAL;
