@@ -20,10 +20,10 @@ void statres(RDResolution* rw, size_t cw) {
 		;
 	puts("mild outliers:");
 	for(; i < cw && rw[i].confidence < outer; i++)
-		printf("\t%4ld (%5.2f%%) - %5.2f%%\n",rw[i].index,rw[i].confidence*100,(rw[i].confidence-median)/(1-median)*100);
+		printf("\t%4zu (%5.2f%%) - %5.2f%%\n",rw[i].index,rw[i].confidence*100,(rw[i].confidence-median)/(1-median)*100);
 	puts("extreme outliers:");
 	for(; i < cw; i++)
-		printf("\t%4ld (%5.2f%%) - %5.2f%%\n",rw[i].index,rw[i].confidence*100,(rw[i].confidence-median)/(1-median)*100);
+		printf("\t%4zu (%5.2f%%) - %5.2f%%\n",rw[i].index,rw[i].confidence*100,(rw[i].confidence-median)/(1-median)*100);
 }
 int main(int argc, char* argv[]) {
 	if(argc < 2) {

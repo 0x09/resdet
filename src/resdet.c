@@ -120,10 +120,10 @@ int main(int argc, char* argv[]) {
 		puts("all width        height");
 	for(size_t i = 0; i < MAX(cw,ch); i++) {
 		if(i < cw)
-			printf("%5ld (%5.2f%%)   ",rw[i].index,rw[i].confidence*100);
+			printf("%5zu (%5.2f%%)   ",rw[i].index,rw[i].confidence*100);
 		else printf("%17s","");
 		if(i < ch)
-			printf("%5ld (%5.2f%%)",rh[i].index,rh[i].confidence*100);
+			printf("%5zu (%5.2f%%)",rh[i].index,rh[i].confidence*100);
 		putchar('\n');
 	}
 
