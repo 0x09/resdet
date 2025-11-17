@@ -19,42 +19,45 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 	return malloc(sizeof(coeff)*width*height);
 }
 
-RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
+resdet_plan* resdet_create_plan(coeff* f, size_t width, size_t height, RDError* error) {
 	size_t bufsize = width > height ? width : height;
-
-	if(!(( *p            = calloc(1,sizeof(**p))                    ) && /* tower of malloc failures */
-	     ((*p)->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
-	     ((*p)->F        = malloc(sizeof(kiss_fft_cpx)*(bufsize+1))   ) &&
-	     ((*p)->shift[0] = malloc(sizeof(kiss_fft_cpx)*width)       ) &&
-	     ((*p)->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL) ) &&
+	resdet_plan* p;
+	if(!((p           = calloc(1,sizeof(*p))                     ) && /* tower of malloc failures */
+	     (p->mirror   = malloc(sizeof(kiss_fft_scalar)*bufsize*2)) &&
+	     (p->F        = malloc(sizeof(kiss_fft_cpx)*(bufsize+1)) ) &&
+	     (p->shift[0] = malloc(sizeof(kiss_fft_cpx)*width)       ) &&
+	     (p->cfg[0]   = kiss_fftr_alloc(width*2,false,NULL,NULL) ) &&
 	     (width == height || (
-	         ((*p)->shift[1] = malloc(sizeof(kiss_fft_cpx)*height)      ) &&
-	         ((*p)->cfg[1]   = kiss_fftr_alloc(height*2,false,NULL,NULL))
+	         (p->shift[1] = malloc(sizeof(kiss_fft_cpx)*height)  ) &&
+	         (p->cfg[1]   = kiss_fftr_alloc(height*2,false,NULL,NULL))
 	      ))
 	)) {
-		resdet_free_plan(*p);
-		*p = NULL;
-		return RDENOMEM;
+		resdet_free_plan(p);
+		*error = RDENOMEM;
+		return NULL;
 	}
+
 	if(width == height) {
-		(*p)->shift[1] = (*p)->shift[0];
-		(*p)->cfg[1] = (*p)->cfg[0];
+		p->shift[1] = p->shift[0];
+		p->cfg[1] = p->cfg[0];
 	}
-	(*p)->f = f;
-	(*p)->width = width;
-	(*p)->height = height;
+	p->f = f;
+	p->width = width;
+	p->height = height;
 
 	// Precalculating this offers a decent speedup, especially with multiple frames
 	intermediate pi = mi(atan)(1)*4;
 	for(size_t x = 0; x < width; x++) {
-		(*p)->shift[0][x].r = mi(cos)(-pi*x/(2*width));
-		(*p)->shift[0][x].i = mi(sin)(-pi*x/(2*width));
+		p->shift[0][x].r = mi(cos)(-pi*x/(2*width));
+		p->shift[0][x].i = mi(sin)(-pi*x/(2*width));
 	}
 	for(size_t y = 0; width != height && y < height; y++) {
-		(*p)->shift[1][y].r = mi(cos)(-pi*y/(2*height));
-		(*p)->shift[1][y].i = mi(sin)(-pi*y/(2*height));
+		p->shift[1][y].r = mi(cos)(-pi*y/(2*height));
+		p->shift[1][y].i = mi(sin)(-pi*y/(2*height));
 	}
-	return RDEOK;
+
+	*error = RDEOK;
+	return p;
 }
 
 static void kiss_dct(kiss_fftr_cfg cfg, coeff* restrict f, kiss_fft_cpx* restrict F, kiss_fft_scalar* restrict mirror, kiss_fft_cpx* restrict shift, size_t n, size_t length, size_t stride, size_t dist) {

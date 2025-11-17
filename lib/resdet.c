@@ -68,7 +68,8 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 		goto error;
 	}
 
-	if((e = resdet_create_plan(&analysis->p,analysis->f,width,height)))
+	analysis->p = resdet_create_plan(analysis->f,width,height,&e);
+	if(e)
 		goto error;
 
 	if((e = setup_dimension(width,range,&analysis->xresult,analysis->xbound)) != RDEOK)

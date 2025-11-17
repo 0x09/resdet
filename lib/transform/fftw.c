@@ -14,15 +14,21 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 	return fftwp(alloc_real)(width*height);
 }
 
-RDError resdet_create_plan(resdet_plan** p, coeff* f, size_t width, size_t height) {
-	if(!(*p = malloc(sizeof(**p))))
-		return RDENOMEM;
-	if(!((*p)->plan = fftwp(plan_r2r_2d)(height,width,f,f,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE))) {
-		resdet_free_plan(*p);
-		*p = NULL;
-		return RDEINTERNAL;
+resdet_plan* resdet_create_plan(coeff* f, size_t width, size_t height, RDError* error) {
+	resdet_plan* p = malloc(sizeof(*p));
+	if(!p) {
+		*error = RDENOMEM;
+		return NULL;
 	}
-	return RDEOK;
+
+	if(!(p->plan = fftwp(plan_r2r_2d)(height,width,f,f,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE))) {
+		resdet_free_plan(p);
+		*error = RDEINTERNAL;
+		return NULL;
+	}
+
+	*error = RDEOK;
+	return p;
 }
 
 void resdet_transform(resdet_plan* p) {
