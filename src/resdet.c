@@ -51,15 +51,17 @@ int main(int argc, char* argv[]) {
 	int c;
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL;
-	double threshold = -1;
-	size_t range = 0;
+	RDParameters params = {
+		.threshold = -1,
+		.range = 0
+	};
 	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
-			case 'x': threshold = strtod(optarg,NULL)/100; break;
-			case 'r': range = strtol(optarg,NULL,10); break;
+			case 'x': params.threshold = strtod(optarg,NULL)/100; break;
+			case 'r': params.range = strtol(optarg,NULL,10); break;
 			case 'h': help(argv[0]); break;
 			case 'V':
 				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
@@ -83,12 +85,12 @@ int main(int argc, char* argv[]) {
 	RDResolution* rw,* rh;
 	size_t cw, ch;
 
-	if(threshold < 0)
-		threshold = m->threshold;
-	if(!range)
-		range = resdet_default_range();
+	if(params.threshold < 0)
+		params.threshold = m->threshold;
+	if(!params.range)
+		params.range = resdet_default_range();
 
-	RDError e = resdetect_file_with_params(input,type,&rw,&cw,&rh,&ch,m,range,threshold);
+	RDError e = resdetect_file(input,type,&rw,&cw,&rh,&ch,m,&params);
 	if(e || !verbosity)
 		goto end;
 

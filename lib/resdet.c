@@ -32,7 +32,11 @@ static RDError setup_dimension(size_t length, size_t range, intermediate** buf, 
 	return RDEOK;
 }
 
-RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold) {
+static inline bool validate_params(const RDParameters* params) {
+	return params->range && !isnan(params->threshold) && params->threshold >= 0;
+}
+
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error) {
 	RDError e;
 
 	RDAnalysis* analysis = malloc(sizeof(*analysis));
@@ -47,14 +51,16 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 	analysis->method = method;
 	analysis->width = width;
 	analysis->height = height;
-	analysis->range = range;
-	analysis->threshold = threshold;
+	analysis->params = params ? *params : (RDParameters){
+		.range = DEFAULT_RANGE,
+		.threshold = method->threshold
+	};
 	analysis->nimages = 0;
 	analysis->xresult = analysis->yresult = NULL;
 	analysis->p = NULL;
 	analysis->f = NULL;
 
-	if(!range || isnan(threshold) || threshold < 0) {
+	if(!validate_params(&analysis->params)) {
 		e = RDEPARAM;
 		goto error;
 	}
@@ -73,9 +79,9 @@ RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, s
 	if(e)
 		goto error;
 
-	if((e = setup_dimension(width,range,&analysis->xresult,analysis->xbound)) != RDEOK)
+	if((e = setup_dimension(width,analysis->params.range,&analysis->xresult,analysis->xbound)) != RDEOK)
 		goto error;
-	if((e = setup_dimension(height,range,&analysis->yresult,analysis->ybound)) != RDEOK)
+	if((e = setup_dimension(height,analysis->params.range,&analysis->yresult,analysis->ybound)) != RDEOK)
 		goto error;
 
 	if(error)
@@ -90,13 +96,6 @@ error:
 		*error = e;
 
 	return NULL;
-}
-
-RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error) {
-	if(!method)
-		method = resdet_get_method(NULL);
-
-	return resdet_create_analysis_with_params(method, width, height, error, DEFAULT_RANGE, method->threshold);
 }
 
 RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
@@ -116,9 +115,9 @@ RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
 
 	resdet_transform(analysis->p);
 
-	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,width,height,width,1,analysis->range,analysis->xresult,analysis->xbound,analysis->xbound+1)) != RDEOK)
+	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,width,height,width,1,analysis->params.range,analysis->xresult,analysis->xbound,analysis->xbound+1)) != RDEOK)
 		goto end;
-	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,height,width,1,width,analysis->range,analysis->yresult,analysis->ybound,analysis->ybound+1)) != RDEOK)
+	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,height,width,1,width,analysis->params.range,analysis->yresult,analysis->ybound,analysis->ybound+1)) != RDEOK)
 		goto end;
 
 	analysis->nimages++;
@@ -131,7 +130,7 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 	size_t nresults = 1;
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/analysis->nimages >= analysis->threshold)
+			if(result[i]/analysis->nimages >= analysis->params.threshold)
 				nresults++;
 
 	if(!(*res = malloc(nresults*sizeof(**res))))
@@ -141,7 +140,7 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/analysis->nimages >= analysis->threshold)
+			if(result[i]/analysis->nimages >= analysis->params.threshold)
 				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/analysis->nimages};
 
 	qsort(*res,*count,sizeof(**res),sortres);
@@ -188,14 +187,15 @@ void resdet_destroy_analysis(RDAnalysis* analysis) {
 	free(analysis);
 }
 
-RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                                    RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch,
-                                    RDMethod* method, size_t range, float threshold) {
+RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+                                    RDResolution** restrict rw, size_t* restrict cw,
+                                    RDResolution** restrict rh, size_t* restrict ch,
+                                    RDMethod* method, const RDParameters* params) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
 	RDError error;
-	RDAnalysis* analysis = resdet_create_analysis_with_params(method,width,height,&error,range,threshold);
+	RDAnalysis* analysis = resdet_create_analysis(method,width,height,params,&error);
 	if(!analysis)
 		return error;
 
@@ -209,15 +209,10 @@ RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t
 	return error;
 }
 
-RDError resdetect(float* image, size_t nimages, size_t width, size_t height, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch, RDMethod* method) {
-	if(!method)
-		method = resdet_get_method(NULL);
-
-	return resdetect_with_params(image,nimages,width,height,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
-}
-
-RDError resdetect_file_with_params(const char* filename, const char* mimetype, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch,
-                                   RDMethod* method, size_t range, float threshold) {
+RDError resdetect_file(const char* filename, const char* mimetype,
+                                   RDResolution** restrict rw, size_t* restrict cw,
+                                   RDResolution** restrict rh, size_t* restrict ch,
+                                   RDMethod* method, const RDParameters* params) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
@@ -228,7 +223,7 @@ RDError resdetect_file_with_params(const char* filename, const char* mimetype, R
 	if(error)
 		return error;
 
-	RDAnalysis* analysis = resdet_create_analysis_with_params(method,width,height,&error,range,threshold);
+	RDAnalysis* analysis = resdet_create_analysis(method,width,height,params,&error);
 	if(error)
 		goto end;
 
@@ -244,13 +239,6 @@ end:
 	resdet_destroy_analysis(analysis);
 	resdet_close_image(rdimage);
 	return error;
-}
-
-RDError resdetect_file(const char* filename, const char* mimetype, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict rh, size_t* restrict ch, RDMethod* method) {
-	if(!method)
-		method = resdet_get_method(NULL);
-
-	return resdetect_file_with_params(filename,mimetype,rw,cw,rh,ch,method,DEFAULT_RANGE,method->threshold);
 }
 
 RDMethod* resdet_get_method(const char* name) {

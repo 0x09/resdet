@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
-			if((e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m))) {
+			if((e = resdetect(image,d,w,h,&rw,&cw,&rh,&ch,m,NULL))) {
 				fprintf(stderr, "Error during detection: %s\n",resdet_error_str(e));
 				ret = 1;
 				goto detect_end;

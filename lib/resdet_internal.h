@@ -62,8 +62,7 @@ struct RDAnalysis {
 	RDMethod* method;
 	size_t width, height;
 	size_t nimages;
-	size_t range;
-	float threshold;
+	RDParameters params;
 	coeff* f;
 	resdet_plan* p;
 	intermediate* xresult,* yresult;

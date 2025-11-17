@@ -54,7 +54,7 @@ const char *filename = ...;
 RDResolution *widths, *heights;
 size_t num_widths, num_heights;
 
-RDError e = resdetect_file(filename, NULL, &widths, &num_widths, &heights, &num_heights, NULL);
+RDError e = resdetect_file(filename, NULL, &widths, &num_widths, &heights, &num_heights, NULL, NULL);
 
 if(e)
     // handle error
@@ -109,6 +109,18 @@ Const struct type encapsulating an upscaling detection method.
 |name|`const char*`|Method name.|
 |func|`void (*)(void)`|Opaque pointer to the method's implementation.|
 |threshold|`float`|Appropriate default threshold for this method's detection results.|
+
+---
+<a name="rdparameters"></a>
+
+`RDParameters`
+
+Struct type containing optional parameters for controlling detection behavior, used in [`resdet_create_analysis`](#resdet_create_anlysis) and the [high level detection functions](#high-level-detection-functions).
+
+|Member|Type|Description|
+|---|---|---|
+|range|`size_t`|Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. Reasonable values are between 8 and 32. A value of 0 will cause detection functions to return an `RDEPARAM` error. The library default can be obtained by calling [`resdet_default_range`](#resdet_default_range).|
+|threshold|`float`|Method-specific value under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column. Values below zero or `NaN` will cause detection functions to return an `RDEPARAM` error. The method-specific default can be obtained from ([`RDMethod->threshold`](#rdmethod)).|
 
 ---
 <a name="rdanalysis"></a>
@@ -260,7 +272,7 @@ Functions for analyzing an image or iterative sequence of images.
 <a name="resdet_create_analysis"></a>
 
 ```C
-RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error);
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error);
 ```
 
 Start a sequential analysis.  
@@ -269,21 +281,8 @@ If an error occurs the returned pointer will be `NULL` and the error pointer upd
 
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
 * width, height - Dimensions of the image which will be passed to [`resdet_analyze_image`](#resdet_analyze_image).
+* params - Optional pointer to an [`RDParameters`](#rdparameters) struct for controlling detection behavior, or `NULL` to use the library default parameters.
 * error - Out parameter containing the error if any, or `RDEOK`.
-
----
-<a name="resdet_create_analysis_with_params"></a>
-
-```C
-RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold);
-```
-
-Start a sequential analysis with the specified parameters.
-
-This function takes the same arguments as [`resdet_create_analysis`](#resdet_create_analysis) plus the following:
-
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
-* threshold - Method-specific value ([`RDMethod->threshold`](#rdmethod)) under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column.
 
 ---
 <a name="resdet_analyze_image"></a>
@@ -335,7 +334,7 @@ These functions wrap the above  [image reading](#image-reading) and [sequential 
 RDError resdetect_file(const char* filename,
                        RDResolution** restrict resw, size_t* restrict countw,
                        RDResolution** restrict resh, size_t* restrict counth,
-                       RDMethod* method);
+                       RDMethod* method, const RDParameters* params);
 ```
 
 * filename - Path of the image, or "-" for standard input.
@@ -343,23 +342,7 @@ RDError resdetect_file(const char* filename,
 * resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
-
----
-<a name="resdetect_file_with_params"></a>
-
-```C
-RDError resdetect_file_with_params(const char* filename,
-                                   RDResolution** restrict resw, size_t* restrict countw,
-                                   RDResolution** restrict resh, size_t* restrict counth,
-                                   RDMethod* method, size_t range, float threshold);
-```
-
-Detect with specified parameters.
-
-This function takes the same arguments as [`resdetect_file`](#resdetect_file) plus the following:
-
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
-* threshold - Method-specific value ([`RDMethod->threshold`](#rdmethod)) under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column.
+* params - Optional pointer to an [`RDParameters`](#rdparameters) struct for controlling detection behavior, or `NULL` to use the library default parameters.
 
 ---
 <a name="resdetect"></a>
@@ -368,7 +351,7 @@ This function takes the same arguments as [`resdetect_file`](#resdetect_file) pl
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
                   RDResolution** restrict resw, size_t* restrict countw,
                   RDResolution** restrict resh, size_t* restrict counth,
-                  RDMethod* method);
+                  RDMethod* method, const RDParameters* params);
 ```
 
 Detect from a bitmap or series of bitmaps directly.
@@ -379,23 +362,7 @@ Detect from a bitmap or series of bitmaps directly.
 * resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
-
----
-<a name="resdetect_with_params"></a>
-
-```C
-RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                              RDResolution** restrict resw, size_t* restrict countw,
-                              RDResolution** restrict resh, size_t* restrict counth,
-                              RDMethod* method, size_t range, float threshold);
-```
-
-Detect from a bitmap directly with specified parameters.
-
-This function takes the same arguments as [`resdetect`](#resdetect) plus the following:
-
-* range - Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. The default is currently 12 ([DEFAULT_RANGE](#default_range)), with reasonable values between 8-32.
-* threshold - Method-specific value ([`RDMethod->threshold`](#rdmethod)) under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column.
+* params - Optional pointer to an [`RDParameters`](#rdparameters) struct for controlling detection behavior, or `NULL` to use the library default parameters.
 
 # Configuration Macros
 Macros that may be defined when building libresdet which affect the behavior of the library.

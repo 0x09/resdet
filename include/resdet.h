@@ -33,6 +33,11 @@ typedef const struct RDMethod {
 	float threshold;
 } RDMethod;
 
+typedef struct RDParameters {
+	size_t range;
+	float threshold;
+} RDParameters;
+
 typedef struct RDAnalysis RDAnalysis;
 
 typedef struct RDImage RDImage;
@@ -56,9 +61,7 @@ void resdet_close_image(RDImage*);
 RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
 
 
-RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, RDError* error);
-
-RDAnalysis* resdet_create_analysis_with_params(RDMethod* method, size_t width, size_t height, RDError* error, size_t range, float threshold);
+RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error);
 
 RDError resdet_analyze_image(RDAnalysis*, float* image);
 
@@ -72,22 +75,12 @@ void resdet_destroy_analysis(RDAnalysis*);
 RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
                   RDResolution** restrict resw, size_t* restrict countw,
                   RDResolution** restrict resh, size_t* restrict counth,
-                  RDMethod* method);
+                  RDMethod* method, const RDParameters* params);
 
 RDError resdetect_file(const char* filename, const char* mimetype,
                        RDResolution** restrict resw, size_t* restrict countw,
                        RDResolution** restrict resh, size_t* restrict counth,
-                       RDMethod* method);
-
-RDError resdetect_with_params(float* image, size_t nimages, size_t width, size_t height,
-                              RDResolution** restrict resw, size_t* restrict countw,
-                              RDResolution** restrict resh, size_t* restrict counth,
-                              RDMethod* method, size_t range, float threshold);
-
-RDError resdetect_file_with_params(const char* filename, const char* mimetype,
-                                   RDResolution** restrict resw, size_t* restrict countw,
-                                   RDResolution** restrict resh, size_t* restrict counth,
-                                   RDMethod* method, size_t range, float threshold);
+                       RDMethod* method, const RDParameters* params);
 
 
 #endif
