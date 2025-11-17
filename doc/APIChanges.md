@@ -1,6 +1,7 @@
 **2025-12-17**
 * The `resw`, `countw`, `resh`, and `counth` output parameters to all detection functions are now marked `restrict`. (8da871d)
 * `threshold` parameters below 0 or `NaN` now return an `RDEPARAM` error from `resdet_create_analysis_with_params` and the `resdetect` functions. (fe101a6)
+* Addition of the `RDParameters` type and `params` argument to functions `resdetect`, `resdetect_file`, and `resdet_create_analysis`. Removal of functions `resdetect_with_params`, `resdetect_file_with_params`, and `resdet_create_analysis_with_params` in favor of calling the respective base functions with an `RDParameters` struct. (c9d0e7a)
 
 **2025-11-16**
 * Addition of the sequential analysis API. Adds a new opaque type `RDAnalysis` and functions to more efficiently analyze image sequences: `resdet_create_analysis`, `resdet_create_analysis_with_params`, `resdet_analyze_image`, `resdet_analysis_results`, and `resdet_destroy_analysis`. (d38a23f)
