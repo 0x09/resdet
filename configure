@@ -67,7 +67,7 @@ for o; do
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
 		--disable-MagickWand) with_MagickWand=false;;
-		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
+		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false;;
 		--omit-native-pgm-reader) omit_native_pgm_reader=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
@@ -139,7 +139,7 @@ function pcver() {
 
 testbin "$CC" || abort
 testbin "$AR" || abort
-if $with_libpng || $with_mjpegtools || $with_MagickWand || $with_fftw; then
+if $with_libpng || $with_MagickWand || $with_fftw; then
 	testbin pkg-config || abort "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
 fi
 
