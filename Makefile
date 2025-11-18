@@ -31,9 +31,6 @@ endif
 ifdef HAVE_LIBPNG
 	OBJS += image/libpng.o
 endif
-ifdef HAVE_MJPEGTOOLS
-	OBJS += image/mjpegtools.o
-endif
 ifdef HAVE_MAGICKWAND
 	OBJS += image/magickwand.o
 endif
@@ -54,7 +51,6 @@ CFLAGS_LIB := -Iinclude/ -Ilib/ $(DEFS) $(CFLAGS_LIB) $(CFLAGS)
 lib/transform/fftw.o:   CFLAGS := $(CFLAGS_FFTW) $(CFLAGS_LIB)
 lib/image/libjpeg.o:    CFLAGS := $(CFLAGS_libjpeg) $(CFLAGS_LIB)
 lib/image/libpng.o:     CFLAGS := $(CFLAGS_libpng) $(CFLAGS_LIB)
-lib/image/mjpegtools.o: CFLAGS := $(CFLAGS_mjpegtools) $(CFLAGS_LIB)
 lib/image/magickwand.o: CFLAGS := $(CFLAGS_MagickWand) $(CFLAGS_LIB)
 
 $(LIB): CFLAGS := $(CFLAGS_LIB)

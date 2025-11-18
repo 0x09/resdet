@@ -8,7 +8,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpng-dev libjpeg-dev libmjpegtools-dev libmagickwand-6.q16-dev libfftw3-dev curl
+          sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev curl
       - name: Build and install resdet
         run: |
           ./configure
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install mjpegtools fftw imagemagick #libpng and libjpeg are already installed
+          brew install fftw imagemagick #libpng and libjpeg are already installed
       - name: Build and install resdet
         run: |
           ./configure

@@ -10,7 +10,6 @@ CFLAGS_CLI="-std=gnu99 $CFLAGS"
 with_fftw=true
 with_libjpeg=true
 with_libpng=true
-with_mjpegtools=true
 with_MagicWand=true
 omit_native_pgm_reader=false
 
@@ -37,7 +36,6 @@ function usage() {
 	echo "   --disable-fftw"
 	echo "   --disable-libjpeg"
 	echo "   --disable-libpng"
-	echo "   --disable-mjpegtools"
 	echo "   --disable-MagickWand"
 	echo "   --disable-everything"
 	echo "   --omit-native-pgm-reader"
@@ -68,7 +66,6 @@ for o; do
 		--disable-fftw      ) with_fftw=false;;
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
-		--disable-mjpegtools) with_mjpegtools=false;;
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_mjpegtools=false; with_MagickWand=false;;
 		--omit-native-pgm-reader) omit_native_pgm_reader=true;;
@@ -190,7 +187,7 @@ if $with_fftw && testpc $lfftw; then
 	printf "CFLAGS_FFTW=%s\n" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $lfftw)" >> config.mak
 fi
 
-for dep in libjpeg libpng mjpegtools MagickWand; do
+for dep in libjpeg libpng MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
 		name="$(tr '[a-z]' '[A-Z]' <<< $dep)"

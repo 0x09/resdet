@@ -9,7 +9,6 @@ dnf install -y \
 dnf install -y --setopt=install_weak_deps=False \
     libpng \
     libjpeg \
-    mjpegtools-libs \
     ImageMagick-libs \
     fftw-libs \
     # keep this line
@@ -25,7 +24,6 @@ dnf install -y --setopt=install_weak_deps=False \
     glibc-devel \
     libpng-devel \
     libjpeg-devel \
-    mjpegtools-devel \
     ImageMagick-devel \
     fftw-devel \
     # keep this line

@@ -83,12 +83,6 @@ RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* w
 		rdimage->reader = &resdet_image_reader_libpng;
 	}
 #endif
-#ifdef HAVE_MJPEGTOOLS
-	else if(!strcmp(c,"video/yuv4mpeg")) {
-		extern struct image_reader resdet_image_reader_mjpegtools;
-		rdimage->reader = &resdet_image_reader_mjpegtools;
-	}
-#endif
 #ifdef HAVE_MAGICKWAND
 	else {
 		extern struct image_reader resdet_image_reader_magickwand;

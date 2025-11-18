@@ -7,7 +7,6 @@ apt-get update
 apt-get --no-install-recommends install -y \
     libpng16-16 \
     libjpeg62-turbo \
-    libmjpegutils-2.1-0 \
     libmagickwand-6.q16-6 \
     libfftw3-bin \
     # keep this line
@@ -23,7 +22,6 @@ apt-get --no-install-recommends install -y \
     libc-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
-    libmjpegtools-dev \
     libmagickwand-6.q16-dev \
     libfftw3-dev \
     # keep this line
