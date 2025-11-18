@@ -56,12 +56,21 @@ int main(int argc, char* argv[]) {
 		.range = 0
 	};
 	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
+		char* endptr;
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
-			case 'x': params.threshold = strtod(optarg,NULL)/100; break;
-			case 'r': params.range = strtol(optarg,NULL,10); break;
+			case 'x':
+				params.threshold = strtod(optarg,&endptr)/100;
+				if(endptr == optarg)
+					usage(argv[0]);
+				break;
+			case 'r':
+				params.range = strtol(optarg,&endptr,10);
+				if(endptr == optarg)
+					usage(argv[0]);
+				break;
 			case 'h': help(argv[0]); break;
 			case 'V':
 				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
