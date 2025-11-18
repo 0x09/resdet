@@ -1,3 +1,6 @@
+**2025-12-18**
+* The `OMIT_NATIVE_PGM_READER` configuration macro is changed to `OMIT_NATIVE_PGM_PFM_READERS` to reflect the fact that these are now separate translation units. (7e488d4)
+
 **2025-12-17**
 * The `resw`, `countw`, `resh`, and `counth` output parameters to all detection functions are now marked `restrict`. (8da871d)
 * `threshold` parameters below 0 or `NaN` now return an `RDEPARAM` error from `resdet_create_analysis_with_params` and the `resdetect` functions. (fe101a6)
