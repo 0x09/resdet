@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o
+OBJS=resdet.o image.o methods.o image/y4m.o
 LIB=lib/libresdet.a
 
 EXTRAFLAGS=

@@ -235,7 +235,3 @@ echo "TOOLS=${TOOLS[@]}" >> config.mak
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"
 fi
-
-if $omit_native_pgm_reader && [[ ! "$DEFS" =~ .*HAVE_(MAGICKWAND|LIBPNG|LIBJPEG|MJPEGTOOLS).* ]]; then
-	echo "Warning: building with --omit-native-pgm-reader but no other image libraries were found, resdet will not be able to read any images."
-fi

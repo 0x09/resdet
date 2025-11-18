@@ -71,6 +71,10 @@ RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* w
 		rdimage->reader = &resdet_image_reader_pfm;
 	}
 #endif
+	else if(!strcmp(c,"video/yuv4mpeg")) {
+		extern struct image_reader resdet_image_reader_y4m;
+		rdimage->reader = &resdet_image_reader_y4m;
+	}
 #ifdef HAVE_LIBJPEG
 	else if(!strcmp(c,"image/jpeg")) {
 		extern struct image_reader resdet_image_reader_libjpeg;
