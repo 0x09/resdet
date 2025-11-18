@@ -8,6 +8,11 @@
 
 #include "resdet_internal.h"
 
+const static RDParameters default_params = {
+	.range = DEFAULT_RANGE,
+	.threshold = -1
+};
+
 static int sortres(const void* left, const void* right) {
 	float left_confidence = ((const RDResolution*)left)->confidence,
 	      right_confidence = ((const RDResolution*)right)->confidence;
@@ -32,10 +37,6 @@ static RDError setup_dimension(size_t length, size_t range, intermediate** buf, 
 	return RDEOK;
 }
 
-static inline bool validate_params(const RDParameters* params) {
-	return params->range && !isnan(params->threshold) && params->threshold >= 0;
-}
-
 RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error) {
 	RDError e;
 
@@ -51,19 +52,14 @@ RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height
 	analysis->method = method;
 	analysis->width = width;
 	analysis->height = height;
-	analysis->params = params ? *params : (RDParameters){
-		.range = DEFAULT_RANGE,
-		.threshold = method->threshold
-	};
+	analysis->params = params ? *params : default_params;
 	analysis->nimages = 0;
 	analysis->xresult = analysis->yresult = NULL;
 	analysis->p = NULL;
 	analysis->f = NULL;
 
-	if(!validate_params(&analysis->params)) {
-		e = RDEPARAM;
-		goto error;
-	}
+	if(analysis->params.threshold < 0)
+		analysis->params.threshold = method->threshold;
 
 	if(resdet_dims_exceed_limit(width,height,1,coeff)) {
 		e = RDETOOBIG;
@@ -249,6 +245,32 @@ RDMethod* resdet_get_method(const char* name) {
 			return m;
 	return NULL;
 }
+
+RDParameters* resdet_alloc_default_parameters(void) {
+	 RDParameters* params = malloc(sizeof(*params));
+	 if(!params)
+		 return NULL;
+
+	 *params = default_params;
+	 return params;
+}
+
+RDError resdet_parameters_set_range(RDParameters* params, size_t range) {
+	if(!params || !range)
+		return RDEPARAM;
+
+	params->range = range;
+	return RDEOK;
+}
+
+RDError resdet_parameters_set_threshold(RDParameters* params, float threshold) {
+	if(!params || isnan(threshold) || threshold < 0 || threshold > 1)
+		return RDEPARAM;
+
+	params->threshold = threshold;
+	return RDEOK;
+}
+
 
 size_t resdet_default_range(void) {
 	return DEFAULT_RANGE;

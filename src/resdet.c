@@ -51,26 +51,14 @@ int main(int argc, char* argv[]) {
 	int c;
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL;
-	RDParameters params = {
-		.threshold = -1,
-		.range = 0
-	};
+	const char* range_opt = NULL,* threshold_opt = NULL;
 	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
-		char* endptr;
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
-			case 'x':
-				params.threshold = strtod(optarg,&endptr)/100;
-				if(endptr == optarg)
-					usage(argv[0]);
-				break;
-			case 'r':
-				params.range = strtol(optarg,&endptr,10);
-				if(endptr == optarg)
-					usage(argv[0]);
-				break;
+			case 'x': threshold_opt = optarg; break;
+			case 'r': range_opt = optarg; break;
 			case 'h': help(argv[0]); break;
 			case 'V':
 				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
@@ -91,15 +79,32 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	RDParameters* params = resdet_alloc_default_parameters();
+	if(!params)
+		return 1;
+
+	char* endptr;
+	if(threshold_opt) {
+		float threshold = strtod(threshold_opt,&endptr)/100;
+		if(threshold_opt == endptr || resdet_parameters_set_threshold(params,threshold)) {
+			fprintf(stderr,"Invalid threshold value %s\n",threshold_opt);
+			free(params);
+			return 1;
+		}
+	}
+	if(range_opt) {
+		size_t range = strtol(range_opt,&endptr,10);
+		if(range_opt == endptr || resdet_parameters_set_range(params,range)) {
+			fprintf(stderr,"Invalid range value %s\n",range_opt);
+			free(params);
+			return 1;
+		}
+	}
+
 	RDResolution* rw,* rh;
 	size_t cw, ch;
 
-	if(params.threshold < 0)
-		params.threshold = m->threshold;
-	if(!params.range)
-		params.range = resdet_default_range();
-
-	RDError e = resdetect_file(input,type,&rw,&cw,&rh,&ch,m,&params);
+	RDError e = resdetect_file(input,type,&rw,&cw,&rh,&ch,m,params);
 	if(e || !verbosity)
 		goto end;
 
@@ -139,6 +144,7 @@ int main(int argc, char* argv[]) {
 	}
 
 end:
+	free(params);
 	free(rw);
 	free(rh);
 	if(e) {

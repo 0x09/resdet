@@ -33,10 +33,7 @@ typedef const struct RDMethod {
 	float threshold;
 } RDMethod;
 
-typedef struct RDParameters {
-	size_t range;
-	float threshold;
-} RDParameters;
+typedef struct RDParameters RDParameters;
 
 typedef struct RDAnalysis RDAnalysis;
 
@@ -50,6 +47,11 @@ RDMethod* resdet_methods(void);
 RDMethod* resdet_get_method(const char* name);
 
 size_t resdet_default_range(void);
+
+RDParameters* resdet_alloc_default_parameters(void);
+
+RDError resdet_parameters_set_range(RDParameters*, size_t range);
+RDError resdet_parameters_set_threshold(RDParameters*, float threshold);
 
 
 RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error);

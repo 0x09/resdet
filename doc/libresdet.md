@@ -16,6 +16,9 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_libversion](#resdet_libversion)
     * [resdet_methods](#resdet_methods)
     * [resdet_get_method](#resdet_get_method)
+    * [resdet_alloc_default_parameters](#resdet_alloc_default_parameters)
+    * [resdet_parameters_set_range](#resdet_parameters_set_range)
+    * [resdet_parameters_set_threshold](#resdet_parameters_set_threshold)
     * [resdet_default_range](#resdet_default_range)
   * [Image Reading](#image-reading)
     * [resdet_open_image](#resdet_open_image)
@@ -112,12 +115,7 @@ Const struct type encapsulating an upscaling detection method.
 
 `RDParameters`
 
-Struct type containing optional parameters for controlling detection behavior, used in [`resdet_create_analysis`](#resdet_create_anlysis) and the [high level detection functions](#high-level-detection-functions).
-
-|Member|Type|Description|
-|---|---|---|
-|range|`size_t`|Range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. Reasonable values are between 8 and 32. A value of 0 will cause detection functions to return an `RDEPARAM` error. The library default can be obtained by calling [`resdet_default_range`](#resdet_default_range).|
-|threshold|`float`|Method-specific value under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column. Values below zero or `NaN` will cause detection functions to return an `RDEPARAM` error. The method-specific default can be obtained from ([`RDMethod->threshold`](#rdmethod)).|
+Opaque type containing optional parameters for controlling detection behavior, used in [`resdet_create_analysis`](#resdet_create_anlysis) and the [high level detection functions](#high-level-detection-functions).
 
 ---
 <a name="rdanalysis"></a>
@@ -182,6 +180,42 @@ Lookup a method by name.
 * name - The name of a method, or `NULL` for the default method.
 
 Returns a pointer to an [`RDMethod`](#rdmethod) or `NULL` if no name matches.
+
+---
+<a name="resdet_alloc_default_parameters"></a>
+
+```C
+RDParameters* resdet_alloc_default_parameters(void);
+```
+Obtain an allocated [`RDParameters`](#rdparameters) containing default values. Values may be updated with the `resdet_parameters_set_*` functions.
+Must be freed by the caller.
+
+Returns `NULL` if the system is out of memory. 
+
+---
+
+<a name="resdet_parameters_set_range"></a>
+
+```C
+RDError resdet_parameters_set_range(RDParameters* params, size_t range);
+```
+Set the range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. Reasonable values are between 8 and 32. The library default can be obtained by calling [`resdet_default_range`](#resdet_default_range).
+This function returns an `RDEPARAM` error if the value is zero.
+
+* params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
+* range - The range value.
+
+---
+<a name="resdet_parameters_set_threshold"></a>
+
+```C
+RDError resdet_parameters_set_threshold(RDParameters* params, float threshold);
+```
+Set the method-specific value under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column. The method-specific default can be obtained from ([`RDMethod->threshold`](#rdmethod)).
+This function returns an `RDEPARAM` error for values below zero or `NaN`.
+
+* params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
+* threshold - The threshold value.
 
 ---
 <a name="resdet_default_range"></a>

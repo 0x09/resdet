@@ -58,6 +58,11 @@ typedef size_t rdint_storage;
 
 typedef struct resdet_plan resdet_plan;
 
+struct RDParameters {
+	size_t range;
+	float threshold;
+};
+
 struct RDAnalysis {
 	RDMethod* method;
 	size_t width, height;
