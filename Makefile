@@ -36,7 +36,7 @@ ifdef HAVE_MAGICKWAND
 endif
 
 ifndef OMIT_NATIVE_PGM_READER
-	OBJS += image/pgm.o
+	OBJS += image/pgm.o image/pfm.o
 endif
 
 OBJS := $(addprefix lib/, $(OBJS))
