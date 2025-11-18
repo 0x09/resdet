@@ -215,7 +215,7 @@ Set the method-specific value under which detected resolutions won't be consider
 This function returns an `RDEPARAM` error for values below zero or `NaN`.
 
 * params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
-* threshold - The threshold value.
+* threshold - A threshold value between 0 and 1.
 
 ---
 <a name="resdet_default_range"></a>
