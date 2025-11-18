@@ -1,5 +1,7 @@
 **2025-12-18**
 * The `OMIT_NATIVE_PGM_READER` configuration macro is changed to `OMIT_NATIVE_PGM_PFM_READERS` to reflect the fact that these are now separate translation units. (7e488d4)
+* The `RDParameters` struct is made opaque. Addition of the `resdet_alloc_default_parameters` function to obtain an `RDParameters` instance, and `resdet_parameters_set_range` and `resdet_parameters_set_threshold` functions to set parameter values. This facilitates adding future parameters without breaking ABI. (113486f)
+* `threshold` parameter values greater than 1 are no longer accepted and cause an `RDEPARAM` error to be returned from `resdet_parameters_set_threshold`. (113486f)
 
 **2025-12-17**
 * The `resw`, `countw`, `resh`, and `counth` output parameters to all detection functions are now marked `restrict`. (8da871d)
