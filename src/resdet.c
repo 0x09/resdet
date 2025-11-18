@@ -80,8 +80,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	RDParameters* params = resdet_alloc_default_parameters();
-	if(!params)
+	if(!params) {
+		fputs("Out of memory",stderr);
 		return 1;
+	}
 
 	char* endptr;
 	if(threshold_opt) {
