@@ -437,7 +437,7 @@ Default: conditionally defined by the build script. Not defined otherwise.
 
 `HAVE_x`
 
-Where `x` is one of the optional external libraries used by resdet for image reading. Currently this includes `LIBJPEG`, `LIBPNG`, `MJPEGTOOLS`, and `MAGICKWAND`.  
+Where `x` is one of the optional external libraries used by resdet for image reading. Currently this includes `LIBJPEG`, `LIBPNG`, and `MAGICKWAND`.  
 Should be defined if resdet will be built with the corresponding image reader and external library.  
 
 For `HAVE_MAGICKWAND`, the value should be the specific library version (e.g. 6 or 7) as this affects the header location. Otherwise no value is needed.
@@ -449,7 +449,7 @@ Default: conditionally defined by the build script. Not defined otherwise.
 
 `OMIT_NATIVE_PGM_READER`
 
-Should be defined if the library's own PGM and PFM image readers (lib/image/pgm.c) will not be built. This may be desired to e.g. have the MagickWand reader handle these file types, or if no built-in image reading functionality is needed by the application.
+Should be defined if the library's own PGM and PFM image readers (lib/image/pgm.c) will not be built. This may be desired to have the MagickWand reader handle these file types.
 
 Default: conditionally defined by the build script. Not defined otherwise.
 
