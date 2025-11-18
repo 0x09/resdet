@@ -139,7 +139,7 @@ function pcver() {
 
 testbin "$CC" || abort
 testbin "$AR" || abort
-if $with_libpng || $with_MagickWand || $with_fftw; then
+if $with_libjpeg || $with_libpng || $with_MagickWand || $with_fftw; then
 	testbin pkg-config || abort "configuration depends on pkg-config (http://www.freedesktop.org/wiki/Software/pkg-config/)"
 fi
 
