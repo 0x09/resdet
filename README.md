@@ -70,7 +70,7 @@ For compressed video stills, the best results can be gotten by choosing a highly
 
 FFmpeg: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
 
-mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
+mpv:  `mpv --start timestamp --frames=1 --vf format=yuv420p -o image.y4m source`
 
 Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, Y4M, and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames.
 
