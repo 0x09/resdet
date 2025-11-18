@@ -24,15 +24,12 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_read_image](#resdet_read_image)
   * [Sequential Analysis](#sequential-analysis)
     * [resdet_create_analysis](#resdet_create_analysis)
-    * [resdet_create_analysis_with_params](#resdet_create_analysis_with_params)
     * [resdet_analyze_image](#resdet_analyze_image)
     * [resdet_analysis_results](#resdet_analysis_results)
     * [resdet_destroy_analysis](#resdet_destroy_analysis)
   * [High Level Detection Functions](#high-level-detection-functions)
     * [resdetect](#resdetect)
-    * [resdetect_with_params](#resdetect_with_params)
     * [resdetect_file](#resdetect_file)
-    * [resdetect_file_with_params](#resdetect_file_with_params)
 * [Configuration Macros](#configuration-macros)
   * [PIXEL_MAX](#pixel_max)
   * [DEFAULT_RANGE](#default_range)
@@ -193,7 +190,7 @@ Returns a pointer to an [`RDMethod`](#rdmethod) or `NULL` if no name matches.
 size_t resdet_default_range(void);
 ```
 
-Returns the library default search range, as used when not explicitly specifying the range via the [`redetect_with_params`](#resdetect_with_params).
+Returns the library default search range, as used when not explicitly specifying the range via [`RDParameters`](#rdparameters).
 
 Most detection methods use this value to determine how many neighboring values to consider when detecting a given resolution.
 
@@ -385,7 +382,7 @@ Default: `SIZE_MAX`
 
 `DEFAULT_RANGE`
 
-The default range used in detection methods and returned by [`resdet_default_range`](#resdet_default_range). Reasonable values are between 8 and 32. A different value for this may be provided at runtime with the `_with_params` resdet method variants.
+The default range used in detection methods and returned by [`resdet_default_range`](#resdet_default_range). Reasonable values are between 8 and 32. A different value for this may be provided at runtime by passing  [`RDParameters`](#rdparameters) to the detection methods.
 
 Default: `12`
 
