@@ -5,9 +5,9 @@ resdet is a command-line tool and C library which attempts to detect upscaling i
 # Dependencies
 
 resdet bundles [KISS FFT](https://github.com/mborgerding/kissfft) as its FFT implementation (permissively licensed) but can use [FFTW](https://fftw.org) (GPL, potentially faster) if available.  
-Image loaders are available using any or all of libpng, libjpeg, mjpegtools (for yuv4mpeg), and MagickWand.  
+Image loaders are available using any or all of libpng, libjpeg, and MagickWand.  
   
-libresdet can be used completely standalone provided the client supplies the image data.
+libresdet can be used completely standalone with built-in readers for PFM, PGM, and Y4M or with the client supplying image data.
 
 # Building
 The tools and supplied build scripts target a generic *nix environment with bash, pkg-config, GNU make, and a GCC compatible C compiler using an autotools-like build process:
@@ -72,7 +72,7 @@ FFmpeg: `ffmpeg -i source -ss timestamp -vframes 1 -pix_fmt yuv420p image.y4m`
 
 mpv:  `mpv --start timestamp --frames 1 --vf format=yuv420p -o image.y4m source`
 
-Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, mjpegtools (y4m), and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames.
+Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, Y4M, and MagickWand image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames.
 
 ### JPEG
 Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.
