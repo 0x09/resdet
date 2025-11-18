@@ -61,7 +61,7 @@ RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* w
 	rdimage->reader = NULL;
 	if(false)
 		;
-#ifndef OMIT_NATIVE_PGM_READER
+#ifndef OMIT_NATIVE_PGM_PFM_READERS
 	else if(!strcmp(c,"image/x-portable-graymap")) {
 		extern struct image_reader resdet_image_reader_pgm;
 		rdimage->reader = &resdet_image_reader_pgm;

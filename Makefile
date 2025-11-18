@@ -35,7 +35,7 @@ ifdef HAVE_MAGICKWAND
 	OBJS += image/magickwand.o
 endif
 
-ifndef OMIT_NATIVE_PGM_READER
+ifndef OMIT_NATIVE_PGM_PFM_READERS
 	OBJS += image/pgm.o image/pfm.o
 endif
 

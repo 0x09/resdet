@@ -11,7 +11,7 @@ with_fftw=true
 with_libjpeg=true
 with_libpng=true
 with_MagicWand=true
-omit_native_pgm_reader=false
+omit_native_pgm_pfm_readers=false
 
 use_builtin_signbit=true
 
@@ -38,7 +38,7 @@ function usage() {
 	echo "   --disable-libpng"
 	echo "   --disable-MagickWand"
 	echo "   --disable-everything"
-	echo "   --omit-native-pgm-reader"
+	echo "   --omit-native-pgm-pfm-readers"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [F|D|L] (F)"
@@ -68,7 +68,7 @@ for o; do
 		--disable-libpng    ) with_libpng=false;;
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false;;
-		--omit-native-pgm-reader) omit_native_pgm_reader=true;;
+		--omit-native-pgm-pfm-readers) omit_native_pgm_pfm_readers=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -201,9 +201,9 @@ done
 
 testlib m && LIBS+=" -lm"
 
-if $omit_native_pgm_reader; then
-	DEFS+=' -DOMIT_NATIVE_PGM_READER'
-	echo OMIT_NATIVE_PGM_READER=1 >> config.mak
+if $omit_native_pgm_pfm_readers; then
+	DEFS+=' -DOMIT_NATIVE_PGM_PFM_READERS'
+	echo OMIT_NATIVE_PGM_PFM_READERS=1 >> config.mak
 fi
 
 $use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
