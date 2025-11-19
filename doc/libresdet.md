@@ -362,7 +362,7 @@ These functions wrap the above  [image reading](#image-reading) and [sequential 
 <a name="resdetect_file"></a>
 
 ```C
-RDError resdetect_file(const char* filename,
+RDError resdetect_file(const char* filename, const char* mimetype,
                        RDResolution** restrict resw, size_t* restrict countw,
                        RDResolution** restrict resh, size_t* restrict counth,
                        RDMethod* method, const RDParameters* params);
