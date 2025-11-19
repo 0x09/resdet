@@ -1,4 +1,7 @@
 
+**2025-11-19**
+* The `mimetype` (now `filetype`) field to `resdetect_file` and `resdet_open_image` functions may now alternatively contain a file extension.
+
 ---
 
 **libresdet 2.0.0 released here**
