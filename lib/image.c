@@ -14,22 +14,17 @@ static bool resdet_strieq(const char* left, const char* right) {
 	return *left == *right;
 }
 
-static const char* mimetype_from_ext(const char* filename) {
-	char* ext = strrchr(filename,'.');
-	if(!ext)
-		return "";
-
-	ext++;
-	if(resdet_strieq(ext,"jpg") || resdet_strieq(ext,"jpeg"))
-		return "image/jpeg";
-	if(resdet_strieq(ext,"png"))
-		return "image/png";
-	if(resdet_strieq(ext,"y4m"))
-		return "video/yuv4mpeg";
-	if(resdet_strieq(ext,"pgm"))
-		return "image/x-portable-graymap";
-	if(resdet_strieq(ext,"pfm"))
-		return "image/x-portable-floatmap";
+static const char* ext_from_mimetype(const char* mimetype) {
+	if(!strcmp(mimetype,"image/jpeg"))
+		return "jpg";
+	if(!strcmp(mimetype,"image/png"))
+		return "png";
+	if(!strcmp(mimetype,"video/yuv4mpeg"))
+		return "y4m";
+	if(!strcmp(mimetype,"image/x-portable-graymap"))
+		return "pgm";
+	if(!strcmp(mimetype,"image/x-portable-floatmap"))
+		return "pfm";
 	return "";
 }
 
@@ -54,35 +49,39 @@ RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* w
 		goto error;
 	}
 
-	const char* c = mimetype;
-	if(!c)
-		c = mimetype_from_ext(filename);
+	const char* ext;
+	if(mimetype)
+		ext = ext_from_mimetype(mimetype);
+	else {
+		ext = strrchr(filename,'.');
+		ext = ext ? ext+1 : "";
+	}
 
 	rdimage->reader = NULL;
 	if(false)
 		;
 #ifndef OMIT_NATIVE_PGM_PFM_READERS
-	else if(!strcmp(c,"image/x-portable-graymap")) {
+	else if(resdet_strieq(ext,"pgm")) {
 		extern struct image_reader resdet_image_reader_pgm;
 		rdimage->reader = &resdet_image_reader_pgm;
 	}
-	else if(!strcmp(c,"image/x-portable-floatmap")) {
+	else if(resdet_strieq(ext,"pfm")) {
 		extern struct image_reader resdet_image_reader_pfm;
 		rdimage->reader = &resdet_image_reader_pfm;
 	}
 #endif
-	else if(!strcmp(c,"video/yuv4mpeg")) {
+	else if(resdet_strieq(ext,"y4m")) {
 		extern struct image_reader resdet_image_reader_y4m;
 		rdimage->reader = &resdet_image_reader_y4m;
 	}
 #ifdef HAVE_LIBJPEG
-	else if(!strcmp(c,"image/jpeg")) {
+	else if(resdet_strieq(ext,"jpg") || resdet_strieq(ext,"jpeg")) {
 		extern struct image_reader resdet_image_reader_libjpeg;
 		rdimage->reader = &resdet_image_reader_libjpeg;
 	}
 #endif
 #ifdef HAVE_LIBPNG
-	else if(!strcmp(c,"image/png")) {
+	else if(resdet_strieq(ext,"png")) {
 		extern struct image_reader resdet_image_reader_libpng;
 		rdimage->reader = &resdet_image_reader_libpng;
 	}
