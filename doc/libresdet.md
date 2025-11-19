@@ -238,7 +238,7 @@ Functions for reading image data using the library's built-in image readers.
 <a name="resdet_open_image"></a>
 
 ```C
-RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error);
+RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error);
 ```
 
 Open an image for reading with [`resdet_read_image_frame`](#resdet_read_image_frame).
@@ -246,7 +246,7 @@ The returned RDImage pointer should be passed to [`resdet_close_image`](#resdet_
 If an error occurs the returned pointer will be `NULL` and the error pointer updated to indicate what went wrong. 
 
 * filename - Path of the image, or "-" for standard input.
-* mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.
+* filetype - Optional type of the image for choosing an image reader. May be either an extension or MIME type. If `NULL` the file's extension will be used.
 * width, height - Out parameters containing the bitmap dimensions.
 * imagebuf - If not `NULL`, on output points to an allocated buffer large enough to pass to [`resdet_read_image_frame`](#resdet_read_image_frame), or `NULL` on error. Its contents are uninitialized. Must be freed by the caller.
 * error - Out parameter containing the error if any, or `RDEOK`.
@@ -281,7 +281,7 @@ Close an image and free its resources.
 <a name="resdet_read_image"></a>
 
 ```C
-RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
+RDError resdet_read_image(const char* filename, const char* filetype, float** image, size_t* nimages, size_t* width, size_t* height);
 ```
 
 Read an image or image sequence in bulk using the library's built-in image readers.
@@ -290,7 +290,7 @@ This function is a wrapper for [`resdet_open_image`](#resdet_open_image), [`resd
 Note that this function is not recommended for multiple frame sequences over the iterative API above due to the potentially high memory requirements of loading frames in bulk.
 
 * filename - Path of the image, or "-" for standard input.
-* mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.
+* filetype - Optional type of the image for choosing an image reader. May be either an extension or MIME type. If `NULL` the file's extension will be used.
 * image - Out parameter containing the floating point grayscale image data, normalized to a range of 0-1. Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of `image + width * height`. Allocated by the library, must be freed by caller.
 * nimages - Out parameter containing the number of images returned.
 * width, height - Out parameters containing the bitmap dimensions.
@@ -362,14 +362,14 @@ These functions wrap the above  [image reading](#image-reading) and [sequential 
 <a name="resdetect_file"></a>
 
 ```C
-RDError resdetect_file(const char* filename, const char* mimetype,
+RDError resdetect_file(const char* filename, const char* filetype,
                        RDResolution** restrict resw, size_t* restrict countw,
                        RDResolution** restrict resh, size_t* restrict counth,
                        RDMethod* method, const RDParameters* params);
 ```
 
 * filename - Path of the image, or "-" for standard input.
-* mimetype - Optional MIME type of the image, for choosing an image reader. If `NULL` the file's extension will be used.
+* filetype - Optional type of the image for choosing an image reader. May be either an extension or MIME type. If `NULL` the file's extension will be used.
 * resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.

@@ -54,13 +54,13 @@ RDError resdet_parameters_set_range(RDParameters*, size_t range);
 RDError resdet_parameters_set_threshold(RDParameters*, float threshold);
 
 
-RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error);
+RDImage* resdet_open_image(const char* filename, const char* type, size_t* width, size_t* height, float** imagebuf, RDError* error);
 
 bool resdet_read_image_frame(RDImage*, float* image, RDError* error);
 
 void resdet_close_image(RDImage*);
 
-RDError resdet_read_image(const char* filename, const char* mimetype, float** image, size_t* nimages, size_t* width, size_t* height);
+RDError resdet_read_image(const char* filename, const char* filetype, float** image, size_t* nimages, size_t* width, size_t* height);
 
 
 RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error);
@@ -79,7 +79,7 @@ RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
                   RDResolution** restrict resh, size_t* restrict counth,
                   RDMethod* method, const RDParameters* params);
 
-RDError resdetect_file(const char* filename, const char* mimetype,
+RDError resdetect_file(const char* filename, const char* filetype,
                        RDResolution** restrict resw, size_t* restrict countw,
                        RDResolution** restrict resh, size_t* restrict counth,
                        RDMethod* method, const RDParameters* params);

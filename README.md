@@ -62,7 +62,7 @@ resdet can provide significantly more accurate results if detection is performed
 Here is an example that uses ImageMagick to convert the colorspace to linear RGB and provide the increased precision result to resdet using the portable floatmap format:
 
 ```
-magick image.png -colorspace RGB pfm:- | resdet -t image/x-portable-floatmap -
+magick image.png -colorspace RGB pfm:- | resdet -t pfm -
 ```
 
 ### Video

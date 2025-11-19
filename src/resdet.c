@@ -18,12 +18,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <mimetype> -r <range> -x <threshold>] image\n"
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold>] image\n"
 		" -h   This help text.\n"
 		" -V   Show the resdet CLI and library version.\n"
 		"\n"
@@ -33,7 +33,7 @@ void help(const char* self) {
 		"                  1 - Print only the best guess width and height.\n"
 		"                  2 - All detected widths and heights in confidence order.\n"
 		"                  3 - -v2 plus the floating point confidence value.\n"
-		" -t   mimetype: Override the input type.\n"
+		" -t   filetype: Override the input type. May be an extension or MIME type.\n"
 		" -r   range: Number of neighboring values to search (%zu)\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100)\n"
 		"\n",

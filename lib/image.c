@@ -28,7 +28,7 @@ static const char* ext_from_mimetype(const char* mimetype) {
 	return "";
 }
 
-RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
+RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
 	*width = *height = 0;
 	RDError e;
 
@@ -50,8 +50,8 @@ RDImage* resdet_open_image(const char* filename, const char* mimetype, size_t* w
 	}
 
 	const char* ext;
-	if(mimetype)
-		ext = ext_from_mimetype(mimetype);
+	if(filetype)
+		ext = strchr(filetype,'/') ? ext_from_mimetype(filetype) : filetype;
 	else {
 		ext = strrchr(filename,'.');
 		ext = ext ? ext+1 : "";
@@ -152,12 +152,12 @@ void resdet_close_image(RDImage* rdimage) {
 	free(rdimage);
 }
 
-RDError resdet_read_image(const char* filename, const char* mimetype, float** images, size_t* nimages, size_t* width, size_t* height) {
+RDError resdet_read_image(const char* filename, const char* filetype, float** images, size_t* nimages, size_t* width, size_t* height) {
 	*nimages = 0;
 	*images = NULL;
 
 	RDError error;
-	RDImage* image = resdet_open_image(filename,mimetype,width,height,images,&error);
+	RDImage* image = resdet_open_image(filename,filetype,width,height,images,&error);
 	if(error)
 		return error;
 
