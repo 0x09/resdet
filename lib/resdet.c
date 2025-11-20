@@ -226,12 +226,12 @@ RDError resdetect_file(const char* filename, const char* mimetype,
 	while(resdet_read_image_frame(rdimage,image,&error))
 		if((error = resdet_analyze_image(analysis,image)))
 			break;
-	free(image);
 
 	if(!error)
 		error = resdet_analysis_results(analysis,rw,cw,rh,ch);
 
 end:
+	free(image);
 	resdet_destroy_analysis(analysis);
 	resdet_close_image(rdimage);
 	return error;
