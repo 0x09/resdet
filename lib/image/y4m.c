@@ -10,8 +10,9 @@
 struct y4m_context {
 	FILE* f;
 	unsigned char* buf;
-	size_t frame_length;
+	size_t y_plane_size, uv_plane_size;
 	unsigned int depth;
+	bool seekable;
 };
 
 static void y4m_reader_close(void* reader_ctx) {
@@ -75,21 +76,22 @@ static void* y4m_reader_open(const char* filename, size_t* width, size_t* height
 	}
 
 	ctx->depth = 8;
-	ctx->frame_length = *width * *height;
+	ctx->y_plane_size = *width * *height;
 
 	if(!strncmp(csp,"mono",4)) {
 		if(isdigit(csp[4]))
 			ctx->depth = strtoul(csp+4,NULL,10);
+		ctx->uv_plane_size = 0;
 	}
 	else {
 		if(!strncmp(csp,"420",3) || !strncmp(csp,"411",3))
-			ctx->frame_length += ((*width+1)/2) * ((*height+1)/2) * 2;
+			ctx->uv_plane_size = ((*width+1)/2) * ((*height+1)/2) * 2;
 		else if(!strncmp(csp,"422",3))
-			ctx->frame_length += (*width+1)/2 * *height * 2;
+			ctx->uv_plane_size = (*width+1)/2 * *height * 2;
 		else if(!strncmp(csp,"444",3))
-			ctx->frame_length += *width * *height * 2;
+			ctx->uv_plane_size = *width * *height * 2;
 		else if(!strcmp(csp,"444alpha"))
-			ctx->frame_length += *width * *height * 3;
+			ctx->uv_plane_size = *width * *height * 3;
 		else
 			goto invalid;
 
@@ -101,14 +103,22 @@ static void* y4m_reader_open(const char* filename, size_t* width, size_t* height
 		goto invalid;
 
 	size_t bytewidth = (ctx->depth+7) / 8;
-	if(SIZE_MAX / bytewidth < ctx->frame_length)  {
+	if(SIZE_MAX / bytewidth < ctx->y_plane_size + ctx->uv_plane_size)  {
 		*error = RDETOOBIG;
 		goto error;
 	}
 
-	ctx->frame_length *= bytewidth;
+	ctx->y_plane_size *= bytewidth;
+	ctx->uv_plane_size *= bytewidth;
 
-	if(!(ctx->buf = malloc(ctx->frame_length))) {
+	ctx->seekable = ctx->uv_plane_size <= LONG_MAX && !fseek(ctx->f,0,SEEK_CUR);
+	size_t bufsize;
+	if(ctx->seekable)
+		bufsize = ctx->y_plane_size;
+	else
+		bufsize = ctx->uv_plane_size < ctx->y_plane_size ? ctx->y_plane_size : ctx->uv_plane_size;
+
+	if(!(ctx->buf = malloc(bufsize))) {
 		*error = RDENOMEM;
 		goto error;
 	}
@@ -144,7 +154,7 @@ static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 		if(c == EOF)
 			goto invalid;
 
-	if(fread(ctx->buf,1,ctx->frame_length,ctx->f) != ctx->frame_length)
+	if(fread(ctx->buf,1,ctx->y_plane_size,ctx->f) != ctx->y_plane_size)
 		goto invalid;
 
 	float scale = (1u << ctx->depth)-1;
@@ -157,6 +167,10 @@ static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 
 		image[i] = val/scale;
 	}
+
+	// skip over u/v planes
+	if((*error = resdet_fskip(ctx->f,ctx->uv_plane_size,ctx->seekable ? NULL : ctx->buf)))
+		return false;
 
 	return true;
 

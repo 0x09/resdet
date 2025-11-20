@@ -45,6 +45,17 @@ static const struct image_reader* image_readers[] = {
 #endif
 };
 
+// advance the file pointer by reading if buf is provided, seeking otherwise
+RDError resdet_fskip(FILE* f, uint64_t offset, void* buf) {
+	if(buf) {
+		if(fread(buf,1,offset,f) != offset)
+			return RDEINVAL;
+	}
+	else if(fseek(f,offset,SEEK_CUR) < 0)
+		return -errno;
+	return RDEOK;
+}
+
 bool resdet_strieq(const char* left, const char* right) {
 	while(*left && *right)
 		if(tolower(*left++) != tolower(*right++))

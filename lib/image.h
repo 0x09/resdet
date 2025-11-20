@@ -25,4 +25,6 @@ struct RDImage {
 
 bool resdet_strieq(const char* left, const char* right);
 
+RDError resdet_fskip(FILE* f, uint64_t offset, void* buf);
+
 #endif
