@@ -124,6 +124,8 @@ end:
 
 static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, rdint_index bounds[2], intermediate* result, RDResolution** res, size_t* count) {
 	size_t nresults = 1;
+	*count = 0;
+
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
 			if(result[i]/analysis->nimages >= analysis->params.threshold)
