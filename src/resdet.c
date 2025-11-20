@@ -151,7 +151,7 @@ end:
 	free(rh);
 	if(e) {
 		fprintf(stderr,"%s\n",resdet_error_str(e));
-		return e + 64;
+		return !!e;
 	}
 	return !verbosity ? (cw==1 && ch==1) : 0;
 }
