@@ -148,9 +148,14 @@ end:
 	return *error == RDEOK;
 }
 
+static bool libpng_reader_supports_ext(const char* ext) {
+	return resdet_strieq(ext,"png");
+}
+
 struct image_reader resdet_image_reader_libpng = {
 	.open = libpng_reader_open,
 	.read_frame = libpng_reader_read_frame,
-	.close = libpng_reader_close
+	.close = libpng_reader_close,
+	.supports_ext = libpng_reader_supports_ext,
 };
 

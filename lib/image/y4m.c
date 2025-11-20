@@ -165,8 +165,13 @@ invalid:
 	return false;
 }
 
+static bool y4m_reader_supports_ext(const char* ext) {
+	return resdet_strieq(ext,"y4m");
+}
+
 struct image_reader resdet_image_reader_y4m = {
 	.open = y4m_reader_open,
 	.read_frame = y4m_reader_read_frame,
-	.close = y4m_reader_close
+	.close = y4m_reader_close,
+	.supports_ext = y4m_reader_supports_ext,
 };

@@ -109,8 +109,13 @@ end:
 	return *error == RDEOK;
 }
 
+static bool libjpeg_reader_supports_ext(const char* ext) {
+	return resdet_strieq(ext,"jpg") || resdet_strieq(ext,"jpeg");
+}
+
 struct image_reader resdet_image_reader_libjpeg = {
 	.open = libjpeg_reader_open,
 	.read_frame = libjpeg_reader_read_frame,
-	.close = libjpeg_reader_close
+	.close = libjpeg_reader_close,
+	.supports_ext = libjpeg_reader_supports_ext,
 };

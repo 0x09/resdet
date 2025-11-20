@@ -7,7 +7,39 @@
 
 #include <ctype.h>
 
-static bool resdet_strieq(const char* left, const char* right) {
+#ifndef OMIT_NATIVE_PGM_PFM_READERS
+extern const struct image_reader resdet_image_reader_pgm;
+extern const struct image_reader resdet_image_reader_pfm;
+#endif
+extern const struct image_reader resdet_image_reader_y4m;
+#ifdef HAVE_LIBJPEG
+extern const struct image_reader resdet_image_reader_libjpeg;
+#endif
+#ifdef HAVE_LIBPNG
+extern const struct image_reader resdet_image_reader_libpng;
+#endif
+#ifdef HAVE_MAGICKWAND
+extern const struct image_reader resdet_image_reader_magickwand;
+#endif
+
+static const struct image_reader* image_readers[] = {
+#ifndef OMIT_NATIVE_PGM_PFM_READERS
+	&resdet_image_reader_pgm,
+	&resdet_image_reader_pfm,
+#endif
+	&resdet_image_reader_y4m,
+#ifdef HAVE_LIBJPEG
+	&resdet_image_reader_libjpeg,
+#endif
+#ifdef HAVE_LIBPNG
+	&resdet_image_reader_libpng,
+#endif
+#ifdef HAVE_MAGICKWAND
+	&resdet_image_reader_magickwand,
+#endif
+};
+
+bool resdet_strieq(const char* left, const char* right) {
 	while(*left && *right)
 		if(tolower(*left++) != tolower(*right++))
 			return false;
@@ -58,40 +90,11 @@ RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* w
 	}
 
 	rdimage->reader = NULL;
-	if(false)
-		;
-#ifndef OMIT_NATIVE_PGM_PFM_READERS
-	else if(resdet_strieq(ext,"pgm")) {
-		extern struct image_reader resdet_image_reader_pgm;
-		rdimage->reader = &resdet_image_reader_pgm;
-	}
-	else if(resdet_strieq(ext,"pfm")) {
-		extern struct image_reader resdet_image_reader_pfm;
-		rdimage->reader = &resdet_image_reader_pfm;
-	}
-#endif
-	else if(resdet_strieq(ext,"y4m")) {
-		extern struct image_reader resdet_image_reader_y4m;
-		rdimage->reader = &resdet_image_reader_y4m;
-	}
-#ifdef HAVE_LIBJPEG
-	else if(resdet_strieq(ext,"jpg") || resdet_strieq(ext,"jpeg")) {
-		extern struct image_reader resdet_image_reader_libjpeg;
-		rdimage->reader = &resdet_image_reader_libjpeg;
-	}
-#endif
-#ifdef HAVE_LIBPNG
-	else if(resdet_strieq(ext,"png")) {
-		extern struct image_reader resdet_image_reader_libpng;
-		rdimage->reader = &resdet_image_reader_libpng;
-	}
-#endif
-#ifdef HAVE_MAGICKWAND
-	else {
-		extern struct image_reader resdet_image_reader_magickwand;
-		rdimage->reader = &resdet_image_reader_magickwand;
-	}
-#endif
+	for(size_t i = 0; i < sizeof(image_readers)/sizeof(*image_readers); i++)
+		if(image_readers[i]->supports_ext(ext)) {
+			rdimage->reader = image_readers[i];
+			break;
+		}
 
 	if(!rdimage->reader) {
 		e = RDEUNSUPP;

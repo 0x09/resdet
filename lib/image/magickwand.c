@@ -60,8 +60,13 @@ static bool magickwand_reader_read_frame(void* reader_ctx, float* image, size_t 
 	return true;
 }
 
+static bool magickwand_reader_supports_ext(const char* ext) {
+	return true; // let MagickWand attempt to handle any format
+}
+
 struct image_reader resdet_image_reader_magickwand = {
 	.open = magickwand_reader_open,
 	.read_frame = magickwand_reader_read_frame,
-	.close = magickwand_reader_close
+	.close = magickwand_reader_close,
+	.supports_ext = magickwand_reader_supports_ext,
 };

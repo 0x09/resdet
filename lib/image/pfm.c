@@ -142,8 +142,13 @@ end:
 	return *error == RDEOK;
 }
 
+static bool pfm_reader_supports_ext(const char* ext) {
+	return resdet_strieq(ext,"pfm");
+}
+
 struct image_reader resdet_image_reader_pfm = {
 	.open = pfm_reader_open,
 	.read_frame = pfm_reader_read_frame,
-	.close = pfm_reader_close
+	.close = pfm_reader_close,
+	.supports_ext = pfm_reader_supports_ext,
 };

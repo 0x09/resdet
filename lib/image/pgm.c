@@ -75,8 +75,13 @@ static bool pgm_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 	return *error == RDEOK;
 }
 
+static bool pgm_reader_supports_ext(const char* ext) {
+	return resdet_strieq(ext,"pgm");
+}
+
 struct image_reader resdet_image_reader_pgm = {
 	.open = pgm_reader_open,
 	.read_frame = pgm_reader_read_frame,
-	.close = pgm_reader_close
+	.close = pgm_reader_close,
+	.supports_ext = pgm_reader_supports_ext,
 };

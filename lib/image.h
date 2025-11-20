@@ -14,12 +14,15 @@ struct image_reader {
 	void* (*open)(const char* filename, size_t* width, size_t* height, RDError*);
 	bool (*read_frame)(void* reader_ctx, float* image, size_t width, size_t height, RDError*);
 	void (*close)(void*);
+	bool (*supports_ext)(const char*);
 };
 
 struct RDImage {
-	struct image_reader* reader;
+	const struct image_reader* reader;
 	void* reader_ctx;
 	size_t width, height;
 };
+
+bool resdet_strieq(const char* left, const char* right);
 
 #endif
