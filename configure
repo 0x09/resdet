@@ -11,6 +11,7 @@ with_fftw=true
 with_libjpeg=true
 with_libpng=true
 with_MagicWand=true
+with_ffmpeg=true
 omit_native_pgm_pfm_readers=false
 
 use_builtin_signbit=true
@@ -37,6 +38,7 @@ function usage() {
 	echo "   --disable-libjpeg"
 	echo "   --disable-libpng"
 	echo "   --disable-MagickWand"
+	echo "   --disable-ffmpeg"
 	echo "   --disable-everything"
 	echo "   --omit-native-pgm-pfm-readers"
 	echo ""
@@ -67,6 +69,7 @@ for o; do
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
 		--disable-MagickWand) with_MagickWand=false;;
+		--disable-ffmpeg)     with_ffmpeg=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false;;
 		--omit-native-pgm-pfm-readers) omit_native_pgm_pfm_readers=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
@@ -198,6 +201,14 @@ for dep in libjpeg libpng MagickWand; do
 		printf "CFLAGS_%s=%s\n" "$dep" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $dep)" >> config.mak
 	fi
 done
+
+ffmpeg_deps="libavcodec libavformat libavutil libswscale"
+if $with_ffmpeg && testpc "$ffmpeg_deps"; then
+	echo 'HAVE_FFMPEG=1' >> config.mak
+	DEFS+=" -DHAVE_FFMPEG=1"
+	PCDEPS+=" $ffmpeg_deps"
+	printf "CFLAGS_FFMPEG=%s\n" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $ffmpeg_deps)" >> config.mak
+fi
 
 testlib m && LIBS+=" -lm"
 

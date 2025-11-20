@@ -34,6 +34,9 @@ endif
 ifdef HAVE_MAGICKWAND
 	OBJS += image/magickwand.o
 endif
+ifdef HAVE_FFMPEG
+	OBJS += image/ffmpeg.o
+endif
 
 ifndef OMIT_NATIVE_PGM_PFM_READERS
 	OBJS += image/pgm.o image/pfm.o
@@ -52,6 +55,7 @@ lib/transform/fftw.o:   CFLAGS := $(CFLAGS_FFTW) $(CFLAGS_LIB)
 lib/image/libjpeg.o:    CFLAGS := $(CFLAGS_libjpeg) $(CFLAGS_LIB)
 lib/image/libpng.o:     CFLAGS := $(CFLAGS_libpng) $(CFLAGS_LIB)
 lib/image/magickwand.o: CFLAGS := $(CFLAGS_MagickWand) $(CFLAGS_LIB)
+lib/image/ffmpeg.o:     CFLAGS := $(CFLAGS_ffmpeg) $(CFLAGS_LIB)
 
 $(LIB): CFLAGS := $(CFLAGS_LIB)
 $(LIB): $(OBJS)

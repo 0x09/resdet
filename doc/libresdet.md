@@ -468,7 +468,7 @@ Default: conditionally defined by the build script. Not defined otherwise.
 
 `HAVE_x`
 
-Where `x` is one of the optional external libraries used by resdet for image reading. Currently this includes `LIBJPEG`, `LIBPNG`, and `MAGICKWAND`.  
+Where `x` is one of the optional external libraries used by resdet for image reading. Currently this includes `LIBJPEG`, `LIBPNG`, `MAGICKWAND`, and `FFMPEG`.  
 Should be defined if resdet will be built with the corresponding image reader and external library.  
 
 For `HAVE_MAGICKWAND`, the value should be the specific library version (e.g. 6 or 7) as this affects the header location. Otherwise no value is needed.

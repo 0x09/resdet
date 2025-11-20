@@ -21,6 +21,9 @@ extern const struct image_reader resdet_image_reader_libpng;
 #ifdef HAVE_MAGICKWAND
 extern const struct image_reader resdet_image_reader_magickwand;
 #endif
+#ifdef HAVE_FFMPEG
+extern const struct image_reader resdet_image_reader_ffmpeg;
+#endif
 
 static const struct image_reader* image_readers[] = {
 #ifndef OMIT_NATIVE_PGM_PFM_READERS
@@ -33,6 +36,9 @@ static const struct image_reader* image_readers[] = {
 #endif
 #ifdef HAVE_LIBPNG
 	&resdet_image_reader_libpng,
+#endif
+#ifdef HAVE_FFMPEG
+	&resdet_image_reader_ffmpeg,
 #endif
 #ifdef HAVE_MAGICKWAND
 	&resdet_image_reader_magickwand,
