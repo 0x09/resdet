@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:12-slim AS base
+FROM docker.io/library/debian:13-slim AS base
 
 WORKDIR /workdir
 
@@ -7,7 +7,7 @@ apt-get update
 apt-get --no-install-recommends install -y \
     libpng16-16 \
     libjpeg62-turbo \
-    libmagickwand-6.q16-6 \
+    libmagickwand-7.q16-10 \
     libfftw3-bin \
     # keep this line
 rm -rf /var/lib/apt/lists/*
@@ -22,7 +22,7 @@ apt-get --no-install-recommends install -y \
     libc-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
-    libmagickwand-6.q16-dev \
+    libmagickwand-7.q16-dev \
     libfftw3-dev \
     # keep this line
 rm -rf /var/lib/apt/lists/*
@@ -39,7 +39,7 @@ cp /lib64/ld-linux-x86-64.so.2 --parents /dist
 ldd /workdir/resdet | awk 'NF == 4 { system("cp " $3 " --parents /dist") }'
 CP
 
-FROM gcr.io/distroless/static-debian12:debug AS debug
+FROM gcr.io/distroless/static-debian13:debug AS debug
 
 COPY --from=builder /dist/ /
 
@@ -53,7 +53,7 @@ LDD
 
 ENTRYPOINT [ "/usr/local/bin/resdet" ]
 
-FROM gcr.io/distroless/static-debian12 AS runtime
+FROM gcr.io/distroless/static-debian13 AS runtime
 
 COPY --from=builder /dist/ /
 
