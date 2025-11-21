@@ -124,7 +124,6 @@ end:
 
 static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, rdint_index bounds[2], intermediate* result, RDResolution** res, size_t* count) {
 	size_t nresults = 1;
-	*count = 0;
 
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
@@ -147,6 +146,9 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 }
 
 RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict  rh, size_t* restrict ch) {
+	if(rw) { *rw = NULL; *cw = 0; }
+	if(rh) { *rh = NULL; *ch = 0; }
+
 	if(!analysis)
 		return RDEPARAM;
 
