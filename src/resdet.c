@@ -18,12 +18,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold>] image\n"
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p] image\n"
 		" -h   This help text.\n"
 		" -V   Show the resdet CLI and library version.\n"
 		"\n"
@@ -36,6 +36,7 @@ void help(const char* self) {
 		" -t   filetype: Override the input type. May be an extension or MIME type.\n"
 		" -r   range: Number of neighboring values to search (%zu).\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
+		" -p   Show progress in number of frames analyzed so far.\n"
 		"\n",
 		self,
 		resdet_default_range()
@@ -52,13 +53,15 @@ int main(int argc, char* argv[]) {
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL;
 	const char* range_opt = NULL,* threshold_opt = NULL;
-	while((c = getopt(argc,argv,"v:m:t:x:r:hV")) != -1) {
+	bool progress = false;
+	while((c = getopt(argc,argv,"v:m:t:x:r:phV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
 			case 'x': threshold_opt = optarg; break;
 			case 'r': range_opt = optarg; break;
+			case 'p': progress = true; break;
 			case 'h': help(argv[0]); break;
 			case 'V':
 				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
@@ -118,10 +121,16 @@ int main(int argc, char* argv[]) {
 	if(e)
 		goto end;
 
+	size_t ct = 1;
 	while(resdet_read_image_frame(rdimage,image,&e)) {
+		if(progress)
+			fprintf(stderr,"Analyzing frame %" PRIu64 "\r",ct);
 		if((e = resdet_analyze_image(analysis,image)))
 			break;
+		ct++;
 	}
+	if(progress)
+		fputs("\n",stderr);
 
 	if(e)
 		goto end;
