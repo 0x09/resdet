@@ -207,7 +207,7 @@ if $with_ffmpeg && testpc "$ffmpeg_deps"; then
 	echo 'HAVE_FFMPEG=1' >> config.mak
 	DEFS+=" -DHAVE_FFMPEG=1"
 	PCDEPS+=" $ffmpeg_deps"
-	printf "CFLAGS_FFMPEG=%s\n" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $ffmpeg_deps)" >> config.mak
+	printf "CFLAGS_ffmpeg=%s\n" "$(pkg-config $PKG_CONFIG_FLAGS --cflags $ffmpeg_deps)" >> config.mak
 fi
 
 testlib m && LIBS+=" -lm"
