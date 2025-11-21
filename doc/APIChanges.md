@@ -1,6 +1,8 @@
+**2025-11-20**
+* Addition of the `resdet_seek_frame` function which may be used to seek an `RDImage` to the given frame number. (8e1a22e)
 
 **2025-11-19**
-* The `mimetype` (now `filetype`) field to `resdetect_file` and `resdet_open_image` functions may now alternatively contain a file extension.
+* The `mimetype` (now `filetype`) field to `resdetect_file` and `resdet_open_image` functions may now alternatively contain a file extension. (86a3b6b)
 
 ---
 
