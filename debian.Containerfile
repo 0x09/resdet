@@ -9,6 +9,10 @@ apt-get --no-install-recommends install -y \
     libjpeg62-turbo \
     libmagickwand-7.q16-10 \
     libfftw3-bin \
+    libavcodec61 \
+    libavformat61 \
+    libavutil59 \
+    libswscale8 \
     # keep this line
 rm -rf /var/lib/apt/lists/*
 APT
@@ -24,6 +28,10 @@ apt-get --no-install-recommends install -y \
     libjpeg62-turbo-dev \
     libmagickwand-7.q16-dev \
     libfftw3-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswscale-dev \
     # keep this line
 rm -rf /var/lib/apt/lists/*
 APT

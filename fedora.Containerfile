@@ -11,6 +11,10 @@ dnf install -y --setopt=install_weak_deps=False \
     libjpeg \
     ImageMagick-libs \
     fftw-libs \
+    libavcodec-free \
+    libavformat-free \
+    libavutil-free \
+    libswscale-free \
     # keep this line
 dnf clean all
 DNF
@@ -26,6 +30,10 @@ dnf install -y --setopt=install_weak_deps=False \
     libjpeg-devel \
     ImageMagick-devel \
     fftw-devel \
+    libavcodec-free-devel \
+    libavformat-free-devel \
+    libavutil-free-devel \
+    libswscale-free-devel \
     # keep this line
 dnf clean all
 DNF
