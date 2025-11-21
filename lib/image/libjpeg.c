@@ -111,9 +111,10 @@ end:
 
 static bool libjpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
 	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+	bool ret = !(ctx->eof || offset > 1);
 	if(offset)
 		ctx->eof = true;
-	return !ctx->eof;
+	return ret;
 }
 
 static bool libjpeg_reader_supports_ext(const char* ext) {
