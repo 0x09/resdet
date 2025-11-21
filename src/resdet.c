@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "resdet.h"
 
@@ -18,12 +19,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -n <nframes>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p] image\n"
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -n <nframes>] image\n"
 		" -h   This help text.\n"
 		" -V   Show the resdet CLI and library version.\n"
 		"\n"
@@ -37,6 +38,7 @@ void help(const char* self) {
 		" -r   range: Number of neighboring values to search (%zu).\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
 		" -p   Show progress in number of frames analyzed so far.\n"
+		" -n   nframes: Limit detection to this number of frames.\n"
 		"\n",
 		self,
 		resdet_default_range()
@@ -53,14 +55,23 @@ int main(int argc, char* argv[]) {
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL;
 	const char* range_opt = NULL,* threshold_opt = NULL;
+	uint64_t nframes = 0;
 	bool progress = false;
-	while((c = getopt(argc,argv,"v:m:t:x:r:phV")) != -1) {
+	char* endptr;
+	while((c = getopt(argc,argv,"v:m:t:x:r:pn:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
 			case 'x': threshold_opt = optarg; break;
 			case 'r': range_opt = optarg; break;
+			case 'n':
+				nframes = strtoull(optarg,&endptr,10);
+				if(!nframes || optarg == endptr) {
+					fprintf(stderr,"Invalid nframes %s\n",optarg);
+					return 1;
+				}
+				break;
 			case 'p': progress = true; break;
 			case 'h': help(argv[0]); break;
 			case 'V':
@@ -88,7 +99,6 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	char* endptr;
 	if(threshold_opt) {
 		float threshold = strtod(threshold_opt,&endptr)/100;
 		if(threshold_opt == endptr || resdet_parameters_set_threshold(params,threshold)) {
@@ -125,7 +135,7 @@ int main(int argc, char* argv[]) {
 	while(resdet_read_image_frame(rdimage,image,&e)) {
 		if(progress)
 			fprintf(stderr,"Analyzing frame %" PRIu64 "\r",ct);
-		if((e = resdet_analyze_image(analysis,image)))
+		if((e = resdet_analyze_image(analysis,image)) || ct == nframes)
 			break;
 		ct++;
 	}
