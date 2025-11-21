@@ -18,13 +18,17 @@
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
+void seek_progress(void* ctx, uint64_t offset) {
+	fprintf(stderr,"Seeking past frame %" PRIu64 "\r",offset);
+}
+
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -n <nframes>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -n <nframes>] image\n"
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n"
 		" -h   This help text.\n"
 		" -V   Show the resdet CLI and library version.\n"
 		"\n"
@@ -38,6 +42,7 @@ void help(const char* self) {
 		" -r   range: Number of neighboring values to search (%zu).\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
 		" -p   Show progress in number of frames analyzed so far.\n"
+		" -o   offset: Seek to this frame number before starting detection.\n"
 		" -n   nframes: Limit detection to this number of frames.\n"
 		"\n",
 		self,
@@ -55,16 +60,23 @@ int main(int argc, char* argv[]) {
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL;
 	const char* range_opt = NULL,* threshold_opt = NULL;
-	uint64_t nframes = 0;
+	uint64_t offset = 0, nframes = 0;
 	bool progress = false;
 	char* endptr;
-	while((c = getopt(argc,argv,"v:m:t:x:r:pn:hV")) != -1) {
+	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
 			case 'x': threshold_opt = optarg; break;
 			case 'r': range_opt = optarg; break;
+			case 'o':
+				offset = strtoull(optarg,&endptr,10);
+				if(optarg == endptr) {
+					fprintf(stderr,"Invalid offset %s\n",optarg);
+					return 1;
+				}
+				break;
 			case 'n':
 				nframes = strtoull(optarg,&endptr,10);
 				if(!nframes || optarg == endptr) {
@@ -127,6 +139,19 @@ int main(int argc, char* argv[]) {
 	if(e)
 		goto end;
 
+	if(offset) {
+		if(!resdet_seek_frame(rdimage,offset,progress ? seek_progress : NULL,NULL,&e)) {
+			if(!e) {
+				fprintf(stderr,"Passed end of file while seeking to frame %" PRIu64 "\n",offset);
+				resdet_close_image(rdimage);
+				return 1;
+			}
+			goto end;
+		}
+		if(progress)
+			fputs("\n",stderr);
+	}
+
 	analysis = resdet_create_analysis(m,width,height,params,&e);
 	if(e)
 		goto end;
@@ -134,7 +159,7 @@ int main(int argc, char* argv[]) {
 	size_t ct = 1;
 	while(resdet_read_image_frame(rdimage,image,&e)) {
 		if(progress)
-			fprintf(stderr,"Analyzing frame %" PRIu64 "\r",ct);
+			fprintf(stderr,"Analyzing frame %" PRIu64 "\r",ct+offset);
 		if((e = resdet_analyze_image(analysis,image)) || ct == nframes)
 			break;
 		ct++;

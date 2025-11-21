@@ -66,13 +66,17 @@ magick image.png -colorspace RGB pfm:- | resdet -t pfm -
 ```
 
 ### Video
-For compressed video stills, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. Single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
+For compressed video stills, the best results can be gotten by choosing a highly detailed keyframe with a low quantizer. If resdet is not built with FFmpeg support then single-frame yuv4mpeg streams are preferred over png screenshots for videos with chroma subsampling as it preserves the separation of the chroma planes. Some ways to obtain a y4m frame:
 
 FFmpeg: `ffmpeg -i source -ss timestamp -vframes 1 image.y4m`
 
 mpv:  `mpv --start timestamp --frames=1 -o image.y4m source`
 
-Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, Y4M, MagickWand, and FFmpeg image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg or `--frames` for mpv with the desired number of frames.
+Or, if resdet is built with FFmpeg support it can do this directly. Note that the offset is in number of frames rather than a timestamp:
+
+`resdet -o offset -n 1 source`
+
+Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, Y4M, MagickWand, and FFmpeg image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg `--frames` for mpv, or `-n` for resdet with the desired number of frames.
 
 ### JPEG
 Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.
