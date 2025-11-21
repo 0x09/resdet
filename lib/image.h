@@ -13,6 +13,7 @@
 struct image_reader {
 	void* (*open)(const char* filename, size_t* width, size_t* height, RDError*);
 	bool (*read_frame)(void* reader_ctx, float* image, size_t width, size_t height, RDError*);
+	bool (*seek_frame)(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError*);
 	void (*close)(void*);
 	bool (*supports_ext)(const char*);
 };
@@ -24,6 +25,7 @@ struct RDImage {
 };
 
 bool resdet_strieq(const char* left, const char* right);
+RDError resdet_fskip(FILE* f, uint64_t offset, void* buf);
 
 RDError resdet_fskip(FILE* f, uint64_t offset, void* buf);
 

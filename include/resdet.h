@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef int RDError; // an RDErrors value or negated errno code
 
@@ -57,6 +58,8 @@ RDError resdet_parameters_set_threshold(RDParameters*, float threshold);
 RDImage* resdet_open_image(const char* filename, const char* type, size_t* width, size_t* height, float** imagebuf, RDError* error);
 
 bool resdet_read_image_frame(RDImage*, float* image, RDError* error);
+
+bool resdet_seek_frame(RDImage*, uint64_t offset, void(*progress)(void* ctx, uint64_t frameno), void* progress_ctx, RDError* error);
 
 void resdet_close_image(RDImage*);
 

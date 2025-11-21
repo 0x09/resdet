@@ -111,7 +111,7 @@ static void* y4m_reader_open(const char* filename, size_t* width, size_t* height
 	ctx->y_plane_size *= bytewidth;
 	ctx->uv_plane_size *= bytewidth;
 
-	ctx->seekable = ctx->uv_plane_size <= LONG_MAX && !fseek(ctx->f,0,SEEK_CUR);
+	ctx->seekable = ctx->y_plane_size+ctx->uv_plane_size <= LONG_MAX && !fseek(ctx->f,0,SEEK_CUR);
 	size_t bufsize;
 	if(ctx->seekable)
 		bufsize = ctx->y_plane_size;
@@ -134,10 +134,7 @@ invalid:
 	goto error;
 }
 
-static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
-	struct y4m_context* ctx = (struct y4m_context*)reader_ctx;
-
+static bool read_frame_header(struct y4m_context* ctx, size_t width, size_t height, RDError* error) {
 	char frame[5];
 	size_t bytesread = fread(frame,1,5,ctx->f);
 	if(bytesread < 5) {
@@ -154,8 +151,23 @@ static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 		if(c == EOF)
 			goto invalid;
 
-	if(fread(ctx->buf,1,ctx->y_plane_size,ctx->f) != ctx->y_plane_size)
-		goto invalid;
+	return true;
+
+invalid:
+	*error = RDEINVAL;
+	return false;
+}
+
+static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct y4m_context* ctx = (struct y4m_context*)reader_ctx;
+	if(!read_frame_header(ctx,width,height,error))
+		return false;
+
+	if(fread(ctx->buf,1,ctx->y_plane_size,ctx->f) != ctx->y_plane_size) {
+		*error = RDEINVAL;
+		return false;
+	}
 
 	float scale = (1u << ctx->depth)-1;
 	for(size_t i = 0; i < width*height; i++) {
@@ -173,10 +185,23 @@ static bool y4m_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 		return false;
 
 	return true;
+}
 
-invalid:
-	*error = RDEINVAL;
-	return false;
+static bool y4m_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct y4m_context* ctx = (struct y4m_context*)reader_ctx;
+
+	for(uint64_t i = 0; i < offset; i++) {
+		if(!read_frame_header(ctx,width,height,error))
+			return false;
+
+		if((*error = resdet_fskip(ctx->f,ctx->y_plane_size+ctx->uv_plane_size,ctx->seekable ? NULL : ctx->buf)))
+			return false;
+
+		if(progress)
+			progress(progress_ctx,i+1);
+	}
+	return true;
 }
 
 static bool y4m_reader_supports_ext(const char* ext) {
@@ -186,6 +211,7 @@ static bool y4m_reader_supports_ext(const char* ext) {
 struct image_reader resdet_image_reader_y4m = {
 	.open = y4m_reader_open,
 	.read_frame = y4m_reader_read_frame,
+	.seek_frame = y4m_reader_seek_frame,
 	.close = y4m_reader_close,
 	.supports_ext = y4m_reader_supports_ext,
 };

@@ -163,6 +163,23 @@ bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
 	return ret;
 }
 
+bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, RDError* error) {
+	if(!rdimage) {
+		*error = RDEPARAM;
+		return false;
+	}
+
+	RDError e;
+	bool ret = rdimage->reader->seek_frame(rdimage->reader_ctx,offset,progress,progress_ctx,rdimage->width,rdimage->height,&e);
+	if(e) {
+		if(error)
+			*error = e;
+		return false;
+	}
+
+	return ret;
+}
+
 void resdet_close_image(RDImage* rdimage) {
 	if(!rdimage)
 		return;

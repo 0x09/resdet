@@ -103,43 +103,86 @@ error:
 	return NULL;
 }
 
+static bool read_header(struct pfm_context* ctx, size_t width, size_t height, RDError* error) {
+	if(ctx->header_consumed)
+		return true;
+
+	size_t next_width, next_height;
+	float next_endianness_scale;
+	char next_format;
+
+	int next_char = fgetc(ctx->f);
+	if(next_char == EOF && feof(ctx->f))
+		return false;
+
+	if(
+	    next_char != 'P' ||
+	    fscanf(ctx->f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) != 4 ||
+	    !(next_format == 'f' || next_format == 'F') ||
+	    next_width != width ||
+		next_height != height
+	) {
+		*error = RDEINVAL;
+		return false;
+	}
+
+	ctx->endianness_scale = next_endianness_scale;
+	ctx->format = next_format;
+
+	return true;
+}
+
 static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
 	*error = RDEOK;
 	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
 
-	if(!ctx->header_consumed) {
-		size_t next_width, next_height;
-		float next_endianness_scale;
-		char next_format;
-
-		int next_char = fgetc(ctx->f);
-		if(next_char == EOF && feof(ctx->f))
-			return false;
-
-		if(
-		    next_char != 'P' ||
-		    fscanf(ctx->f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) != 4 ||
-		    !(next_format == 'f' || next_format == 'F') ||
-		    next_width != width ||
-			next_height != height
-		) {
-			*error = RDEINVAL;
-			goto end;
-		}
-
-		ctx->endianness_scale = next_endianness_scale;
-		ctx->format = next_format;
-	}
+	if(!read_header(ctx,width,height,error))
+		return false;
 
 	if(!read_pfm_plane(ctx->f,image,width,height,ctx->endianness_scale,ctx->format)) {
 		*error = RDEINVAL;
-		goto end;
+		return false;
 	}
 
 	ctx->header_consumed = false;
 
-end:
-	return *error == RDEOK;
+	return true;
+}
+
+static bool pfm_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+
+	size_t imgsize = width*height;
+	if(ctx->format == 'F')
+		imgsize *= 3;
+
+	float* buf = NULL;
+	bool seekable = imgsize*sizeof(float) <= (size_t)LONG_MAX && !fseek(ctx->f,0,SEEK_CUR);
+	if(!seekable && !(buf = malloc(imgsize*sizeof(float)))) {
+		*error = RDENOMEM;
+		return false;
+	}
+
+	bool ret = true;
+	for(uint64_t i = 0; i < offset; i++) {
+		if(!(ret = read_header(ctx,width,height,error)))
+			break;
+
+		if((*error = resdet_fskip(ctx->f,imgsize*sizeof(float),buf))) {
+			ret = false;
+			break;
+		}
+		if(progress)
+			progress(progress_ctx,i+1);
+	}
+
+	ctx->header_consumed = false;
+
+	if(!seekable)
+		free(buf);
+
+	return ret;
 }
 
 static bool pfm_reader_supports_ext(const char* ext) {
@@ -149,6 +192,7 @@ static bool pfm_reader_supports_ext(const char* ext) {
 struct image_reader resdet_image_reader_pfm = {
 	.open = pfm_reader_open,
 	.read_frame = pfm_reader_read_frame,
+	.seek_frame = pfm_reader_seek_frame,
 	.close = pfm_reader_close,
 	.supports_ext = pfm_reader_supports_ext,
 };

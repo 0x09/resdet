@@ -23,6 +23,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
   * [Image Reading](#image-reading)
     * [resdet_open_image](#resdet_open_image)
     * [resdet_read_image_frame](#resdet_read_image_frame)
+    * [resdet_seek_frame](#resdet_seek_frame)
     * [resdet_close_image](#resdet_close_image)
     * [resdet_read_image](#resdet_read_image)
   * [Sequential Analysis](#sequential-analysis)
@@ -264,6 +265,23 @@ Read one frame of an image or image sequence. Returns false if there are no more
 
 * rdimage - An [`RDImage`](#rdimage) pointer obtained from [`resdet_open_image`](resdet_open_image).
 * image - Buffer at least width x height large where the image data is written. Image data is grayscale and normalized to a range of 0-1.
+* error - Out parameter containing the error if any, or `RDEOK`.
+
+---
+<a name="resdet_seek_frame"></a>
+
+```C
+bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void* ctx,uint64_t frameno), void* progress_ctx, RDError* error);
+```
+
+Seeks `offset` frames in an image sequence. The next call to [`resdet_read_image_frame`](#resdet_read_image_frame) will begin at this offset. Returns false if there are no more images left in the sequence or on error, true otherwise.
+
+`resdet_seek_image_frame` should not be called from parallel threads with the same [`RDImage`](#rdimage).
+
+* rdimage - An [`RDImage`](#rdimage) pointer obtained from [`resdet_open_image`](resdet_open_image).
+* offset - The offset in frames to seek.
+* progress - Optional pointer to a function which will be called with `progress_ctx` and the frame index as seeking progresses.
+* progress_ctx - Optional context for the `progress` callback.
 * error - Out parameter containing the error if any, or `RDEOK`.
 
 ---

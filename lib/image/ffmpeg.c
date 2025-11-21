@@ -153,6 +153,23 @@ averror:
 	return false;
 }
 
+static bool ffmpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
+	*error = RDEOK;
+	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
+
+	int averr = 0;
+	for(uint64_t i = 0; i < offset; i++) {
+		if((averr = read_frame(ctx)))
+			break;
+		if(progress)
+			progress(progress_ctx,i+1);
+	}
+
+	if(averr && averr != AVERROR_EOF)
+		*error = rderror_from_averror(averr);
+	return !averr;
+}
+
 static bool ffmpeg_reader_supports_ext(const char* ext) {
 #if HAVE_MAGICKWAND
 	void* state = NULL;
@@ -170,6 +187,7 @@ static bool ffmpeg_reader_supports_ext(const char* ext) {
 struct image_reader resdet_image_reader_ffmpeg = {
 	.open = ffmpeg_reader_open,
 	.read_frame = ffmpeg_reader_read_frame,
+	.seek_frame = ffmpeg_reader_seek_frame,
 	.close = ffmpeg_reader_close,
 	.supports_ext = ffmpeg_reader_supports_ext,
 };

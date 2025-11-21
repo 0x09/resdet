@@ -148,6 +148,13 @@ end:
 	return *error == RDEOK;
 }
 
+static bool libpng_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
+	struct libpng_context* ctx = (struct libpng_context*)reader_ctx;
+	if(offset)
+		ctx->eof = true;
+	return !ctx->eof;
+}
+
 static bool libpng_reader_supports_ext(const char* ext) {
 	return resdet_strieq(ext,"png");
 }
@@ -155,6 +162,7 @@ static bool libpng_reader_supports_ext(const char* ext) {
 struct image_reader resdet_image_reader_libpng = {
 	.open = libpng_reader_open,
 	.read_frame = libpng_reader_read_frame,
+	.seek_frame = libpng_reader_seek_frame,
 	.close = libpng_reader_close,
 	.supports_ext = libpng_reader_supports_ext,
 };
