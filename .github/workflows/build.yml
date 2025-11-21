@@ -8,7 +8,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev curl
+          sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl
       - name: Build and install resdet
         run: |
           ./configure
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install fftw imagemagick #libpng and libjpeg are already installed
+          brew install fftw imagemagick ffmpeg #libpng and libjpeg are already installed
       - name: Build and install resdet
         run: |
           ./configure
@@ -46,7 +46,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick
+          install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg
       - name: Build resdet
         run: |
           ./configure
