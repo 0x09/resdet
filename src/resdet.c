@@ -134,6 +134,7 @@ int main(int argc, char* argv[]) {
 	size_t width, height;
 	float* image;
 	RDError e;
+	int ret = 0;
 	RDAnalysis* analysis = NULL;
 	RDImage* rdimage = resdet_open_image(input,type,&width,&height,&image,&e);
 	if(e)
@@ -143,8 +144,8 @@ int main(int argc, char* argv[]) {
 		if(!resdet_seek_frame(rdimage,offset,progress ? seek_progress : NULL,NULL,&e)) {
 			if(!e) {
 				fprintf(stderr,"Passed end of file while seeking to frame %" PRIu64 "\n",offset);
-				resdet_close_image(rdimage);
-				return 1;
+				ret = 1;
+				goto end;
 			}
 			goto end;
 		}
@@ -160,10 +161,19 @@ int main(int argc, char* argv[]) {
 	while(resdet_read_image_frame(rdimage,image,&e)) {
 		if(progress)
 			fprintf(stderr,"Analyzing frame %" PRIu64 "\r",ct+offset);
-		if((e = resdet_analyze_image(analysis,image)) || ct == nframes)
+		if((e = resdet_analyze_image(analysis,image)))
 			break;
 		ct++;
+		if(ct > nframes)
+			break;
 	}
+
+	if(!e && ct == 1) {
+		fprintf(stderr,"No frames left in input.\n");
+		ret = 1;
+		goto end;
+	}
+
 	if(progress)
 		fputs("\n",stderr);
 
@@ -219,7 +229,10 @@ end:
 	free(rh);
 	if(e) {
 		fprintf(stderr,"%s\n",resdet_error_str(e));
-		return !!e;
+		ret = !!e;
 	}
+	if(ret)
+		return ret;
+
 	return !verbosity ? (cw==1 && ch==1) : 0;
 }
