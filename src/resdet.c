@@ -34,8 +34,8 @@ void help(const char* self) {
 		"                  2 - All detected widths and heights in confidence order.\n"
 		"                  3 - -v2 plus the floating point confidence value.\n"
 		" -t   filetype: Override the input type. May be an extension or MIME type.\n"
-		" -r   range: Number of neighboring values to search (%zu)\n"
-		" -x   threshold: Print all detection results above this method-specific confidence level (0-100)\n"
+		" -r   range: Number of neighboring values to search (%zu).\n"
+		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
 		"\n",
 		self,
 		resdet_default_range()
