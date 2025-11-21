@@ -103,10 +103,31 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	RDResolution* rw,* rh;
+	RDResolution* rw = NULL,* rh = NULL;
 	size_t cw, ch;
 
-	RDError e = resdetect_file(input,type,&rw,&cw,&rh,&ch,m,params);
+	size_t width, height;
+	float* image;
+	RDError e;
+	RDAnalysis* analysis = NULL;
+	RDImage* rdimage = resdet_open_image(input,type,&width,&height,&image,&e);
+	if(e)
+		goto end;
+
+	analysis = resdet_create_analysis(m,width,height,params,&e);
+	if(e)
+		goto end;
+
+	while(resdet_read_image_frame(rdimage,image,&e)) {
+		if((e = resdet_analyze_image(analysis,image)))
+			break;
+	}
+
+	if(e)
+		goto end;
+
+	e = resdet_analysis_results(analysis,&rw,&cw,&rh,&ch);
+
 	if(e || !verbosity)
 		goto end;
 
@@ -146,6 +167,9 @@ int main(int argc, char* argv[]) {
 	}
 
 end:
+	resdet_destroy_analysis(analysis);
+	resdet_close_image(rdimage);
+	free(image);
 	free(params);
 	free(rw);
 	free(rh);
