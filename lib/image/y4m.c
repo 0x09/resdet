@@ -195,7 +195,8 @@ static bool y4m_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progr
 		if(!read_frame_header(ctx,width,height,error))
 			return false;
 
-		if((*error = resdet_fskip(ctx->f,ctx->y_plane_size+ctx->uv_plane_size,ctx->seekable ? NULL : ctx->buf)))
+		if((*error = resdet_fskip(ctx->f,ctx->y_plane_size,ctx->seekable ? NULL : ctx->buf)) ||
+		   (*error = resdet_fskip(ctx->f,ctx->uv_plane_size,ctx->seekable ? NULL : ctx->buf)))
 			return false;
 
 		if(progress)
