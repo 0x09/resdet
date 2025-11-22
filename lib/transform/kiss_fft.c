@@ -20,6 +20,11 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 }
 
 resdet_plan* resdet_create_plan(coeff* f, size_t width, size_t height, RDError* error) {
+	if(width > INT_MAX/3 || height > INT_MAX/3) {
+		*error = RDETOOBIG;
+		return NULL;
+	}
+
 	size_t bufsize = width > height ? width : height;
 	resdet_plan* p;
 	if(!((p           = calloc(1,sizeof(*p))                     ) && /* tower of malloc failures */
