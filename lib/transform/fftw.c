@@ -15,6 +15,11 @@ coeff* resdet_alloc_coeffs(size_t width, size_t height) {
 }
 
 resdet_plan* resdet_create_plan(coeff* f, size_t width, size_t height, RDError* error) {
+	if(width > INT_MAX || height > INT_MAX) {
+		*error = RDETOOBIG;
+		return NULL;
+	}
+
 	resdet_plan* p = malloc(sizeof(*p));
 	if(!p) {
 		*error = RDENOMEM;
