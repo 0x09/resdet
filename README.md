@@ -1,6 +1,6 @@
-resdet - Detect source resolution of upscaled images.
+resdet - Detect source resolution of upscaled images and videos.
 
-resdet is a command-line tool and C library which attempts to detect upscaling in images and identify the original resolution upscaled from.
+resdet is a command-line tool and C library which attempts to detect upscaling in images or videos and identify the original resolution upscaled from.
 
 # Dependencies
 
