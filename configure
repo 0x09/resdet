@@ -70,7 +70,7 @@ for o; do
 		--disable-libpng    ) with_libpng=false;;
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-ffmpeg)     with_ffmpeg=false;;
-		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false;;
+		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false; with_ffmpeg=false;;
 		--omit-native-pgm-pfm-readers) omit_native_pgm_pfm_readers=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
