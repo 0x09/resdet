@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
 		if((e = resdet_analyze_image(analysis,image)))
 			break;
 		ct++;
-		if(ct > nframes)
+		if(nframes && ct > nframes)
 			break;
 	}
 
