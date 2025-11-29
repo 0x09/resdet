@@ -13,7 +13,7 @@
 
 // Sweeps the image looking for boundaries with many sign inversions.
 // Fast, simple, and conveniently one of the most accurate methods.
-static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* restrict result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage sign_diff = 0;
 		for(rdint_index y = 0; y < n; y++)
@@ -25,7 +25,7 @@ static RDError detect_method_sign(const coeff* restrict f, size_t length, size_t
 }
 
 // Looks for similar magnitude coefficients with inverted signs.
-static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_magnitude(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* restrict result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage mag_match = 0;
 		for(rdint_index y = 0; y < n; y++)
@@ -42,7 +42,7 @@ static RDError detect_method_magnitude(const coeff* restrict f, size_t length, s
 // Initial algorithm. Somewhat more complicated mixture of the previous.
 // Tests for inverted sign, same magnitude, with lower magnitude/zero crossing in between.
 // Confidence value is the same as detect_method_sign, but results not matching the expected magnitudes are suppressed
-static RDError detect_method_original(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_original(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* restrict result, rdint_index* restrict start, rdint_index* restrict end) {
 #ifndef MAG_RANGE
 #define MAG_RANGE range
 #endif
@@ -84,7 +84,7 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 
 // Lightweight version of original method
 // Disregards range, only checks explicitly for zero crossings over all 3-element spans
-static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* result, rdint_index* restrict start, rdint_index* restrict end) {
+static RDError detect_method_zerocrossing(const coeff* restrict f, size_t length, size_t n, size_t stride, size_t dist, size_t range, intermediate* restrict result, rdint_index* restrict start, rdint_index* restrict end) {
 	for(rdint_index x = *start; x < *end; x++) {
 		rdint_storage zero_crossings = 0;
 		for(rdint_index y = 0; y < n; y++) {

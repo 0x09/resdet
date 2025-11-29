@@ -74,7 +74,7 @@ struct RDAnalysis {
 	rdint_index xbound[2], ybound[2];
 };
 
-typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,intermediate*,rdint_index*restrict,rdint_index*restrict);
+typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,intermediate* restrict,rdint_index* restrict,rdint_index* restrict);
 
 coeff* resdet_alloc_coeffs(size_t,size_t);
 resdet_plan* resdet_create_plan(coeff*, size_t, size_t, RDError*);
