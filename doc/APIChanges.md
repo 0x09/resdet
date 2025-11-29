@@ -1,3 +1,10 @@
+
+---
+
+**libresdet 2.1.0 released here**
+
+---
+
 **2025-11-20**
 * Addition of the `resdet_seek_frame` function which may be used to seek an `RDImage` to the given frame number. (8e1a22e)
 
