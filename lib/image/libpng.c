@@ -111,17 +111,16 @@ static bool libpng_reader_read_frame(void* reader_ctx, float* image, size_t widt
 	if(ctx->eof)
 		return false;
 
-	unsigned char* imagec = NULL;
-
-	if(setjmp(png_jmpbuf(ctx->png_ptr))) {
-		*error = RDEINVAL;
+	int color = png_get_color_type(ctx->png_ptr,ctx->info_ptr);
+	int channels = color & PNG_COLOR_MASK_COLOR ? 3 : 1;
+	unsigned char* imagec = malloc(width * height * channels);
+	if(!imagec) {
+		*error = RDENOMEM;
 		goto end;
 	}
 
-	int color = png_get_color_type(ctx->png_ptr,ctx->info_ptr);
-	int channels = color & PNG_COLOR_MASK_COLOR ? 3 : 1;
-	if(!(imagec = malloc(width * height * channels))) {
-		*error = RDENOMEM;
+	if(setjmp(png_jmpbuf(ctx->png_ptr))) {
+		*error = RDEINVAL;
 		goto end;
 	}
 
