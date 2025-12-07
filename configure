@@ -4,7 +4,7 @@ CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
 CFLAGS="-O3 -march=native -mtune=native -Wall -Werror $CFLAGS"
-CFLAGS_LIB="-std=c99 $CFLAGS"
+CFLAGS_LIB="-std=c99 -pedantic $CFLAGS"
 CFLAGS_CLI="-std=gnu99 $CFLAGS"
 
 with_fftw=true
