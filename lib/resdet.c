@@ -8,7 +8,7 @@
 
 #include "resdet_internal.h"
 
-const static RDParameters default_params = {
+static const RDParameters default_params = {
 	.range = DEFAULT_RANGE,
 	.threshold = -1
 };
