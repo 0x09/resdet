@@ -26,7 +26,7 @@ struct timeval diffts(struct timeval start, struct timeval end) {
 
 
 void diffres(size_t* left, size_t leftlen, RDResolution* right, size_t rightlen, size_t* plus, size_t* minus) {
-	int l = 0, r = 0;
+	size_t l = 0, r = 0;
 	while(l < leftlen && r < rightlen)
 		if(left[l] > right[r].index) {
 			(*plus)++;

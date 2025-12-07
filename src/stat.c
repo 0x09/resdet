@@ -15,7 +15,7 @@ void statres(RDResolution* rw, size_t cw) {
 	float inner = 3*iq+hq;
 	float outer = 6*iq+hq;
 	printf("median: %5.2f%%   inner fence: %5.2f%%   outer fence: %5.2f%%\n",median*100,inner*100,outer*100);
-	int i;
+	size_t i;
 	for(i = 0; i < cw && rw[i].confidence < inner; i++)
 		;
 	puts("mild outliers:");
