@@ -40,9 +40,9 @@ static void* pgm_reader_open(const char* filename, size_t* width, size_t* height
 	}
 
 	if(
-		fscanf(ctx->f,"P5 %zu %zu %" SCNu16,width,height,&ctx->depth) != 3 ||
-		fgetc(ctx->f) == EOF ||
-		ctx->depth > 255
+	   fscanf(ctx->f,"P5 %zu %zu %" SCNu16,width,height,&ctx->depth) != 3 ||
+	   fgetc(ctx->f) == EOF ||
+	   ctx->depth > 255
 	) {
 		*error = RDEINVAL;
 		goto error;
