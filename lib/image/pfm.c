@@ -5,6 +5,8 @@
 
 #include "image.h"
 
+#include <ctype.h>
+
 struct pfm_context {
 	FILE* f;
 	float endianness_scale;
@@ -72,6 +74,17 @@ static void pfm_reader_close(void* reader_ctx) {
 	free(ctx);
 }
 
+static inline bool skip_comments(FILE* f) {
+	int c;
+	while((c = fgetc(f)) == '#') {
+		do {
+			if((c = fgetc(f)) == EOF)
+				return false;
+		} while(c != '\n');
+	}
+	return c != EOF && ungetc(c,f) == c;
+}
+
 static void* pfm_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
 	*error = RDEOK;
 	struct pfm_context* ctx = malloc(sizeof(*ctx));
@@ -87,8 +100,12 @@ static void* pfm_reader_open(const char* filename, size_t* width, size_t* height
 	}
 
 	if(
-	   fscanf(ctx->f,"P%c %zu %zu %f\n",&ctx->format,width,height,&ctx->endianness_scale) != 4 ||
-	   !(ctx->format == 'f' || ctx->format == 'F')
+	   fscanf(ctx->f,"P%c",&ctx->format) != 1 ||
+	   !(ctx->format == 'f' || ctx->format == 'F') ||
+	   fscanf(ctx->f," ") == EOF ||
+	   !skip_comments(ctx->f) ||
+	   fscanf(ctx->f,"%zu %zu %f",width,height,&ctx->endianness_scale) != 3 ||
+	   !isspace(fgetc(ctx->f))
 	) {
 		*error = RDEINVAL;
 		goto error;
@@ -117,8 +134,12 @@ static bool read_header(struct pfm_context* ctx, size_t width, size_t height, RD
 
 	if(
 	    next_char != 'P' ||
-	    fscanf(ctx->f,"%c %zu %zu %f\n",&next_format,&next_width,&next_height,&next_endianness_scale) != 4 ||
+	    fscanf(ctx->f,"%c",&next_format) != 1 ||
 	    !(next_format == 'f' || next_format == 'F') ||
+	    fscanf(ctx->f," ") == EOF ||
+		!skip_comments(ctx->f) ||
+	    fscanf(ctx->f,"%zu %zu %f",&next_width,&next_height,&next_endianness_scale) != 3 ||
+	    !isspace(fgetc(ctx->f)) ||
 	    next_width != width ||
 		next_height != height
 	) {
