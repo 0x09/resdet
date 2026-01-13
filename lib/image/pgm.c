@@ -6,6 +6,7 @@
 #include "image.h"
 
 #include <inttypes.h>
+#include <ctype.h>
 
 struct pgm_context {
 	FILE* f;
@@ -41,7 +42,7 @@ static void* pgm_reader_open(const char* filename, size_t* width, size_t* height
 
 	if(
 	   fscanf(ctx->f,"P5 %zu %zu %" SCNu16,width,height,&ctx->depth) != 3 ||
-	   fgetc(ctx->f) == EOF ||
+	   !isspace(fgetc(ctx->f)) ||
 	   ctx->depth > 255
 	) {
 		*error = RDEINVAL;
