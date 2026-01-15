@@ -261,6 +261,8 @@ bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error);
 
 Read one frame of an image or image sequence. Returns false if there are no more images left in the sequence or on error, true otherwise.
 
+After reading the image data, this function advances the [`RDImage`](#rdimage) to the next frame, so successive calls return successive frames in an image sequence.
+
 `resdet_read_image_frame` should not be called from parallel threads with the same [`RDImage`](#rdimage).
 
 * rdimage - An [`RDImage`](#rdimage) pointer obtained from [`resdet_open_image`](resdet_open_image).
