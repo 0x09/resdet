@@ -65,6 +65,7 @@ for o; do
 		--binprefix)   BINPREFIX="$arg";;
 		--libprefix)   LIBPREFIX="$arg";;
 		--incprefix)   INCPREFIX="$arg";;
+		--pcprefix)    PCPREFIX="$arg";;
 		--disable-fftw      ) with_fftw=false;;
 		--disable-libjpeg   ) with_libjpeg=false;;
 		--disable-libpng    ) with_libpng=false;;
