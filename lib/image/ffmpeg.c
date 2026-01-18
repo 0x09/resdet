@@ -123,7 +123,7 @@ static int read_frame(struct ffmpeg_context* ctx) {
 		while(!(averr = av_read_frame(ctx->fmt,ctx->packet)) && ctx->packet->stream_index != ctx->stream_index)
 			av_packet_unref(ctx->packet);
 		if(averr)
-			avcodec_send_packet(ctx->codec, NULL);
+			averr = avcodec_send_packet(ctx->codec, NULL);
 		else {
 			averr = avcodec_send_packet(ctx->codec, ctx->packet);
 			av_packet_unref(ctx->packet);
