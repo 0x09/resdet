@@ -77,7 +77,7 @@ static const char* ext_from_mimetype(const char* mimetype) {
 	return "";
 }
 
-RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
+RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
 	*width = *height = 0;
 	if(imagebuf)
 		*imagebuf = NULL;
@@ -149,7 +149,7 @@ error:
 	return NULL;
 }
 
-bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
+RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
 	if(!rdimage) {
 		*error = RDEPARAM;
 		return false;
@@ -166,7 +166,7 @@ bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
 	return ret;
 }
 
-bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, RDError* error) {
+RESDET_API bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, RDError* error) {
 	if(!rdimage) {
 		*error = RDEPARAM;
 		return false;
@@ -183,7 +183,7 @@ bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void*,
 	return ret;
 }
 
-void resdet_close_image(RDImage* rdimage) {
+RESDET_API void resdet_close_image(RDImage* rdimage) {
 	if(!rdimage)
 		return;
 
@@ -192,7 +192,7 @@ void resdet_close_image(RDImage* rdimage) {
 	free(rdimage);
 }
 
-RDError resdet_read_image(const char* filename, const char* filetype, float** images, size_t* nimages, size_t* width, size_t* height) {
+RESDET_API RDError resdet_read_image(const char* filename, const char* filetype, float** images, size_t* nimages, size_t* width, size_t* height) {
 	*nimages = 0;
 	*images = NULL;
 

@@ -3,6 +3,10 @@ include config.mak
 OBJS=resdet.o image.o methods.o image/y4m.o
 LIB=lib/libresdet.a
 
+ifdef SHARED
+	SHAREDLIB=libresdet.$(SOEXT)
+endif
+
 EXTRAFLAGS=
 ifdef HAVE_FFTW
 	OBJS += transform/fftw.o
@@ -47,7 +51,7 @@ OBJS := $(addprefix lib/, $(OBJS))
 DEPS := $(OBJS:.o=.d) $(src/%.c:.c=.d)
 CPPFLAGS += -MMD -MP
 
-all: $(TOOLS)
+all: $(SHAREDLIB) $(TOOLS)
 
 CFLAGS_LIB := -Iinclude/ -Ilib/ $(DEFS) $(CFLAGS_LIB) $(CFLAGS)
 
@@ -61,6 +65,25 @@ $(LIB): CFLAGS := $(CFLAGS_LIB)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $+
 
+ifdef SHARED
+VERSION=$(shell pkg-config --modversion lib/resdet.pc | cut -d+ -f1)
+VERSION_MAJOR_MINOR=$(shell pkg-config --modversion lib/resdet.pc | cut -d. -f1-2)
+VERSION_MAJOR=$(shell pkg-config --modversion lib/resdet.pc | cut -d. -f1)
+
+ifeq ($(SOEXT),dylib)
+$(SHAREDLIB): LDFLAGS += -dynamiclib -install_name $(LIBPREFIX)/$(SHAREDLIB) -Wl,-current_version,$(VERSION) -Wl,-compatibility_version,$(VERSION_MAJOR)
+else
+$(SHAREDLIB): LDFLAGS += -shared
+ifeq ($(SOEXT),so)
+$(SHAREDLIB): LDFLAGS += -Wl,-soname,$(SHAREDLIB).$(VERSION_MAJOR)
+endif
+endif
+
+$(SHAREDLIB): CFLAGS := $(CFLAGS_LIB)
+$(SHAREDLIB): $(OBJS)
+	$(CC) -o $@ $+ $(LDFLAGS) $(LDLIBS)
+endif
+
 vpath %.o src
 
 CFLAGS := -Iinclude/ $(CLIDEFS) $(CFLAGS_CLI) $(CFLAGS)
@@ -70,9 +93,23 @@ profile: src/profile.o $(LIB)
 stat:    src/stat.o $(LIB)
 imgread: src/imgread.o $(LIB)
 
-install-lib: $(LIB)
+lib: $(LIB) $(SHAREDLIB)
+
+install-lib: lib
 	install -m644 include/resdet.h $(INCPREFIX)/
 	install -m644 $(LIB) $(LIBPREFIX)/
+ifdef SHARED
+ifeq ($(SOEXT),dylib)
+	install -m644 $(SHAREDLIB) $(LIBPREFIX)/libresdet.$(VERSION).dylib
+	ln -fs $(LIBPREFIX)/libresdet.$(VERSION).dylib $(LIBPREFIX)/libresdet.$(VERSION_MAJOR_MINOR).dylib
+	ln -fs $(LIBPREFIX)/libresdet.$(VERSION).dylib $(LIBPREFIX)/libresdet.$(VERSION_MAJOR).dylib
+	ln -fs $(LIBPREFIX)/libresdet.$(VERSION).dylib $(LIBPREFIX)/libresdet.dylib
+else ifeq ($(SOEXT),so)
+	install -m644 $(SHAREDLIB) $(LIBPREFIX)/libresdet.so.$(VERSION)
+	ln -fs $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so.$(VERSION_MAJOR)
+	ln -fs $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so
+endif
+endif
 ifneq ($(PCPREFIX),)
 	mkdir -p $(PCPREFIX)
 	install -m644 lib/resdet.pc $(PCPREFIX)/
@@ -83,10 +120,11 @@ install: resdet
 
 uninstall:
 	$(RM) $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
-	
-clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS)
+	$(RM) $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so.$(VERSION_MAJOR) $(LIBPREFIX)/libresdet.so $(LIBPREFIX)/libresdet.$(VERSION_MINOR).dylib $(LIBPREFIX)/libresdet.$(VERSION_MAJOR).dylib $(LIBPREFIX)/libresdet.dylib
 
-.PHONY: all install install-lib uninstall clean
+clean:
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB)
+
+.PHONY: all lib install install-lib uninstall clean
 
 -include $(DEPS)

@@ -37,7 +37,7 @@ static RDError setup_dimension(size_t length, size_t range, intermediate** buf, 
 	return RDEOK;
 }
 
-RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error) {
+RESDET_API RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error) {
 	RDError e;
 
 	RDAnalysis* analysis = malloc(sizeof(*analysis));
@@ -94,7 +94,7 @@ error:
 	return NULL;
 }
 
-RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
+RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
 	if(!analysis)
 		return RDEPARAM;
 
@@ -145,7 +145,7 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 	return RDEOK;
 }
 
-RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict  rh, size_t* restrict ch) {
+RESDET_API RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict  rh, size_t* restrict ch) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
@@ -176,7 +176,7 @@ error:
 	return error;
 }
 
-void resdet_destroy_analysis(RDAnalysis* analysis) {
+RESDET_API void resdet_destroy_analysis(RDAnalysis* analysis) {
 	if(!analysis)
 		return;
 
@@ -187,10 +187,10 @@ void resdet_destroy_analysis(RDAnalysis* analysis) {
 	free(analysis);
 }
 
-RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
-                                    RDResolution** restrict rw, size_t* restrict cw,
-                                    RDResolution** restrict rh, size_t* restrict ch,
-                                    RDMethod* method, const RDParameters* params) {
+RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+                             RDResolution** restrict rw, size_t* restrict cw,
+                             RDResolution** restrict rh, size_t* restrict ch,
+                             RDMethod* method, const RDParameters* params) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
@@ -209,10 +209,10 @@ RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
 	return error;
 }
 
-RDError resdetect_file(const char* filename, const char* filetype,
-                                   RDResolution** restrict rw, size_t* restrict cw,
-                                   RDResolution** restrict rh, size_t* restrict ch,
-                                   RDMethod* method, const RDParameters* params) {
+RESDET_API RDError resdetect_file(const char* filename, const char* filetype,
+                                  RDResolution** restrict rw, size_t* restrict cw,
+                                  RDResolution** restrict rh, size_t* restrict ch,
+                                  RDMethod* method, const RDParameters* params) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
 
@@ -241,7 +241,7 @@ end:
 	return error;
 }
 
-RDMethod* resdet_get_method(const char* name) {
+RESDET_API RDMethod* resdet_get_method(const char* name) {
 	if(!name)
 		return resdet_methods(); //default
 	for(RDMethod* m = resdet_methods(); m->name; m++)
@@ -250,7 +250,7 @@ RDMethod* resdet_get_method(const char* name) {
 	return NULL;
 }
 
-RDParameters* resdet_alloc_default_parameters(void) {
+RESDET_API RDParameters* resdet_alloc_default_parameters(void) {
 	 RDParameters* params = malloc(sizeof(*params));
 	 if(!params)
 		 return NULL;
@@ -259,7 +259,7 @@ RDParameters* resdet_alloc_default_parameters(void) {
 	 return params;
 }
 
-RDError resdet_parameters_set_range(RDParameters* params, size_t range) {
+RESDET_API RDError resdet_parameters_set_range(RDParameters* params, size_t range) {
 	if(!params || !range)
 		return RDEPARAM;
 
@@ -267,7 +267,7 @@ RDError resdet_parameters_set_range(RDParameters* params, size_t range) {
 	return RDEOK;
 }
 
-RDError resdet_parameters_set_threshold(RDParameters* params, float threshold) {
+RESDET_API RDError resdet_parameters_set_threshold(RDParameters* params, float threshold) {
 	if(!params || isnan(threshold) || threshold < 0 || threshold > 1)
 		return RDEPARAM;
 
@@ -276,15 +276,15 @@ RDError resdet_parameters_set_threshold(RDParameters* params, float threshold) {
 }
 
 
-size_t resdet_default_range(void) {
+RESDET_API size_t resdet_default_range(void) {
 	return DEFAULT_RANGE;
 }
 
-const char* resdet_libversion(void) {
+RESDET_API const char* resdet_libversion(void) {
 	return RESDET_LIBVERSION_STRING;
 }
 
-const char* resdet_error_str(RDError e) {
+RESDET_API const char* resdet_error_str(RDError e) {
 	static const char* const RDErrStr[] = {
 		[RDEOK]       = "",
 		[RDENOMEM]    = "Out of memory",
