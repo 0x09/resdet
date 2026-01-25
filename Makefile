@@ -87,6 +87,6 @@ uninstall:
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS)
 
-.PHONY: all install uninstall clean
+.PHONY: all install install-lib uninstall clean
 
 -include $(DEPS)
