@@ -33,7 +33,6 @@ static void libpng_reader_close(void* reader_ctx) {
 }
 
 static void* libpng_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
-	*error = RDEOK;
 	struct libpng_context* ctx = malloc(sizeof(*ctx));
 	if(!ctx) {
 		*error = RDENOMEM;
@@ -105,7 +104,6 @@ error:
 }
 
 static bool libpng_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct libpng_context* ctx = (struct libpng_context*)reader_ctx;
 
 	if(ctx->eof)
@@ -148,7 +146,6 @@ end:
 }
 
 static bool libpng_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct libpng_context* ctx = (struct libpng_context*)reader_ctx;
 	bool ret = !(ctx->eof || offset > 1);
 	if(offset)

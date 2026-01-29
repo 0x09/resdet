@@ -86,7 +86,6 @@ static inline bool skip_comments(FILE* f) {
 }
 
 static void* pfm_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
-	*error = RDEOK;
 	struct pfm_context* ctx = malloc(sizeof(*ctx));
 	if(!ctx) {
 		*error = RDENOMEM;
@@ -154,7 +153,6 @@ static bool read_header(struct pfm_context* ctx, size_t width, size_t height, RD
 }
 
 static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
 
 	if(!read_header(ctx,width,height,error))
@@ -171,7 +169,6 @@ static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 }
 
 static bool pfm_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
 
 	size_t imgsize = width*height;

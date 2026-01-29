@@ -48,7 +48,6 @@ static void ffmpeg_reader_close(void* reader_ctx) {
 #define little_endian() (union { int i; char c; }){1}.c
 
 static void* ffmpeg_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
-	*error = RDEOK;
 	struct ffmpeg_context* ctx = malloc(sizeof(*ctx));
 	if(!ctx) {
 		*error = RDENOMEM;
@@ -135,7 +134,6 @@ static int read_frame(struct ffmpeg_context* ctx) {
 }
 
 static bool ffmpeg_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
 
 	int averr = read_frame(ctx);
@@ -154,7 +152,6 @@ averror:
 }
 
 static bool ffmpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
 
 	int averr = 0;

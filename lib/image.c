@@ -82,7 +82,7 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 	if(imagebuf)
 		*imagebuf = NULL;
 
-	RDError e;
+	RDError e = RDEOK;
 
 	if(error)
 		*error = RDEOK;
@@ -156,7 +156,7 @@ RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError*
 		return false;
 	}
 
-	RDError e;
+	RDError e = RDEOK;
 	bool ret = rdimage->reader->read_frame(rdimage->reader_ctx,image,rdimage->width,rdimage->height,&e);
 	if(e) {
 		if(error)
@@ -174,7 +174,7 @@ RESDET_API bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progr
 		return false;
 	}
 
-	RDError e;
+	RDError e = RDEOK;
 	bool ret = rdimage->reader->seek_frame(rdimage->reader_ctx,offset,progress,progress_ctx,rdimage->width,rdimage->height,&e);
 	if(e) {
 		if(error)

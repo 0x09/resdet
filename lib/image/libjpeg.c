@@ -32,7 +32,6 @@ static void libjpeg_reader_close(void* reader_ctx) {
 }
 
 static void* libjpeg_reader_open(const char* filename, size_t* width, size_t* height, RDError* error) {
-	*error = RDEOK;
 	struct libjpeg_context* ctx = malloc(sizeof(*ctx));
 	if(!ctx) {
 		*error = RDENOMEM;
