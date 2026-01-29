@@ -158,11 +158,10 @@ RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError*
 
 	RDError e = RDEOK;
 	bool ret = rdimage->reader->read_frame(rdimage->reader_ctx,image,rdimage->width,rdimage->height,&e);
-	if(e) {
-		if(error)
-			*error = e;
+	if(error)
+		*error = e;
+	if(e)
 		return false;
-	}
 
 	return ret;
 }
@@ -176,11 +175,11 @@ RESDET_API bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progr
 
 	RDError e = RDEOK;
 	bool ret = rdimage->reader->seek_frame(rdimage->reader_ctx,offset,progress,progress_ctx,rdimage->width,rdimage->height,&e);
-	if(e) {
-		if(error)
-			*error = e;
+
+	if(error)
+		*error = e;
+	if(e)
 		return false;
-	}
 
 	return ret;
 }
