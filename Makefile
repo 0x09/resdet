@@ -118,13 +118,16 @@ endif
 install: resdet
 	install resdet $(BINPREFIX)/
 
-uninstall:
+uninstall-lib:
 	$(RM) $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
 	$(RM) $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so.$(VERSION_MAJOR) $(LIBPREFIX)/libresdet.so $(LIBPREFIX)/libresdet.$(VERSION_MINOR).dylib $(LIBPREFIX)/libresdet.$(VERSION_MAJOR).dylib $(LIBPREFIX)/libresdet.dylib
+	
+uninstall: uninstall-lib
+	$(RM) $(BINPREFIX)/resdet
 
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB)
 
-.PHONY: all lib install install-lib uninstall clean
+.PHONY: all lib install install-lib uninstall-lib uninstall clean
 
 -include $(DEPS)
