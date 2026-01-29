@@ -151,7 +151,8 @@ error:
 
 RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
 	if(!rdimage) {
-		*error = RDEPARAM;
+		if(error)
+			*error = RDEPARAM;
 		return false;
 	}
 
@@ -168,7 +169,8 @@ RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError*
 
 RESDET_API bool resdet_seek_frame(RDImage* rdimage, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, RDError* error) {
 	if(!rdimage) {
-		*error = RDEPARAM;
+		if(error)
+			*error = RDEPARAM;
 		return false;
 	}
 
