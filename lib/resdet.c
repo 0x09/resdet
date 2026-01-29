@@ -61,6 +61,10 @@ RESDET_API RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, si
 	if(analysis->params.threshold < 0)
 		analysis->params.threshold = method->threshold;
 
+	if(!(width && height)) {
+		e = RDEINVAL;
+		goto error;
+	}
 	if(resdet_dims_exceed_limit(width,height,1,coeff)) {
 		e = RDETOOBIG;
 		goto error;
