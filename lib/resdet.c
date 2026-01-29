@@ -98,7 +98,7 @@ RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
 	if(!analysis)
 		return RDEPARAM;
 
-	RDError ret;
+	RDError ret = RDEOK;
 	size_t width = analysis->width, height = analysis->height;
 
 	for(rdint_index i = 0; i < width*height; i++) {
@@ -111,9 +111,11 @@ RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
 
 	resdet_transform(analysis->p);
 
-	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,width,height,width,1,analysis->params.range,analysis->xresult,analysis->xbound,analysis->xbound+1)) != RDEOK)
+	if(analysis->xresult &&
+	  (ret = ((RDetectFunc)analysis->method->func)(analysis->f,width,height,width,1,analysis->params.range,analysis->xresult,analysis->xbound,analysis->xbound+1)) != RDEOK)
 		goto end;
-	if((ret = ((RDetectFunc)analysis->method->func)(analysis->f,height,width,1,width,analysis->params.range,analysis->yresult,analysis->ybound,analysis->ybound+1)) != RDEOK)
+	if(analysis->yresult &&
+	  (ret = ((RDetectFunc)analysis->method->func)(analysis->f,height,width,1,width,analysis->params.range,analysis->yresult,analysis->ybound,analysis->ybound+1)) != RDEOK)
 		goto end;
 
 	analysis->nimages++;
