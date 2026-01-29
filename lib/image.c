@@ -204,12 +204,12 @@ RESDET_API RDError resdet_read_image(const char* filename, const char* filetype,
 	while(resdet_read_image_frame(image,*images + *width * *height * *nimages,&error)) {
 		(*nimages)++;
 
-		if(resdet_dims_exceed_limit(*width,*height,*nimages,float)) {
+		if(resdet_dims_exceed_limit(*width,*height,*nimages+1,float)) {
 			error = RDETOOBIG;
 			break;
 		}
 
-		float* img = realloc(*images,*width * *height * *nimages * sizeof(**images));
+		float* img = realloc(*images,*width * *height * (*nimages+1) * sizeof(**images));
 		if(!img) {
 			error = RDENOMEM;
 			break;
