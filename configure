@@ -160,6 +160,7 @@ if $sharedlib; then
 	CFLAGS_LIB+=' -fPIC -fvisibility=hidden'
 	case "$($CC -v 2>&1 | grep -F 'Target:')" in
 		*mingw32*) SOEXT=dll;;
+		*windows*) SOEXT=dll;;
 		*darwin*) SOEXT=dylib;;
 		*) SOEXT=so;;
 	esac
