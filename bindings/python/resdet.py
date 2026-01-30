@@ -300,6 +300,9 @@ def get_method(methodname: str) -> Method:
     method = libresdet.resdet_get_method(methodname.encode("utf-8"))
     return Method(method.contents.name.decode("utf-8"), method.contents.threshold, method)
 
+def default_range() -> int:
+    return libresdet.resdet_default_range()
+
 def read_image(filename: str | os.PathLike, type: Optional[str] = None) -> ImageBuffer:
     type_arg = type.encode("utf-8") if type else None
     width = ctypes.c_size_t()
