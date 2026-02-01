@@ -61,6 +61,10 @@ RESDET_API RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, si
 	if(analysis->params.threshold < 0)
 		analysis->params.threshold = method->threshold;
 
+	// this method has an effective range of 1, so allow a larger bounds
+	if(!strcmp(method->name,"zerox"))
+		analysis->params.range = 1;
+
 	if(!(width && height)) {
 		e = RDEINVAL;
 		goto error;
