@@ -264,3 +264,14 @@ echo "TOOLS=${TOOLS[@]}" >> config.mak
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"
 fi
+
+if [[ "$(awk --version)" == 'GNU Awk'* ]]; then
+	echo 'AWK=awk' >> config.mak
+elif command -v gawk > /dev/null; then
+	echo 'AWK=gawk' >> config.mak
+else
+	echo "Note: GNU awk is required for make check."
+fi
+
+echo "TEST_CFLAGS=$(pkg-config --cflags cmocka)" >> config.mak
+echo "TEST_LIBS=$(pkg-config --libs cmocka)" >> config.mak

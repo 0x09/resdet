@@ -48,7 +48,7 @@ endif
 
 OBJS := $(addprefix lib/, $(OBJS))
 
-DEPS := $(OBJS:.o=.d) $(src/%.c:.c=.d)
+DEPS := $(OBJS:.o=.d) $(src/%.c:.c=.d) test/lib/main.d
 CPPFLAGS += -MMD -MP
 
 all: $(SHAREDLIB) $(TOOLS)
@@ -121,13 +121,28 @@ install: resdet
 uninstall-lib:
 	$(RM) $(BINPREFIX)/resdet $(LIBPREFIX)/libresdet.a $(PCPREFIX)/resdet.pc $(INCPREFIX)/resdet.h
 	$(RM) $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so.$(VERSION_MAJOR) $(LIBPREFIX)/libresdet.so $(LIBPREFIX)/libresdet.$(VERSION_MINOR).dylib $(LIBPREFIX)/libresdet.$(VERSION_MAJOR).dylib $(LIBPREFIX)/libresdet.dylib
-	
+
 uninstall: uninstall-lib
 	$(RM) $(BINPREFIX)/resdet
 
-clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB)
+TESTSRCS = $(wildcard test/lib/test_*.c)
+TESTOBJS = $(TESTSRCS:%.c=%.o)
+DEPS += $(TESTSRCS:%.c=%.d)
 
-.PHONY: all lib install install-lib uninstall-lib uninstall clean
+test/lib/main.c: test/gen_tests.awk $(TESTSRCS)
+	$(AWK) -f $+ > test/lib/main.c
+
+test_libresdet: CFLAGS := -Iinclude $(DEFS) -DRESDET_EXPORT -DRESDET_LIBVERSION=\"$(shell pkg-config --modversion lib/resdet.pc)\" $(TEST_CFLAGS)
+test_libresdet: LDLIBS := $(LDLIBS) $(TEST_LIBS)
+test_libresdet: test/lib/main.o $(TESTOBJS) $(LIB)
+	$(CC) $(LDFLAGS) -o $@ $+ $(LDLIBS)
+
+check: test_libresdet
+	@./test_libresdet
+
+clean:
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/main.* $(TESTOBJS)
+
+.PHONY: all lib install install-lib uninstall-lib uninstall check clean
 
 -include $(DEPS)
