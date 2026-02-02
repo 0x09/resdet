@@ -144,7 +144,9 @@ Opaque type representing an open image handle, used by the [image reading](#imag
 const char* resdet_error_str(RDError);
 ```
 
-Most library functions return [`RDError`](#rderror) to indicate any failure. Use `resdet_error_str(error)` to map an [`RDError`](#rderror) to a descriptive string. The returned value is statically allocated and does not need to be freed. Returns `NULL` if the provided error does not map to a valid `RDError`.
+resdet library functions return an [`RDError`](#rderror) to indicate any failure. Use `resdet_error_str(error)` to map an [`RDError`](#rderror) to a descriptive string. The returned value is statically allocated and does not need to be freed. Returns `NULL` if the provided error does not map to a valid `RDError`.
+
+* error - An [`RDError`](#rderror) error code returned by the library.
 
 This function may call `strerror` internally which may not be thread safe on your platform.
 
