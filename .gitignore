@@ -57,9 +57,16 @@ Mkfile.old
 dkms.conf
 
 ## end github source
+/.cache
+compile_commands.json
+/.vagrant
+/Vagrantfile
+__pycache__
 *.pc
 /config.mak
 /imgread
 /profile
 /resdet
 /stat
+/test_libresdet
+/test/lib/main.c
