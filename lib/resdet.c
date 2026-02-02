@@ -103,7 +103,7 @@ error:
 }
 
 RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
-	if(!analysis)
+	if(!(analysis && image))
 		return RDEPARAM;
 
 	RDError ret = RDEOK;
@@ -203,6 +203,9 @@ RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t 
                              RDMethod* method, const RDParameters* params) {
 	if(rw) { *rw = NULL; *cw = 0; }
 	if(rh) { *rh = NULL; *ch = 0; }
+
+	if(!image)
+		return RDEPARAM;
 
 	RDError error;
 	RDAnalysis* analysis = resdet_create_analysis(method,width,height,params,&error);

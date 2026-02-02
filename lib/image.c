@@ -92,7 +92,7 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 	RDImage* rdimage = NULL;
 
 	if(!filename) {
-		e = RDEINVAL;
+		e = RDEPARAM;
 		goto error;
 	}
 
@@ -150,7 +150,7 @@ error:
 }
 
 RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {
-	if(!rdimage) {
+	if(!(rdimage && image)) {
 		if(error)
 			*error = RDEPARAM;
 		return false;
