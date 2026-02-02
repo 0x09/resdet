@@ -1,4 +1,11 @@
+**2026-02-02**
+* Addition of the `resdet_get_max_error` function which may be used to obtain the current largest value from the RDErrors enum. (d0201fb)
 
+---
+
+**libresdet 2.2.0 released here**
+
+---
 ---
 
 **libresdet 2.1.0 released here**
