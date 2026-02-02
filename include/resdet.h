@@ -53,6 +53,7 @@ typedef struct RDImage RDImage;
 RESDET_API const char* resdet_libversion(void);
 
 RESDET_API const char* resdet_error_str(RDError);
+RESDET_API enum RDErrors resdet_get_max_error(void);
 
 RESDET_API RDMethod* resdet_methods(void);
 RESDET_API RDMethod* resdet_get_method(const char* name);

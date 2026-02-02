@@ -297,16 +297,17 @@ RESDET_API const char* resdet_libversion(void) {
 	return RESDET_LIBVERSION_STRING;
 }
 
+static const char* const RDErrStr[] = {
+	[RDEOK]       = "",
+	[RDENOMEM]    = "Out of memory",
+	[RDEINTERNAL] = "Internal error",
+	[RDEINVAL]    = "Invalid image",
+	[RDEUNSUPP]   = "Unsupported image file format",
+	[RDETOOBIG]   = "Image size exceeds limit",
+	[RDEPARAM]    = "Parameter missing or invalid",
+};
+
 RESDET_API const char* resdet_error_str(RDError e) {
-	static const char* const RDErrStr[] = {
-		[RDEOK]       = "",
-		[RDENOMEM]    = "Out of memory",
-		[RDEINTERNAL] = "Internal error",
-		[RDEINVAL]    = "Invalid image",
-		[RDEUNSUPP]   = "Unsupported image file format",
-		[RDETOOBIG]   = "Image size exceeds limit",
-		[RDEPARAM]    = "Parameter missing or invalid"
-	};
 
 	if(e < 0)
 		return strerror(-e);
@@ -315,4 +316,8 @@ RESDET_API const char* resdet_error_str(RDError e) {
 		return NULL;
 
 	return RDErrStr[e];
+}
+
+RESDET_API enum RDErrors resdet_get_max_error(void) {
+	return sizeof(RDErrStr)/sizeof(*RDErrStr)-1;
 }
