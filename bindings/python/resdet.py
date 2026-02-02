@@ -42,6 +42,7 @@ class Error(IntEnum):
     UNSUPP   = 4
     TOOBIG   = 5
     PARAM    = 6
+    NOIMG    = 7
 
 # for NOMEM we use MemoryError()
 
@@ -58,6 +59,9 @@ class ImageTooBigErrror(Exception):
     pass
 
 class ParameterError(Exception):
+    pass
+
+class NoImagesError(Exception):
     pass
 
 class Method:
@@ -259,6 +263,8 @@ def _rderror_to_exception(err: ctypes.c_int | int) -> Exception:
             return ImageTooBigErrror(msg)
         case Error.PARAM:
             return ParameterError(msg)
+        case Error.NOIMG:
+            return NoImagesError(msg)
         case _ if e < 0:
             return OSError(-e, msg)
         case _: # this shouldn't happen

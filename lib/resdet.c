@@ -162,6 +162,9 @@ RESDET_API RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** 
 	if(!analysis)
 		return RDEPARAM;
 
+	if(!analysis->nimages)
+		return RDENOIMG;
+
 	RDError error;
 
 	if(rw && (error = generate_dimension_results(analysis,analysis->width,analysis->xbound,analysis->xresult,rw,cw)))
@@ -206,6 +209,9 @@ RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t 
 
 	if(!image)
 		return RDEPARAM;
+
+	if(!nimages)
+		return RDENOIMG;
 
 	RDError error;
 	RDAnalysis* analysis = resdet_create_analysis(method,width,height,params,&error);
@@ -305,6 +311,7 @@ static const char* const RDErrStr[] = {
 	[RDEUNSUPP]   = "Unsupported image file format",
 	[RDETOOBIG]   = "Image size exceeds limit",
 	[RDEPARAM]    = "Parameter missing or invalid",
+	[RDENOIMG]    = "No images were analyzed",
 };
 
 RESDET_API const char* resdet_error_str(RDError e) {

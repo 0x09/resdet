@@ -374,7 +374,7 @@ RDError resdet_analysis_results(RDAnalysis*,
 ```
 
 Get the detection results from an analysis.  
-Typically called after all images in a sequence have been analyzed with [`resdet_analyze_image`](#resdet_analyze_image). May be called multiple times with the same [`RDAnalysis`](#rdanalysis) to re-obtain results or before all images are analyzed to obtain preliminary results.
+Typically called after all images in a sequence have been analyzed with [`resdet_analyze_image`](#resdet_analyze_image). May be called multiple times with the same [`RDAnalysis`](#rdanalysis) to re-obtain results or before all images are analyzed to obtain preliminary results, however [`resdet_analyze_image`](#resdet_analyze_image) must have been called with this [`RDAnalysis`](#rdanalysis) at least once before collecting results.
 
 * resw, resh - Output [`RDResolution`](#rdresolution) arrays of pixel index and confidence pairs describing a potential detected resolution. Results are sorted in descending order of confidence. The original input resolution is always available as the final element with a confidence value of -1. Either may be `NULL` to skip gathering results for that dimension. If provided, respective count param must point to valid size_t memory. Guaranteed to be either allocated or nulled by the library, must be freed by caller.
 * countw, counth - Size of resw and resh respectively.
