@@ -1,5 +1,9 @@
 **2026-02-02**
 * Addition of the `resdet_get_max_error` function which may be used to obtain the current largest value from the RDErrors enum. (d0201fb)
+* Addition of the `RDENOIMG` `RDError` code for when an analysis was given no images. (c5a80af)
+  `resdetect` now returns an `RDENOIMG` error when called with an `nimages` parameter of 0.
+  `resdet_analysis_results` now returns an `RDENOIMG` error if no calls to `resdet_analyze_frame` for the given `RDAnalaysis` were ever made.
+  Previously these succeeded and yielded output `RDResolution` arrays containing only the input dimensions in these cases.
 
 ---
 
