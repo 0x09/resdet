@@ -92,3 +92,15 @@ void test_negative_threshold_returns_error(void** state) {
 
 	assert_int_equal(err,RDEPARAM);
 }
+
+void test_setting_threshold_with_no_params_returns_error(void** state) {
+	int err = resdet_parameters_set_threshold(NULL,0);
+
+	assert_int_equal(err,RDEPARAM);
+}
+
+void test_setting_range_with_no_params_returns_error(void** state) {
+	int err = resdet_parameters_set_range(NULL,10);
+
+	assert_int_equal(err,RDEPARAM);
+}
