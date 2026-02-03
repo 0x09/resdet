@@ -7,6 +7,11 @@
 
 #include <ctype.h>
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 #ifndef OMIT_NATIVE_PGM_PFM_READERS
 extern const struct image_reader resdet_image_reader_pgm;
 extern const struct image_reader resdet_image_reader_pfm;
@@ -120,6 +125,11 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 		e = RDEUNSUPP;
 		goto error;
 	}
+
+#ifdef _WIN32
+	if(!strcmp(filename,"-"))
+		_setmode(_fileno(stdin), _O_BINARY);
+#endif
 
 	rdimage->reader_ctx = rdimage->reader->open(filename,width,height,&e);
 	if(e)
