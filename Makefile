@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdet.o image.o methods.o image/y4m.o
+OBJS=resdetect.o analysis.o util.o image.o methods.o image/y4m.o
 LIB=lib/libresdet.a
 
 ifdef SHARED
