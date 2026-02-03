@@ -51,8 +51,6 @@ BEGINFILE {
 }
 
 END {
-	print("\n#include <stddef.h>\n#include <setjmp.h>\n#include <stdarg.h>\n#include <cmocka.h>\n\nint main(void) {")
-
 	for(group in tests) {
 		printf("\tstruct CMUnitTest %s[] = {\n",group)
 		for(i in tests[group])
@@ -60,9 +58,6 @@ END {
 		print("\t};")
 	}
 
-	print("\n\n\tint ret = 0;\n")
 	for(group in tests)
 		printf("\tret |= cmocka_run_group_tests(%s,%s,%s);\n",group,setups[group] ? setups[group] : "NULL",teardowns[group] ? teardowns[group] : "NULL")
-
-	print("\n\treturn ret;\n}")
 }

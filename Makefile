@@ -129,13 +129,13 @@ TESTSRCS = $(wildcard test/lib/test_*.c)
 TESTOBJS = $(TESTSRCS:%.c=%.o)
 DEPS += $(TESTSRCS:%.c=%.d)
 
-test/lib/main.c: test/gen_tests.awk $(TESTSRCS)
-	$(AWK) -f $+ > test/lib/main.c
+test/lib/tests_main.c: test/gen_tests.awk $(TESTSRCS)
+	$(AWK) -f $+ > test/lib/tests_main.c
 
 test_libresdet: CFLAGS := -Iinclude $(DEFS) -DRESDET_EXPORT -DRESDET_LIBVERSION=\"$(shell pkg-config --modversion lib/resdet.pc)\" $(TEST_CFLAGS)
 test_libresdet: LDLIBS := $(LDLIBS) $(TEST_LIBS)
-test_libresdet: test/lib/main.o $(TESTOBJS) $(LIB)
-	$(CC) $(LDFLAGS) -o $@ $+ $(LDLIBS)
+test_libresdet: test/lib/tests_main.c test/lib/tests.o $(TESTOBJS) $(LIB)
+	$(CC) $(LDFLAGS) -o $@ test/lib/tests.o $(TESTOBJS) $(LIB) $(LDLIBS)
 
 check: test_libresdet resdet
 	@./test_libresdet

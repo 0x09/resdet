@@ -69,4 +69,4 @@ __pycache__
 /resdet
 /stat
 /test_libresdet
-/test/lib/main.c
+/test/lib/tests_main.c
