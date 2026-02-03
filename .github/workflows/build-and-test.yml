@@ -14,6 +14,8 @@ jobs:
           ./configure
           make
           sudo make install
+      - name: Install bash_unit
+        run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
       - name: Run tests
         run: make check
       - name: Run resdet
@@ -25,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install fftw imagemagick ffmpeg gawk cmocka #libpng and libjpeg are already installed
+          brew install fftw imagemagick ffmpeg gawk cmocka bash_unit #libpng and libjpeg are already installed
       - name: Build and install resdet
         run: |
           ./configure
@@ -53,6 +55,8 @@ jobs:
           make
         env:
           TEST_LIBS: -lcmocka
+      - name: Install bash_unit
+        run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
       - name: Run tests
         run: make check
       - name: Run resdet

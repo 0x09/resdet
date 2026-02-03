@@ -137,8 +137,9 @@ test_libresdet: LDLIBS := $(LDLIBS) $(TEST_LIBS)
 test_libresdet: test/lib/main.o $(TESTOBJS) $(LIB)
 	$(CC) $(LDFLAGS) -o $@ $+ $(LDLIBS)
 
-check: test_libresdet
+check: test_libresdet resdet
 	@./test_libresdet
+	PATH="$$PWD:$$PATH" bash_unit test/bin/test_resdet.sh
 
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/main.* $(TESTOBJS)
