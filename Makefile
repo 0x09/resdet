@@ -48,7 +48,7 @@ endif
 
 OBJS := $(addprefix lib/, $(OBJS))
 
-DEPS := $(OBJS:.o=.d) $(src/%.c:.c=.d) test/lib/main.d
+DEPS := $(OBJS:.o=.d) $(addprefix src/, $(addsuffix .d, $(TOOLS))) test/lib/main.d
 CPPFLAGS += -MMD -MP
 
 all: $(SHAREDLIB) $(TOOLS)
