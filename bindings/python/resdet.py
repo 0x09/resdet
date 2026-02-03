@@ -100,7 +100,7 @@ class ImageBuffer:
 
     def shape(self):
         shape = (self.width, self.height)
-        if self.nimages:
+        if self.nimages > 1:
             shape += (self.nimages,)
         return shape
 
