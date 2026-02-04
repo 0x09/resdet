@@ -105,6 +105,20 @@ class ImageBuffer:
         return shape
 
     def __getitem__(self, index):
+        if isinstance(index,tuple):
+            if len(index) > 3:
+                raise Exception("Too many coordinates for image: {index}")
+            if len(index) < 3:
+                index = (0,) + index
+            if index[0] >= self.nimages:
+                raise IndexError(f"Frame index {index[0]} is out of range for {self.nimages} images")
+            if index[1] >= self.height:
+                raise IndexError(f"y index {index[1]} is out of range for height {self.height}")
+            if index[2] >= self.width:
+                raise IndexError(f"x index {index[2]} is out of range for width {self.width}")
+
+            index = (index[0] * self.height + index[1]) * self.width + index[2]
+
         if index >= self.width * self.height * self.nimages:
             raise IndexError(f"Index {index} is out of bounds for size {self.width}x{self.height}x{self.nimages}")
         return self.data[index]
