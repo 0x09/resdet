@@ -49,10 +49,10 @@ jobs:
           msystem: UCRT64
           update: true
           install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka
-      - name: Build resdet
+      - name: Build and install resdet
         run: |
-          ./configure
-          make
+          ./configure --prefix=/ucrt64 --libprefix=/ucrt64/bin
+          make install
         env:
           TEST_LIBS: -lcmocka
       - name: Install bash_unit
