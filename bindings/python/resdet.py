@@ -106,7 +106,7 @@ class ImageBuffer:
 
     def __getitem__(self, index):
         if index >= self.width * self.height * self.nimages:
-            raise IndexError(f"index {index} is out of bounds for size {self.width}x{self.height}")
+            raise IndexError(f"Index {index} is out of bounds for size {self.width}x{self.height}x{self.nimages}")
         return self.data[index]
 
     def close(self) -> None:
