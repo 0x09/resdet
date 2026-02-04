@@ -11,9 +11,9 @@ jobs:
           sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl gawk libcmocka-dev
       - name: Build and install resdet
         run: |
-          ./configure
+          ./configure --enable-shared
           make
-          sudo make install
+          sudo make install install-lib
       - name: Install bash_unit
         run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
       - name: Run tests
@@ -30,9 +30,10 @@ jobs:
           brew install fftw imagemagick ffmpeg gawk cmocka bash_unit #libpng and libjpeg are already installed
       - name: Build and install resdet
         run: |
-          ./configure
+          ./configure --enable-shared
           make
-          sudo make install
+          sudo mkdir /usr/local/include /usr/local/lib
+          sudo make install install-lib
       - name: Run tests
         run: make check
       - name: Run resdet
@@ -51,8 +52,8 @@ jobs:
           install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka
       - name: Build and install resdet
         run: |
-          ./configure --prefix=/ucrt64 --libprefix=/ucrt64/bin
-          make install
+          ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin
+          make install install-lib
         env:
           TEST_LIBS: -lcmocka
       - name: Install bash_unit

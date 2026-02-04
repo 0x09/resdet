@@ -108,6 +108,8 @@ else ifeq ($(SOEXT),so)
 	install -m644 $(SHAREDLIB) $(LIBPREFIX)/libresdet.so.$(VERSION)
 	ln -fs $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so.$(VERSION_MAJOR)
 	ln -fs $(LIBPREFIX)/libresdet.so.$(VERSION) $(LIBPREFIX)/libresdet.so
+else
+	install -m644 $(SHAREDLIB) $(LIBPREFIX)/
 endif
 endif
 ifneq ($(PCPREFIX),)
