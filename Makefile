@@ -140,8 +140,10 @@ test_libresdet: test/lib/tests_main.c test/lib/tests.o $(TESTOBJS) $(LIB)
 	$(CC) $(LDFLAGS) -o $@ test/lib/tests.o $(TESTOBJS) $(LIB) $(LDLIBS)
 
 check: test_libresdet resdet
+	@echo "Testing libresdet"
 	@./test_libresdet
-	PATH="$$PWD:$$PATH" bash_unit test/bin/test_resdet.sh
+	@echo "Testing resdet"
+	@PATH="$$PWD:$$PATH" bash_unit test/bin/test_resdet.sh
 
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/main.* $(TESTOBJS)
