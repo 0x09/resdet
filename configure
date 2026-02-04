@@ -273,5 +273,13 @@ else
 	echo "Note: GNU awk is required for make check."
 fi
 
+if command -v python3 > /dev/null; then
+	echo 'PYTHON=python3' >> config.mak
+elif command -v python > /dev/null; then
+	echo 'PYTHON=python' >> config.mak
+else
+	echo "Note: Python is required for make check."
+fi
+
 echo "TEST_CFLAGS=$(pkg-config --cflags cmocka)" >> config.mak
 echo "TEST_LIBS=$(pkg-config --libs cmocka)" >> config.mak

@@ -147,11 +147,27 @@ check_resdet: resdet
 	@echo "Testing resdet"
 	@PATH="$$PWD:$$PATH" bash_unit test/bin/test_resdet.sh
 
-check: check_lib check_resdet
+ifndef SHARED
+ifneq ($(MAKECMDGOALS),)
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),check check_python_bindings))
+$(error the shared library is required for make check_python_bindings, use ./configure --enable-shared)
+endif
+endif
+endif
+
+.testvenv:
+	$(PYTHON) -m venv .testvenv
+	. .testvenv/bin/activate; pip install -r test/bindings/python/requirements.txt
+
+check_python_bindings: .testvenv $(SHAREDLIB)
+	@echo "Testing Python bindings"
+	@. .testvenv/bin/activate; LD_LIBRARY_PATH=. PYTHONPATH="$$PWD/bindings/python" pytest -v
+
+check: check_lib check_resdet check_python_bindings
 
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/main.* $(TESTOBJS)
 
-.PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check clean
+.PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check_python_bindings check clean
 
 -include $(DEPS)

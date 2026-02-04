@@ -16,6 +16,8 @@ jobs:
           sudo make install install-lib
       - name: Install bash_unit
         run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
+      - name: Set up python binding tests
+        run: make .testvenv
       - name: Run tests
         run: make check
       - name: Run resdet
@@ -34,6 +36,8 @@ jobs:
           make
           sudo mkdir /usr/local/include /usr/local/lib
           sudo make install install-lib
+      - name: Set up python binding tests
+        run: make .testvenv
       - name: Run tests
         run: make check
       - name: Run resdet
@@ -49,7 +53,9 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka
+          install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka mingw-w64-ucrt-x86_64-python-pip mingw-w64-ucrt-x86_64-python-numpy mingw-w64-ucrt-x86_64-python-pillow mingw-w64-ucrt-x86_64-python-pytest
+
+
       - name: Build and install resdet
         run: |
           ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin
@@ -58,6 +64,10 @@ jobs:
           TEST_LIBS: -lcmocka
       - name: Install bash_unit
         run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
+      - name: Set up python binding tests
+        run: |
+          mkdir -p .testvenv/bin
+          touch .testvenv/bin/activate # python dependencies were installed with pacman
       - name: Run tests
         run: make check
       - name: Run resdet
