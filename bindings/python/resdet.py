@@ -105,7 +105,7 @@ class ImageBuffer:
         return shape
 
     def __getitem__(self, index):
-        if index > self.width * self.height:
+        if index >= self.width * self.height * self.nimages:
             raise IndexError(f"index {index} is out of bounds for size {self.width}x{self.height}")
         return self.data[index]
 
