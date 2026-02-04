@@ -145,9 +145,6 @@ class Image:
             buffer.nimages = 1
 
     def read_image_frame(self, buffer: ImageBuffer) -> Optional[list]:
-        if not buffer.data:
-            raise Exception("image buffer must be initialized")
-
         err = ctypes.c_int()
         ret = libresdet.resdet_read_image_frame(self._rdimage, buffer, err)
         if err:
@@ -193,9 +190,6 @@ class Analysis:
 
     @singledispatchmethod
     def analyze_image(self, image: c_float_ptr) -> None:
-        if not image:
-            raise Exception("image data not initialized")
-
         err = libresdet.resdet_analyze_image(self._rdanalysis, image)
         if err:
             raise _rderror_to_exception(err)
@@ -325,9 +319,6 @@ def read_image(filename: str | os.PathLike, type: Optional[str] = None) -> Image
 
 @singledispatch
 def resdetect(image, nimages: int, width: int, height: int, method: Optional[Method] = None, parameters: dict = {}) -> dict:
-    if not image:
-        raise Exception("image data not initialized")
-
     params_arg = _dict_to_rdparameters(parameters)
 
     resw = ctypes.POINTER(RDResolution)()
