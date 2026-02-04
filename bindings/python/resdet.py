@@ -1,4 +1,4 @@
-from libresdet import libresdet, RDMethod, RDResolution, RDParameters
+from libresdet_api import libresdet, RDMethod, RDResolution, RDParameters
 
 import ctypes
 from ctypes.util import find_library

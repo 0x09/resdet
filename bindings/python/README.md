@@ -6,7 +6,7 @@ Use of these bindings requires that libresdet be built as a shared library. This
 
 **Modules:**
 * [resdet](resdet.py) - The native Python interfaces for resdet.
-* [libresdet](libresdet.py) - Contains the raw ctypes mappings, this need not be used directly.
+* [libresdet_api](libresdet_api.py) - Contains the raw ctypes mappings, this need not be used directly.
 * [resdet_numpy](resdet_numpy.py) - Optional module which includes support for numpy ndarrays.
 * [resdet_PIL](resdet_PIL.py) - Optional module which includes support for PIL images.
 
