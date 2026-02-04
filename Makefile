@@ -139,15 +139,19 @@ test_libresdet: LDLIBS := $(LDLIBS) $(TEST_LIBS)
 test_libresdet: test/lib/tests_main.c test/lib/tests.o $(TESTOBJS) $(LIB)
 	$(CC) $(LDFLAGS) -o $@ test/lib/tests.o $(TESTOBJS) $(LIB) $(LDLIBS)
 
-check: test_libresdet resdet
+check_lib: test_libresdet
 	@echo "Testing libresdet"
 	@./test_libresdet
+
+check_resdet: resdet
 	@echo "Testing resdet"
 	@PATH="$$PWD:$$PATH" bash_unit test/bin/test_resdet.sh
+
+check: check_lib check_resdet
 
 clean:
 	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/main.* $(TESTOBJS)
 
-.PHONY: all lib install install-lib uninstall-lib uninstall check clean
+.PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check clean
 
 -include $(DEPS)
