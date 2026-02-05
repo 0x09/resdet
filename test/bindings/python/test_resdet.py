@@ -77,6 +77,10 @@ class TestResdet:
         with pytest.raises(FileNotFoundError):
             resdet.Image("doesntexist.pgm")
 
+    def test_raises_with_unrecognized_parameter(self):
+        with pytest.raises(Exception):
+            resdet.resdetect([1], 1, 1, 1, parameters = { "unrecognized": 1 })
+
     def test_resdetect_image_buffer(self, image_buffer, rdimage, test_file_resolution_dict):
         assert rdimage.read_image_frame(image_buffer)
         resolutions = resdet.resdetect(image_buffer)
@@ -133,7 +137,7 @@ class TestResdet:
 
     def test_buffer_elements_are_accessible_by_tuple_index(self):
         buffer = resdet.read_image(test_file)
- 
+
         assert buffer[1, 1] == 1
         assert buffer[1, 1, 0] == 1
         with pytest.raises(IndexError):
@@ -206,7 +210,7 @@ class TestResdetNumPy:
         for frame in rdimage:
             frames.append(frame.tolist())
             nframes += 1
- 
+
         assert nframes == 2
         assert frames == [[[1.0, 0.0], [0.0, 1.0]], [[0.0, 1.0], [1.0, 0.0]]]
 

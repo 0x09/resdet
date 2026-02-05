@@ -280,6 +280,10 @@ def _rderror_to_exception(err: ctypes.c_int | int) -> Exception:
 
 def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
     if parameters:
+        extra_keys = set(parameters.keys()) - set(["range", "threshold"])
+        if extra_keys:
+            raise Exception(f"Unrecognized parameters {", ".join(extra_keys)}")
+
         rdparameters = libresdet.resdet_alloc_default_parameters()
         if "range" in parameters:
             libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
