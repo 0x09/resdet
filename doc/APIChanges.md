@@ -5,6 +5,10 @@
   `resdet_analysis_results` now returns an `RDENOIMG` error if no calls to `resdet_analyze_frame` for the given `RDAnalaysis` were ever made.
   Previously these succeeded and yielded output `RDResolution` arrays containing only the input dimensions in these cases.
 
+**2026-02-01**
+* `resdetect`, `resdet_analyze_image`, and `resdet_read_image_frame` now return an `RDEPARAM` error if their `image` argument is `NULL`. Additionally, `resdet_open_image` now returns an `RDEPARAM` error if its `filename` argument is `NULL`.
+  Previously the behavior in this case was undefined.
+
 ---
 
 **libresdet 2.2.0 released here**
