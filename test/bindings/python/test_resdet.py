@@ -63,6 +63,13 @@ class TestResdet:
         assert list(resdet.methods().keys()) == methodnames
         assert [method.name for method in resdet.methods().values()] == methodnames
 
+    def test_sets_parameters(self, test_file_frames):
+        resolutions = resdet.resdetect([0,1,0,1], 1, 4, 1)
+        assert len(resolutions["widths"]) == 1
+
+        resolutions = resdet.resdetect([0,1,0,1], 1, 4, 1, parameters = { "range": 1, "threshold": 0 })
+        assert len(resolutions["widths"]) == 3
+
     def test_raises_invalid_image_error(self):
         with pytest.raises(resdet.InvalidImageError):
             resdet.resdetect([1],1,0,0)
