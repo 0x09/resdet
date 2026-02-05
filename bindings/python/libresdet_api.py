@@ -57,8 +57,6 @@ libresdet.resdet_parameters_set_range.argtypes = [ctypes.POINTER(RDParameters), 
 libresdet.resdet_parameters_set_threshold.restype = ctypes.c_int
 libresdet.resdet_parameters_set_threshold.argtypes = [ctypes.POINTER(RDParameters), ctypes.c_float]
 
-libresdet.resdet_parameters_set_range.restype = ctypes.c_int
-
 libresdet.resdet_open_image.restype = ctypes.POINTER(RDImage)
 libresdet.resdet_open_image.argtypes = [
     ctypes.c_char_p, ctypes.c_char_p,
