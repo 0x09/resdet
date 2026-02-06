@@ -42,8 +42,11 @@ ifdef HAVE_FFMPEG
 	OBJS += image/ffmpeg.o
 endif
 
-ifndef OMIT_NATIVE_PGM_PFM_READERS
-	OBJS += image/pgm.o image/pfm.o
+ifndef OMIT_PGM_READER
+	OBJS += image/pgm.o
+endif
+ifndef OMIT_PFM_READER
+	OBJS += image/pfm.o
 endif
 
 OBJS := $(addprefix lib/, $(OBJS))

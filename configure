@@ -14,7 +14,8 @@ with_libjpeg=true
 with_libpng=true
 with_MagicWand=true
 with_ffmpeg=true
-omit_native_pgm_pfm_readers=false
+omit_pgm_reader=false
+omit_pfm_reader=false
 
 use_builtin_signbit=true
 
@@ -44,7 +45,9 @@ function usage() {
 	echo "   --disable-MagickWand"
 	echo "   --disable-ffmpeg"
 	echo "   --disable-everything"
-	echo "   --omit-native-pgm-pfm-readers"
+	echo ""
+	echo "   --omit-pgm-reader"
+	echo "   --omit-pfm-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [F|D|L] (F)"
@@ -77,7 +80,8 @@ for o; do
 		--disable-MagickWand) with_MagickWand=false;;
 		--disable-ffmpeg)     with_ffmpeg=false;;
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false; with_ffmpeg=false;;
-		--omit-native-pgm-pfm-readers) omit_native_pgm_pfm_readers=true;;
+		--omit-pgm-reader) omit_pgm_reader=true;;
+		--omit-pfm-reader) omit_pfm_reader=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -230,10 +234,14 @@ fi
 
 testlib m && LIBS+=" -lm"
 
-if $omit_native_pgm_pfm_readers; then
-	DEFS+=' -DOMIT_NATIVE_PGM_PFM_READERS'
-	echo OMIT_NATIVE_PGM_PFM_READERS=1 >> config.mak
-fi
+for type in pgm pfm; do
+	check=omit_${type}_reader
+	if ${!check}; then
+		macro="OMIT_$(tr '[a-z]' '[A-Z]' <<< $type)_READER"
+		DEFS+=" -D$macro"
+		echo "$macro=1" >> config.mak
+	fi
+done
 
 $use_builtin_signbit && testcc __builtin_signbit -fsyntax-only <<< "void f() { (void)__builtin_signbit(1.0); }" && DEFS+=" -DUSE_BUILTIN_SIGNBIT"
 

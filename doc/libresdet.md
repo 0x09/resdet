@@ -44,7 +44,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
   * [VERSION_SUFFIX](#version_suffix)
   * [USE_BUILTIN_SIGNBIT](#use_builtin_signbit)
   * [HAVE_x](#have_x)
-  * [OMIT_NATIVE_PGM_PFM_READERS](#omit_native_pgm_pfm_readers)
+  * [OMIT_x_READER](#omit_x_reader)
 * [Thread Safety](#thread-safety)
 
 # Example
@@ -522,11 +522,12 @@ For `HAVE_MAGICKWAND`, the value should be the specific library version (e.g. 6 
 Default: conditionally defined by the build script. Not defined otherwise.
 
 ---
-<a name="omit_native_pgm_pfm_readers"></a>
+<a name="omit_x_reader"></a>
 
-`OMIT_NATIVE_PGM_PFM_READERS`
+`OMIT_x_READER`
 
-Should be defined if the library's own PGM and PFM image readers (lib/image/pgm.c and lib/image/pfm.c) will not be built. This may be desired to have the MagickWand reader handle these file types.
+Used to omit building of one of resdet's built-in image readers. Currently this includes `PGM` and `PFM`.
+This may be desired to have another image reader like MagickWand or FFmpeg handle these file types.
 
 Default: conditionally defined by the build script. Not defined otherwise.
 

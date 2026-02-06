@@ -12,8 +12,10 @@
 #include <io.h>
 #endif
 
-#ifndef OMIT_NATIVE_PGM_PFM_READERS
+#ifndef OMIT_PGM_READER
 extern const struct image_reader resdet_image_reader_pgm;
+#endif
+#ifndef OMIT_PFM_READER
 extern const struct image_reader resdet_image_reader_pfm;
 #endif
 extern const struct image_reader resdet_image_reader_y4m;
@@ -31,8 +33,10 @@ extern const struct image_reader resdet_image_reader_ffmpeg;
 #endif
 
 static const struct image_reader* image_readers[] = {
-#ifndef OMIT_NATIVE_PGM_PFM_READERS
+#ifndef OMIT_PGM_READER
 	&resdet_image_reader_pgm,
+#endif
+#ifndef OMIT_PFM_READER
 	&resdet_image_reader_pfm,
 #endif
 	&resdet_image_reader_y4m,
@@ -53,8 +57,10 @@ static const struct image_reader* image_readers[] = {
 RESDET_API const char* const* resdet_list_image_readers(void) {
 	static const char* const image_reader_names[] = {
 		"Y4M",
-#ifndef OMIT_NATIVE_PGM_PFM_READERS
+#ifndef OMIT_PGM_READER
 		"PGM",
+#endif
+#ifndef OMIT_PFM_READER
 		"PFM",
 #endif
 #ifdef HAVE_LIBJPEG
