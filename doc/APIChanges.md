@@ -1,4 +1,10 @@
 
+---
+
+**libresdet 3.0.0 released here**
+
+---
+
 **2026-02-06**
 * Addition of the `resdetect_list_image_readers` function which can be used to obtain an array of names of the image readers that were built with the library. (fcd1cad)
 * The `OMIT_NATIVE_PGM_PFM_READERS` configuration macro has been split up into `OMIT_PGM_READER` and `OMIT_PFM_READER` to provide more control over disabling these. (261b43a)
