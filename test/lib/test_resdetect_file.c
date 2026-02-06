@@ -36,7 +36,7 @@ void test_resdetect_file_nullifies_outputs_on_error(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect_file("test/files/doesntexist.y4m",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
+	int err = resdetect_file("test/files/doesntexist.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_true(err < 0);
 

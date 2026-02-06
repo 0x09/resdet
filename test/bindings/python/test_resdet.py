@@ -12,7 +12,7 @@ import os
 import re
 
 test_file_dir = os.path.join(os.path.dirname(__file__), "..", "..", "files")
-test_file = os.path.join(test_file_dir, "checkerboard.y4m")
+test_file = os.path.join(test_file_dir, "checkerboard.pfm")
 
 @pytest.fixture(scope="module")
 def test_file_frames() -> Generator[list,None,None]:

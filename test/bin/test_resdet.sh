@@ -80,11 +80,11 @@ best guess: 2x2 (not upsampled)"
 }
 
 test_filetype_option_with_extension() {
-	assert_equals "2 2" "$(resdet -v1 -t y4m ../files/checkerboard)"
+	assert_equals "2 2" "$(resdet -v1 -t pfm ../files/checkerboard)"
 }
 
 test_filetype_option_with_mimetype() {
-	assert_equals "2 2" "$(resdet -v1 -t video/yuv4mpeg ../files/checkerboard)"
+	assert_equals "2 2" "$(resdet -v1 -t image/x-portable-float-map ../files/checkerboard)"
 }
 
 test_detects_from_stdin_with_filetype_option() {
@@ -92,14 +92,14 @@ test_detects_from_stdin_with_filetype_option() {
 }
 
 test_prints_error_if_image_doesnt_exist() {
-	cmd="resdet ../files/doesntexist.y4m"
+	cmd="resdet ../files/doesntexist.pfm"
 
 	assert_fails "$cmd"
-	assert_equals "No such file or directory" "$(resdet ../files/doesntexist.y4m 2>&1)"
+	assert_equals "No such file or directory" "$(resdet ../files/doesntexist.pfm 2>&1)"
 }
 
 test_corrupt_images_print_invalid_image_error() {
-	cmd="resdet ../files/corrupt_header.y4m"
+	cmd="resdet ../files/corrupt_header.pfm"
 
 	assert_fails "$cmd"
 	assert_equals "Invalid image" "$($cmd 2>&1)"
@@ -137,15 +137,15 @@ test_invalid_range_prints_error() {
 }
 
 test_progress_option_prints_frame_numbers() {
-	assert_equals $'Analyzing frame 1\rAnalyzing frame 2\r' "$(resdet -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_equals $'Analyzing frame 1\rAnalyzing frame 2\r' "$(resdet -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_nframes_option_limits_analysis() {
-	assert_equals $'Analyzing frame 1\r' "$(resdet -n1 -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_equals $'Analyzing frame 1\r' "$(resdet -n1 -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_non_numeric_nframes_prints_error() {
-	cmd="resdet -nx ../files/checkerboard.y4m"
+	cmd="resdet -nx ../files/checkerboard.pfm"
 
 	assert_fails "$cmd"
 	assert_equals "Invalid nframes x" "$($cmd 2>&1)"
@@ -155,30 +155,30 @@ test_offset_option_skips_frames() {
 	output=$'Seeking past frame 1\r'"$CR"$'
 Analyzing frame 2\r'
 
-	assert_equals "$output" "$(resdet -o1 -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_equals "$output" "$(resdet -o1 -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_offset_at_last_frame_prints_error() {
 	output=$'Seeking past frame 1\rSeeking past frame 2\r'"$CR"$'
 No frames left in input.'
 
-	assert_equals "$output" "$(resdet -o2 -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_equals "$output" "$(resdet -o2 -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_non_numeric_offset_prints_error() {
-	assert_fails "resdet -ox ../files/checkerboard.y4m"
-	assert_equals "Invalid offset x" "$(resdet -ox ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_fails "resdet -ox ../files/checkerboard.pfm"
+	assert_equals "Invalid offset x" "$(resdet -ox ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_offset_past_end_of_file_prints_error() {
 	output=$'Seeking past frame 1\rSeeking past frame 2\rPassed end of file while seeking to frame 3'
 
-	assert_fails "resdet -v1 -o3 -p ../files/checkerboard.y4m"
-	assert_equals "$output" "$(resdet -o3 -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_fails "resdet -v1 -o3 -p ../files/checkerboard.pfm"
+	assert_equals "$output" "$(resdet -o3 -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }
 
 test_nframes_and_offset_work_together() {
 	output=$'Seeking past frame 1\r'"$CR"$'\nAnalyzing frame 2\r'
 
-	assert_equals "$output" "$(resdet -n1 -o1 -p ../files/checkerboard.y4m 2>&1 > /dev/null)"
+	assert_equals "$output" "$(resdet -n1 -o1 -p ../files/checkerboard.pfm 2>&1 > /dev/null)"
 }

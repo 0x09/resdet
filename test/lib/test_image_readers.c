@@ -35,7 +35,7 @@ int teardown_image_reader_group(void** state) {
 int setup_image_reader_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.y4m",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
@@ -75,7 +75,7 @@ void test_opens_image(void** state) {
 	size_t width, height;
 	int err;
 
-	ctx->image = resdet_open_image("test/files/checkerboard.y4m",NULL,&width,&height,&ctx->imagebuf,&err);
+	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
@@ -90,7 +90,7 @@ void test_imagebuf_can_be_null(void** state) {
 	size_t width, height;
 	int err;
 
-	ctx->image = resdet_open_image("test/files/checkerboard.y4m",NULL,&width,&height,NULL,&err);
+	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,NULL,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
@@ -113,7 +113,7 @@ void test_opens_image_by_extension(void** state) {
 	size_t width, height;
 	int err;
 
-	ctx->image = resdet_open_image("test/files/checkerboard","y4m",&width,&height,NULL,&err);
+	ctx->image = resdet_open_image("test/files/checkerboard","pfm",&width,&height,NULL,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
@@ -125,7 +125,7 @@ void test_opens_image_by_mimetype(void** state) {
 	size_t width, height;
 	int err;
 
-	ctx->image = resdet_open_image("test/files/checkerboard","video/yuv4mpeg",&width,&height,NULL,&err);
+	ctx->image = resdet_open_image("test/files/checkerboard","image/x-portable-float-map",&width,&height,NULL,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
@@ -135,7 +135,7 @@ void test_open_image_errors_on_nonexistent_file(void** state) {
 	size_t width, height;
 	int err;
 
-	RDImage* image = resdet_open_image("test/files/doesntexist.y4m",NULL,&width,&height,NULL,&err);
+	RDImage* image = resdet_open_image("test/files/doesntexist.pfm",NULL,&width,&height,NULL,&err);
 
 	assert_true(err < 0);
 	assert_null(image);
