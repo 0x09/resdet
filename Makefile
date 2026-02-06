@@ -134,9 +134,11 @@ DEPS += $(TESTSRCS:%.c=%.d)
 test/lib/tests_main.c: test/gen_tests.awk $(TESTSRCS)
 	$(AWK) -f $+ > test/lib/tests_main.c
 
+test/lib/tests.o: test/lib/tests_main.c
+
 test_libresdet: CFLAGS := -Iinclude $(DEFS) -DRESDET_EXPORT -DRESDET_LIBVERSION=\"$(shell pkg-config --modversion lib/resdet.pc)\" $(TEST_CFLAGS)
 test_libresdet: LDLIBS := $(LDLIBS) $(TEST_LIBS)
-test_libresdet: test/lib/tests_main.c test/lib/tests.o $(TESTOBJS) $(LIB)
+test_libresdet: test/lib/tests.o $(TESTOBJS) $(LIB)
 	$(CC) $(LDFLAGS) -o $@ test/lib/tests.o $(TESTOBJS) $(LIB) $(LDLIBS)
 
 check_lib: test_libresdet
