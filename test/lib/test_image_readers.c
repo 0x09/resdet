@@ -261,13 +261,11 @@ void test_reads_jpg(void** state) {
 }
 
 // teardown: teardown_file_format_tests
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_reads_pgm(void** state) {
 	run_image_reader_test(state,"test/files/checkerboard.pgm",1);
 }
 
 // teardown: teardown_file_format_tests
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_reads_pfm(void** state) {
 	run_image_reader_test(state,"test/files/checkerboard.pfm",2);
 }
@@ -384,7 +382,6 @@ void test_open_image_errors_on_corrupt_y4m_header(void** state) {
 	assert_int_equal(err,RDEINVAL);
 }
 
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_open_image_errors_on_corrupt_pgm_header(void** state) {
 	size_t width, height;
 	int err;
@@ -395,7 +392,6 @@ void test_open_image_errors_on_corrupt_pgm_header(void** state) {
 	assert_int_equal(err,RDEINVAL);
 }
 
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_open_image_errors_on_corrupt_pfm_header(void** state) {
 	size_t width, height;
 	int err;
@@ -440,7 +436,6 @@ int setup_partial_pgm_data_test(void** state) {
 
 // setup: setup_partial_pgm_data_test
 // teardown: teardown_image_reader_tests
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_read_frame_errors_on_partial_pgm_data(void** state) {
 	read_frame_errors_on_partial_data(state);
 }
@@ -455,7 +450,6 @@ int setup_partial_pfm_data_test(void** state) {
 
 // setup: setup_partial_pfm_data_test
 // teardown: teardown_image_reader_tests
-// guard: !OMIT_NATIVE_PGM_PFM_READERS
 void test_read_frame_errors_on_partial_pfm_data(void** state) {
 	read_frame_errors_on_partial_data(state);
 }
