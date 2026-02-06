@@ -1,4 +1,7 @@
 
+**2026-02-06**
+* Addition of the `resdetect_list_image_readers` function which can be used to obtain an array of names of the image readers that were built with the library. (fcd1cad)
+
 **2026-02-05**
 * `resdetect`, `resdetect_file`, and `resdet_analysis_results` now return an `RDEPARAM` error if an output `RDResolution` pointer is provided but the corresponding `count` argument is `NULL`. (06f62ec)
 
