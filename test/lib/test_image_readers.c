@@ -59,6 +59,16 @@ int teardown_file_format_tests(void** state) {
 	return 0;
 }
 
+void test_lists_image_readers(void** state) {
+	const char* const* image_readers = resdet_list_image_readers();
+
+	assert_string_equal(image_readers[0],"Y4M");
+
+	// assert that this terminates
+	for(; *image_readers; image_readers++)
+		;
+}
+
 // teardown: teardown_image_reader_tests
 void test_opens_image(void** state) {
 	struct image_reader_ctx* ctx = *state;

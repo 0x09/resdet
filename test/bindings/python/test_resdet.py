@@ -123,6 +123,10 @@ class TestResdet:
 
         assert resolutions == test_file_resolution_dict
 
+    def test_lists_image_readers(self):
+        image_readers = resdet.list_image_readers()
+        assert image_readers[0] == "Y4M"
+
     def test_seeks_in_image(self, rdimage):
         frames = []
         rdimage.seek_frame(2, lambda frameno: frames.append(frameno))

@@ -50,6 +50,31 @@ static const struct image_reader* image_readers[] = {
 #endif
 };
 
+RESDET_API const char* const* resdet_list_image_readers(void) {
+	static const char* const image_reader_names[] = {
+		"Y4M",
+#ifndef OMIT_NATIVE_PGM_PFM_READERS
+		"PGM",
+		"PFM",
+#endif
+#ifdef HAVE_LIBJPEG
+		"libjpeg",
+#endif
+#ifdef HAVE_LIBPNG
+		"libpng",
+#endif
+#ifdef HAVE_FFMPEG
+		"FFmpeg",
+#endif
+#ifdef HAVE_MAGICKWAND
+		"MagickWand",
+#endif
+		NULL
+	};
+
+	return image_reader_names;
+}
+
 // advance the file pointer by reading if buf is provided, seeking otherwise
 RDError resdet_fskip(FILE* f, uint64_t offset, void* buf) {
 	if(buf) {

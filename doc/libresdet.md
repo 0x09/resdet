@@ -27,6 +27,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_seek_frame](#resdet_seek_frame)
     * [resdet_close_image](#resdet_close_image)
     * [resdet_read_image](#resdet_read_image)
+    * [resdet_list_image_readers](#resdet_list_image_readers)
   * [Sequential Analysis](#sequential-analysis)
     * [resdet_create_analysis](#resdet_create_analysis)
     * [resdet_analyze_image](#resdet_analyze_image)
@@ -330,6 +331,15 @@ Note that this function is not recommended for multiple frame sequences over the
 * image - Out parameter containing the floating point grayscale image data, normalized to a range of 0-1. Multiple images (i.e. y4m, gif) are simply contiguous such that image 2 begins at the address of `image + width * height`. Allocated by the library, must be freed by caller.
 * nimages - Out parameter containing the number of images returned.
 * width, height - Out parameters containing the bitmap dimensions.
+
+---
+<a name="resdet_list_image_readers"></a>
+
+```C
+const char* const* resdet_list_image_readers(void);
+```
+
+Obtain an array of names of the image readers that were built with the library. The list is terminated by a `NULL` pointer.
 
 ## Sequential Analysis
 

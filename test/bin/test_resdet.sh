@@ -17,7 +17,8 @@ test_help_prints_usage_and_succeeds() {
 test_prints_version() {
 	output="\
 resdet version [[:digit:]].[[:digit:]].[[:digit:]](\\+[a-f0-9]+)?$CR
-libresdet version [[:digit:]].[[:digit:]].[[:digit:]](\\+[a-f0-9]+)?$"
+libresdet version [[:digit:]].[[:digit:]].[[:digit:]](\\+[a-f0-9]+)?$CR
+Built with image readers: Y4M.*$"
 
 	assert_matches "$output" "$(resdet -V)"
 }

@@ -77,6 +77,8 @@ RESDET_API void resdet_close_image(RDImage*);
 
 RESDET_API RDError resdet_read_image(const char* filename, const char* filetype, float** image, size_t* nimages, size_t* width, size_t* height);
 
+RESDET_API const char* const* resdet_list_image_readers(void);
+
 
 RESDET_API RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error);
 

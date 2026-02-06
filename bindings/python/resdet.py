@@ -321,6 +321,14 @@ def get_method(methodname: str) -> Method:
 def default_range() -> int:
     return libresdet.resdet_default_range()
 
+def list_image_readers() -> list:
+    image_reader_p = libresdet.resdet_list_image_readers()
+    image_reader_names = []
+    while image_reader_p.contents:
+        image_reader_names.append(image_reader_p.contents.value.decode("utf-8"))
+        image_reader_p = ctypes.cast(ctypes.c_void_p(ctypes.addressof(image_reader_p.contents) + ctypes.sizeof(ctypes.c_char_p)), ctypes.POINTER(ctypes.c_char_p))
+    return image_reader_names
+
 def read_image(filename: str | os.PathLike, type: Optional[str] = None) -> ImageBuffer:
     type_arg = type.encode("utf-8") if type else None
     width = ctypes.c_size_t()
