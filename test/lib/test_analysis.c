@@ -120,6 +120,40 @@ void test_analysis_results_with_no_images_returns_error(void** state) {
 
 // setup: setup_analysis_tests
 // teardown: teardown_analysis_tests
+void test_analysis_results_with_resw_but_no_countw_returns_error(void** state) {
+	struct analysis_ctx* ctx = *state;
+	RDResolution* resw,* resh;
+	size_t counth;
+
+	int err = resdet_analysis_results(ctx->analysis,&resw,NULL,&resh,&counth);
+
+	assert_int_equal(err,RDEPARAM);
+
+	assert_null(resw);
+	assert_null(resh);
+
+	assert_uint_equal(counth,0);
+}
+
+// setup: setup_analysis_tests
+// teardown: teardown_analysis_tests
+void test_analysis_results_with_resh_but_no_counth_returns_error(void** state) {
+	struct analysis_ctx* ctx = *state;
+	RDResolution* resw,* resh;
+	size_t countw;
+
+	int err = resdet_analysis_results(ctx->analysis,&resw,&countw,&resh,NULL);
+
+	assert_int_equal(err,RDEPARAM);
+
+	assert_null(resw);
+	assert_null(resh);
+
+	assert_uint_equal(countw,0);
+}
+
+// setup: setup_analysis_tests
+// teardown: teardown_analysis_tests
 void test_analysis_detects_resolutions(void** state) {
 	struct analysis_ctx* ctx = *state;
 	int err;
