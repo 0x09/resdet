@@ -150,16 +150,20 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 }
 
 RESDET_API RDError resdet_analysis_results(RDAnalysis* analysis, RDResolution** restrict rw, size_t* restrict cw, RDResolution** restrict  rh, size_t* restrict ch) {
-	if(rw) { *rw = NULL; *cw = 0; }
-	if(rh) { *rh = NULL; *ch = 0; }
+	RDError error = RDEOK;
+
+	if(rw) *rw = NULL;
+	if(cw) *cw = 0;
+	if(rh) *rh = NULL;
+	if(ch) *ch = 0;
+	if((rw && !cw) || (rh && !ch))
+		return RDEPARAM;
 
 	if(!analysis)
 		return RDEPARAM;
 
 	if(!analysis->nimages)
 		return RDENOIMG;
-
-	RDError error;
 
 	if(rw && (error = generate_dimension_results(analysis,analysis->width,analysis->xbound,analysis->xresult,rw,cw)))
 		goto error;

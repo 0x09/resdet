@@ -9,8 +9,12 @@ RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t 
                              RDResolution** restrict rw, size_t* restrict cw,
                              RDResolution** restrict rh, size_t* restrict ch,
                              RDMethod* method, const RDParameters* params) {
-	if(rw) { *rw = NULL; *cw = 0; }
-	if(rh) { *rh = NULL; *ch = 0; }
+	if(rw) *rw = NULL;
+	if(cw) *cw = 0;
+	if(rh) *rh = NULL;
+	if(ch) *ch = 0;
+	if((rw && !cw) || (rh && !ch))
+		return RDEPARAM;
 
 	if(!image)
 		return RDEPARAM;
@@ -37,8 +41,12 @@ RESDET_API RDError resdetect_file(const char* filename, const char* filetype,
                                   RDResolution** restrict rw, size_t* restrict cw,
                                   RDResolution** restrict rh, size_t* restrict ch,
                                   RDMethod* method, const RDParameters* params) {
-	if(rw) { *rw = NULL; *cw = 0; }
-	if(rh) { *rh = NULL; *ch = 0; }
+	if(rw) *rw = NULL;
+	if(cw) *cw = 0;
+	if(rh) *rh = NULL;
+	if(ch) *ch = 0;
+	if((rw && !cw) || (rh && !ch))
+		return RDEPARAM;
 
 	RDError error;
 	size_t width, height;
