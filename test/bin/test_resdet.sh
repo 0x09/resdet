@@ -18,7 +18,7 @@ test_prints_version() {
 	output="\
 resdet version [[:digit:]].[[:digit:]].[[:digit:]](\\+[a-f0-9]+)?$CR
 libresdet version [[:digit:]].[[:digit:]].[[:digit:]](\\+[a-f0-9]+)?$CR
-Built with image readers: Y4M.*$"
+Built with image readers: .*$"
 
 	assert_matches "$output" "$(resdet -V)"
 }

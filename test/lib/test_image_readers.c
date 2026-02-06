@@ -62,7 +62,7 @@ int teardown_file_format_tests(void** state) {
 void test_lists_image_readers(void** state) {
 	const char* const* image_readers = resdet_list_image_readers();
 
-	assert_string_equal(image_readers[0],"Y4M");
+	assert_string_equal(image_readers[0],"PGM");
 
 	// assert that this terminates
 	for(; *image_readers; image_readers++)

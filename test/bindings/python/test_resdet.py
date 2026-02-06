@@ -125,7 +125,7 @@ class TestResdet:
 
     def test_lists_image_readers(self):
         image_readers = resdet.list_image_readers()
-        assert image_readers[0] == "Y4M"
+        assert image_readers[0] == "PGM"
 
     def test_seeks_in_image(self, rdimage):
         frames = []

@@ -1,6 +1,6 @@
 include config.mak
 
-OBJS=resdetect.o analysis.o util.o image.o methods.o image/y4m.o
+OBJS=resdetect.o analysis.o util.o image.o methods.o
 LIB=lib/libresdet.a
 
 ifdef SHARED
@@ -47,6 +47,9 @@ ifndef OMIT_PGM_READER
 endif
 ifndef OMIT_PFM_READER
 	OBJS += image/pfm.o
+endif
+ifndef OMIT_Y4M_READER
+	OBJS += image/y4m.o
 endif
 
 OBJS := $(addprefix lib/, $(OBJS))

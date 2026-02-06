@@ -16,6 +16,7 @@ with_MagicWand=true
 with_ffmpeg=true
 omit_pgm_reader=false
 omit_pfm_reader=false
+omit_y4m_reader=false
 
 use_builtin_signbit=true
 
@@ -48,6 +49,7 @@ function usage() {
 	echo ""
 	echo "   --omit-pgm-reader"
 	echo "   --omit-pfm-reader"
+	echo "   --omit-y4m-reader"
 	echo ""
 	echo "   --default-range [n] (12)"
 	echo "   --coeff-precision [F|D|L] (F)"
@@ -82,6 +84,7 @@ for o; do
 		--disable-everything) with_fftw=false; with_libjpeg=false; with_libpng=false; with_MagickWand=false; with_ffmpeg=false;;
 		--omit-pgm-reader) omit_pgm_reader=true;;
 		--omit-pfm-reader) omit_pfm_reader=true;;
+		--omit-y4m-reader) omit_y4m_reader=true;;
 		--default-range) DEFAULT_RANGE=$arg;;
 		--coeff-precision) COEFF_PRECISION=$arg;;
 		--inter-precision) INTER_PRECISION=$arg;;
@@ -234,7 +237,7 @@ fi
 
 testlib m && LIBS+=" -lm"
 
-for type in pgm pfm; do
+for type in pgm pfm y4m; do
 	check=omit_${type}_reader
 	if ${!check}; then
 		macro="OMIT_$(tr '[a-z]' '[A-Z]' <<< $type)_READER"
@@ -272,6 +275,10 @@ echo "TOOLS=${TOOLS[@]}" >> config.mak
 if [[ "$DEFS" = *HAVE_MAGICKWAND* && ("$DEFS" = *HAVE_LIBPNG* || "$DEFS" = *HAVE_LIBJPEG*) ]]; then
 	echo "Note: building both MagickWand and libjpeg/png support. To read JPEGs and PNGs using ImageMagick, configure with --disable-libpng --disable-libjpeg"
 fi
+if $omit_pgm_reader && $omit_pfm_reader && $omit_y4m_reader && [[ ! "$DEFS" =~ .*HAVE_(MAGICKWAND|LIBPNG|LIBJPEG|MJPEGTOOLS).* ]]; then
+	echo "Warning: no image readers will be built, resdet will not be able to read any images."
+fi
+
 
 if [[ "$(awk --version)" == 'GNU Awk'* ]]; then
 	echo 'AWK=awk' >> config.mak

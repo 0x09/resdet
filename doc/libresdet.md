@@ -526,8 +526,8 @@ Default: conditionally defined by the build script. Not defined otherwise.
 
 `OMIT_x_READER`
 
-Used to omit building of one of resdet's built-in image readers. Currently this includes `PGM` and `PFM`.
-This may be desired to have another image reader like MagickWand or FFmpeg handle these file types.
+Used to omit building of one of resdet's built-in image readers. Currently this includes `PGM`, `PFM`, and `Y4M`.
+This may be desired to have another image reader like MagickWand or FFmpeg handle these file types or if no native image reading functionality is needed.
 
 Default: conditionally defined by the build script. Not defined otherwise.
 
