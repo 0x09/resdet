@@ -87,7 +87,9 @@ int main(int argc, char* argv[]) {
 			case 'p': progress = true; break;
 			case 'h': help(argv[0]); break;
 			case 'V':
-				printf("resdet version %s\nlibresdet version %s\n",RESDET_VERSION_STRING,resdet_libversion());
+				printf("resdet version %s\nlibresdet version %s\nBuilt with image readers: ",RESDET_VERSION_STRING,resdet_libversion());
+				for(const char* const* image_reader = resdet_list_image_readers(); *image_reader; image_reader++)
+					printf("%s%s",*image_reader,*(image_reader+1) ? ", " : "\n");
 				return 0;
 			default: usage(argv[0]);
 		}
