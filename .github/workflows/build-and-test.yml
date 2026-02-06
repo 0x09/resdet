@@ -3,14 +3,21 @@ on: [push]
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+         transform: [fftw, kiss_fft]
     steps:
       - uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl gawk libcmocka-dev
-      - name: Configure resdet
+      - name: Configure resdet with FFTW
+        if: matrix.transform == 'fftw'
         run: ./configure --enable-shared
+      - name: Configure resdet with KISSFFT
+        if: matrix.transform == 'kiss_fft'
+        run: ./configure --enable-shared --disable-fftw
       - name: Build resdet
         run: make
       - name: Install resdet
@@ -25,14 +32,21 @@ jobs:
         run: resdet -v0 test/files/blue_marble_2012_resized.pfm
   build-macos:
     runs-on: macos-latest
+    strategy:
+      matrix:
+         transform: [fftw, kiss_fft]
     steps:
       - uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           brew update
           brew install fftw imagemagick ffmpeg gawk cmocka bash_unit #libpng and libjpeg are already installed
-      - name: Configure resdet
+      - name: Configure resdet with FFTW
+        if: matrix.transform == 'fftw'
         run: ./configure --enable-shared
+      - name: Configure resdet with KISSFFT
+        if: matrix.transform == 'kiss_fft'
+        run: ./configure --enable-shared --disable-fftw
       - name: Build resdet
         run: make
       - name: Install resdet
@@ -47,6 +61,9 @@ jobs:
         run: resdet -v0 test/files/blue_marble_2012_resized.pfm
   build-windows:
     runs-on: windows-latest
+    strategy:
+      matrix:
+         transform: [fftw, kiss_fft]
     defaults:
       run:
         shell: msys2 {0}
@@ -57,8 +74,12 @@ jobs:
           msystem: UCRT64
           update: true
           install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka mingw-w64-ucrt-x86_64-python-pip mingw-w64-ucrt-x86_64-python-numpy mingw-w64-ucrt-x86_64-python-pillow mingw-w64-ucrt-x86_64-python-pytest
-      - name: Configure resdet
+      - name: Configure resdet with FFTW
+        if: matrix.transform == 'fftw'
         run: ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin
+      - name: Configure resdet with KISSFFT
+        if: matrix.transform == 'kiss_fft'
+        run: ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin --disable-fftw
       - name: Build resdet
         run: make
       - name: Install resdet
