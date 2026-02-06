@@ -161,25 +161,6 @@ void test_reads_image_frames(void** state) {
     assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
 }
 
-// setup: setup_image_reader_tests
-// teardown: teardown_image_reader_tests
-void test_seeks_frame(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	int err;
-	bool ret;
-
-	ret = resdet_seek_frame(ctx->image,1,NULL,NULL,&err);
-
-	assert_true(ret);
-	assert_false(err);
-
-	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
-
-	assert_true(ret);
-	assert_false(err);
-    assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
-}
-
 static void progress(void* ctx, uint64_t frameno) {
 	*(uint64_t*)ctx = frameno;
 }
@@ -311,6 +292,86 @@ void test_reads_miff(void** state) {
 // guard: HAVE_FFMPEG
 void test_reads_avi(void** state) {
 	run_image_reader_test(state,"test/files/checkerboard.avi",2);
+}
+
+void run_seek_frame_tests(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	int err;
+	bool ret;
+
+	ret = resdet_seek_frame(ctx->image,1,NULL,NULL,&err);
+
+	assert_true(ret);
+	assert_false(err);
+
+	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
+
+	assert_true(ret);
+	assert_false(err);
+    assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
+
+	ret = resdet_seek_frame(ctx->image,1,NULL,NULL,&err);
+
+	assert_false(ret);
+	assert_false(err);
+}
+
+int setup_seek_frame_tests_pfm(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	if(!(ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,NULL)))
+		return 1;
+	return 0;
+}
+
+// setup: setup_seek_frame_tests_pfm
+// teardown: teardown_image_reader_tests
+void test_seeks_frame_pfm(void** state) {
+	run_seek_frame_tests(state);
+}
+
+int setup_seek_frame_tests_y4m(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	if(!(ctx->image = resdet_open_image("test/files/checkerboard.y4m",NULL,&width,&height,&ctx->imagebuf,NULL)))
+		return 1;
+	return 0;
+}
+
+// setup: setup_seek_frame_tests_y4m
+// teardown: teardown_image_reader_tests
+void test_seeks_frame_y4m(void** state) {
+	run_seek_frame_tests(state);
+}
+
+int setup_seek_frame_tests_miff(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	if(!(ctx->image = resdet_open_image("test/files/checkerboard.miff",NULL,&width,&height,&ctx->imagebuf,NULL)))
+		return 1;
+	return 0;
+}
+
+// setup: setup_seek_frame_tests_miff
+// teardown: teardown_image_reader_tests
+// guard: HAVE_MAGICKWAND
+void test_seeks_frame_miff(void** state) {
+	run_seek_frame_tests(state);
+}
+
+int setup_seek_frame_tests_avi(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	if(!(ctx->image = resdet_open_image("test/files/checkerboard.avi",NULL,&width,&height,&ctx->imagebuf,NULL)))
+		return 1;
+	return 0;
+}
+
+// setup: setup_seek_frame_tests_avi
+// teardown: teardown_image_reader_tests
+// guard: HAVE_FFMPEG
+void test_seeks_frame_avi(void** state) {
+	run_seek_frame_tests(state);
 }
 
 void test_open_image_errors_on_corrupt_y4m_header(void** state) {
