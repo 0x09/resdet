@@ -64,7 +64,7 @@ RESDET_API const char* resdet_error_str(RDError e) {
 	if(e < 0)
 		return strerror(-e);
 
-	if(e >= sizeof(RDErrStr)/sizeof(*RDErrStr))
+	if(e > resdet_get_max_error())
 		return NULL;
 
 	return RDErrStr[e];
