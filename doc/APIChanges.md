@@ -1,6 +1,7 @@
 
 **2026-02-06**
 * Addition of the `resdetect_list_image_readers` function which can be used to obtain an array of names of the image readers that were built with the library. (fcd1cad)
+* The `OMIT_NATIVE_PGM_PFM_READERS` configuration macro has been split up into `OMIT_PGM_READER` and `OMIT_PFM_READER` to provide more control over disabling these. (95ceb76)
 
 **2026-02-05**
 * `resdetect`, `resdetect_file`, and `resdet_analysis_results` now return an `RDEPARAM` error if an output `RDResolution` pointer is provided but the corresponding `count` argument is `NULL`. (06f62ec)
