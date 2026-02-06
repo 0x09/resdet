@@ -191,6 +191,8 @@ static bool pfm_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progr
 			ret = false;
 			break;
 		}
+		ctx->header_consumed = false;
+
 		if(progress)
 			progress(progress_ctx,i+1);
 	}
