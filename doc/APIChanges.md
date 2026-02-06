@@ -1,3 +1,7 @@
+
+**2026-02-05**
+* `resdetect`, `resdetect_file`, and `resdet_analysis_results` now return an `RDEPARAM` error if an output `RDResolution` pointer is provided but the corresponding `count` argument is `NULL`. (06f62ec)
+
 **2026-02-02**
 * Addition of the `resdet_get_max_error` function which may be used to obtain the current largest value from the RDErrors enum. (d0201fb)
 * Addition of the `RDENOIMG` `RDError` code for when an analysis was given no images. (c5a80af)
