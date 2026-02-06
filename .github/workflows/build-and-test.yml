@@ -9,11 +9,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl gawk libcmocka-dev
-      - name: Build and install resdet
-        run: |
-          ./configure --enable-shared
-          make
-          sudo make install install-lib
+      - name: Configure resdet
+        run: ./configure --enable-shared
+      - name: Build resdet
+        run: make
+      - name: Install resdet
+        run: sudo make install install-lib
       - name: Install bash_unit
         run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
       - name: Set up python binding tests
@@ -30,10 +31,12 @@ jobs:
         run: |
           brew update
           brew install fftw imagemagick ffmpeg gawk cmocka bash_unit #libpng and libjpeg are already installed
-      - name: Build and install resdet
+      - name: Configure resdet
+        run: ./configure --enable-shared
+      - name: Build resdet
+        run: make
+      - name: Install resdet
         run: |
-          ./configure --enable-shared
-          make
           sudo mkdir /usr/local/include /usr/local/lib
           sudo make install install-lib
       - name: Set up python binding tests
@@ -54,14 +57,14 @@ jobs:
           msystem: UCRT64
           update: true
           install: git mingw-w64-ucrt-x86_64-gcc pkg-config make curl mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-ffmpeg gawk mingw-w64-ucrt-x86_64-cmocka mingw-w64-ucrt-x86_64-python-pip mingw-w64-ucrt-x86_64-python-numpy mingw-w64-ucrt-x86_64-python-pillow mingw-w64-ucrt-x86_64-python-pytest
-
-
-      - name: Build and install resdet
-        run: |
-          ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin
-          make install install-lib
+      - name: Configure resdet
+        run: ./configure --enable-shared --prefix=/ucrt64 --libprefix=/ucrt64/bin
         env:
           TEST_LIBS: -lcmocka
+      - name: Build resdet
+        run: make
+      - name: Install resdet
+        run: make install install-lib
       - name: Install bash_unit
         run: curl -s https://raw.githubusercontent.com/bash-unit/bash_unit/master/install.sh | bash
       - name: Set up python binding tests
