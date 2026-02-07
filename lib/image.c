@@ -12,82 +12,6 @@
 #include <io.h>
 #endif
 
-#ifndef OMIT_PGM_READER
-extern const struct image_reader resdet_image_reader_pgm;
-#endif
-#ifndef OMIT_PFM_READER
-extern const struct image_reader resdet_image_reader_pfm;
-#endif
-#ifndef OMIT_Y4M_READER
-extern const struct image_reader resdet_image_reader_y4m;
-#endif
-#ifdef HAVE_LIBJPEG
-extern const struct image_reader resdet_image_reader_libjpeg;
-#endif
-#ifdef HAVE_LIBPNG
-extern const struct image_reader resdet_image_reader_libpng;
-#endif
-#ifdef HAVE_MAGICKWAND
-extern const struct image_reader resdet_image_reader_magickwand;
-#endif
-#ifdef HAVE_FFMPEG
-extern const struct image_reader resdet_image_reader_ffmpeg;
-#endif
-
-static const struct image_reader* image_readers[] = {
-#ifndef OMIT_PGM_READER
-	&resdet_image_reader_pgm,
-#endif
-#ifndef OMIT_PFM_READER
-	&resdet_image_reader_pfm,
-#endif
-#ifndef OMIT_Y4M_READER
-	&resdet_image_reader_y4m,
-#endif
-#ifdef HAVE_LIBJPEG
-	&resdet_image_reader_libjpeg,
-#endif
-#ifdef HAVE_LIBPNG
-	&resdet_image_reader_libpng,
-#endif
-#ifdef HAVE_FFMPEG
-	&resdet_image_reader_ffmpeg,
-#endif
-#ifdef HAVE_MAGICKWAND
-	&resdet_image_reader_magickwand,
-#endif
-	NULL
-};
-
-RESDET_API const char* const* resdet_list_image_readers(void) {
-	static const char* const image_reader_names[] = {
-#ifndef OMIT_PGM_READER
-		"PGM",
-#endif
-#ifndef OMIT_PFM_READER
-		"PFM",
-#endif
-#ifndef OMIT_Y4M_READER
-		"Y4M",
-#endif
-#ifdef HAVE_LIBJPEG
-		"libjpeg",
-#endif
-#ifdef HAVE_LIBPNG
-		"libpng",
-#endif
-#ifdef HAVE_FFMPEG
-		"FFmpeg",
-#endif
-#ifdef HAVE_MAGICKWAND
-		"MagickWand",
-#endif
-		NULL
-	};
-
-	return image_reader_names;
-}
-
 // advance the file pointer by reading if buf is provided, seeking otherwise
 RDError resdet_fskip(FILE* f, uint64_t offset, void* buf) {
 	if(buf) {
@@ -153,7 +77,8 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 	}
 
 	rdimage->reader = NULL;
-	for(size_t i = 0; i < sizeof(image_readers)/sizeof(*image_readers)-1; i++)
+	const struct image_reader** image_readers = resdet_image_readers();
+	for(size_t i = 0; image_readers[i]; i++)
 		if(image_readers[i]->supports_ext(ext)) {
 			rdimage->reader = image_readers[i];
 			break;
