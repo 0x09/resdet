@@ -45,16 +45,22 @@ static const char* ext_from_mimetype(const char* mimetype) {
 }
 
 RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
-	*width = *height = 0;
+	if(imagebuf)
+		*imagebuf = NULL;
 
 	RDError e = RDEOK;
 
 	if(error)
 		*error = RDEOK;
-	if(imagebuf)
-		*imagebuf = NULL;
 
 	RDImage* rdimage = NULL;
+
+	if(!(width && height)) {
+		e = RDEPARAM;
+		goto error;
+	}
+
+	*width = *height = 0;
 
 	if(!filename) {
 		e = RDEPARAM;

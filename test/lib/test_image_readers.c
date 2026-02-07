@@ -107,6 +107,23 @@ void test_open_image_with_no_filename_returns_error(void** state) {
 	assert_int_equal(err,RDEPARAM);
 }
 
+void test_open_image_with_no_width_or_height_returns_error(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	int err;
+	RDImage* image;
+
+	image = resdet_open_image("test/files/checkerboard.pfm",NULL,NULL,&height,NULL,&err);
+
+	assert_null(image);
+	assert_int_equal(err,RDEPARAM);
+
+	image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,NULL,NULL,&err);
+
+	assert_null(image);
+	assert_int_equal(err,RDEPARAM);
+}
+
 // teardown: teardown_rdimage_tests
 void test_opens_image_by_extension(void** state) {
 	struct image_reader_ctx* ctx = *state;
