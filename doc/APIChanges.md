@@ -1,4 +1,7 @@
 
+**2026-02-08**
+* `resdet_open_image` now returns an `RDEPARAM` error if the width or height out params are `NULL`. Previously the behavior in this case was undefined. (4cfd17c)
+
 ---
 
 **libresdet 3.0.0 released here**
