@@ -49,10 +49,6 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 		*imagebuf = NULL;
 
 	RDError e = RDEOK;
-
-	if(error)
-		*error = RDEOK;
-
 	RDImage* rdimage = NULL;
 
 	if(!(width && height)) {
@@ -114,6 +110,9 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 		e = RDENOMEM;
 		goto error;
 	}
+
+	if(error)
+		*error = RDEOK;
 
 	return rdimage;
 
