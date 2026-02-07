@@ -6,18 +6,14 @@ import os
 import ctypes
 from typing import Optional
 
-@Analysis.analyze_image.register
-def _(self, image: numpy.ndarray) -> None:
-    self.analyze_image(image.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
-
 class Image(resdet.Image):
     def __init__(self, filename: str | os.PathLike, type: Optional[str] = None) -> None:
         self.buffer = resdet.ImageBuffer()
         super().__init__(filename, type, self.buffer)
 
     def read_image_frame_as_ndarray(self) -> Optional[numpy.ndarray]:
-        ret = self.read_image_frame(self.buffer)
-        return numpy.ctypeslib.as_array(self.buffer.data, shape = (self.width, self.height)).copy() if ret else None
+        if self.read_image_frame(self.buffer):
+            return numpy.ctypeslib.as_array(self.buffer.data, shape = self.buffer.shape()).copy()
 
     def __iter__(self):
         return self
@@ -26,6 +22,10 @@ class Image(resdet.Image):
         if (ret := self.read_image_frame_as_ndarray()) is not None:
             return ret
         raise StopIteration
+
+@Analysis.analyze_image.register
+def _(self, image: numpy.ndarray) -> None:
+    self.analyze_image(image.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
 
 @resdetect.register
 def _(image: numpy.ndarray, method: Optional[Method] = None, parameters: dict = {}) -> dict:

@@ -5,14 +5,10 @@ import PIL.Image
 import numpy
 from typing import Optional
 
-@Analysis.analyze_image.register
-def _(self, image: PIL.Image.Image) -> None:
-    self.analyze_image(numpy.array(image.convert("F")))
-
 class Image(resdet_numpy.Image):
     def read_image_frame_as_pil_image(self) -> Optional[PIL.Image.Image]:
-        ndarray = self.read_image_frame_as_ndarray()
-        return None if ndarray is None else PIL.Image.fromarray(ndarray, "F")
+        if (ndarray := self.read_image_frame_as_ndarray()) is not None:
+            return PIL.Image.fromarray(ndarray, "F")
 
     def __iter__(self):
         return self
@@ -21,6 +17,10 @@ class Image(resdet_numpy.Image):
         if ret := self.read_image_frame_as_pil_image():
             return ret
         raise StopIteration
+
+@Analysis.analyze_image.register
+def _(self, image: PIL.Image.Image) -> None:
+    self.analyze_image(numpy.array(image.convert("F")))
 
 @resdetect.register
 def _(image: PIL.Image.Image, method: Optional[Method] = None, parameters: dict = {}) -> dict:
