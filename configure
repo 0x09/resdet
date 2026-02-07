@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
