@@ -18,6 +18,7 @@ struct y4m_context {
 static void y4m_reader_close(void* reader_ctx) {
 	struct y4m_context* ctx = (struct y4m_context*)reader_ctx;
 	if(ctx) {
+		free(ctx->buf);
 		if(ctx->f && ctx->f != stdin)
 			fclose(ctx->f);
 		free(ctx);
@@ -30,6 +31,8 @@ static void* y4m_reader_open(const char* filename, size_t* width, size_t* height
 		*error = RDENOMEM;
 		goto error;
 	}
+
+	ctx->buf = NULL;
 
 	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!ctx->f) {
