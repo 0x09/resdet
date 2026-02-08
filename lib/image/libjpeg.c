@@ -75,7 +75,6 @@ error:
 }
 
 static bool libjpeg_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	*error = RDEOK;
 	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
 
 	if(ctx->eof)
