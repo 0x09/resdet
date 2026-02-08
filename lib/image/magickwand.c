@@ -32,7 +32,23 @@ static void* magickwand_reader_open(const char* filename, size_t* width, size_t*
 
 	ctx->wand = NewMagickWand();
 	if(MagickReadImage(ctx->wand,filename) == MagickFalse) {
-		*error = RDEINVAL;
+		char* exception = MagickGetException(ctx->wand,&(ExceptionType){0});
+		if(!strncmp(exception,"no decode delegate for this image format",40)) {
+			if(!strcmp(filename,"-"))
+				*error = RDEUNSUPP;
+			else {
+				FILE* tmp = fopen(filename,"r");
+				if(tmp) {
+					*error = RDEUNSUPP;
+					fclose(tmp);
+				}
+				else
+					*error = -errno;
+			}
+		}
+		else
+			*error = RDEINVAL;
+        RelinquishMagickMemory(exception);
 		goto error;
 	}
 
