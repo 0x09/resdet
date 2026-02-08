@@ -21,7 +21,7 @@ struct libjpeg_context {
 };
 
 static void libjpeg_reader_close(void* reader_ctx) {
-	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+	struct libjpeg_context* ctx = reader_ctx;
 	if(!ctx)
 		return;
 
@@ -75,7 +75,7 @@ error:
 }
 
 static bool libjpeg_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+	struct libjpeg_context* ctx = reader_ctx;
 
 	if(ctx->eof)
 		return false;
@@ -109,7 +109,7 @@ end:
 
 static bool libjpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
 	*error = RDEOK;
-	struct libjpeg_context* ctx = (struct libjpeg_context*)reader_ctx;
+	struct libjpeg_context* ctx = reader_ctx;
 	bool ret = !(ctx->eof || offset > 1);
 	if(offset)
 		ctx->eof = true;

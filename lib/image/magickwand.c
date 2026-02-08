@@ -16,7 +16,7 @@ struct magickwand_context {
 };
 
 static void magickwand_reader_close(void* reader_ctx) {
-	struct magickwand_context* ctx = (struct magickwand_context*)reader_ctx;
+	struct magickwand_context* ctx = reader_ctx;
 	if(ctx) {
 		DestroyMagickWand(ctx->wand);
 		free(ctx);
@@ -49,7 +49,7 @@ error:
 }
 
 static bool magickwand_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	struct magickwand_context* ctx = (struct magickwand_context*)reader_ctx;
+	struct magickwand_context* ctx = reader_ctx;
 
 	if(MagickNextImage(ctx->wand) == MagickFalse)
 		return false;
@@ -59,7 +59,7 @@ static bool magickwand_reader_read_frame(void* reader_ctx, float* image, size_t 
 }
 
 static bool magickwand_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	struct magickwand_context* ctx = (struct magickwand_context*)reader_ctx;
+	struct magickwand_context* ctx = reader_ctx;
 	for(uint64_t i = 0; i < offset; i++) {
 		if(MagickNextImage(ctx->wand) == MagickFalse)
 			return false;

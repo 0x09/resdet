@@ -65,7 +65,7 @@ static bool read_pfm_plane(FILE* f, float* image, size_t width, size_t height, f
 }
 
 static void pfm_reader_close(void* reader_ctx) {
-	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+	struct pfm_context* ctx = reader_ctx;
 	if(!ctx)
 		return;
 
@@ -153,7 +153,7 @@ static bool read_header(struct pfm_context* ctx, size_t width, size_t height, RD
 }
 
 static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+	struct pfm_context* ctx = reader_ctx;
 
 	if(!read_header(ctx,width,height,error))
 		return false;
@@ -169,7 +169,7 @@ static bool pfm_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 }
 
 static bool pfm_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	struct pfm_context* ctx = (struct pfm_context*)reader_ctx;
+	struct pfm_context* ctx = reader_ctx;
 
 	size_t imgsize = width*height;
 	if(ctx->format == 'F')

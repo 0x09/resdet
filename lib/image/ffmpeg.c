@@ -32,7 +32,7 @@ static RDError rderror_from_averror(int averr) {
 }
 
 static void ffmpeg_reader_close(void* reader_ctx) {
-	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
+	struct ffmpeg_context* ctx = reader_ctx;
 	if(!ctx)
 		return;
 
@@ -134,7 +134,7 @@ static int read_frame(struct ffmpeg_context* ctx) {
 }
 
 static bool ffmpeg_reader_read_frame(void* reader_ctx, float* image, size_t width, size_t height, RDError* error) {
-	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
+	struct ffmpeg_context* ctx = reader_ctx;
 
 	int averr = read_frame(ctx);
 	if(averr || (averr = sws_scale_frame(ctx->sws,ctx->frame,ctx->swsframe)) < 0)
@@ -152,7 +152,7 @@ averror:
 }
 
 static bool ffmpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
-	struct ffmpeg_context* ctx = (struct ffmpeg_context*)reader_ctx;
+	struct ffmpeg_context* ctx = reader_ctx;
 
 	int averr = 0;
 	for(uint64_t i = 0; i < offset; i++) {
