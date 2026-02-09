@@ -44,6 +44,50 @@ static const char* ext_from_mimetype(const char* mimetype) {
 	return "";
 }
 
+static RDImage* open_image(const struct image_reader* image_reader, const char* filename, size_t* width, size_t* height, float** imagebuf, RDError* error) {
+	RDImage* rdimage = malloc(sizeof(*rdimage));
+	if(!rdimage) {
+		*error = RDENOMEM;
+		goto error;
+	}
+
+	if(!(rdimage->reader = image_reader)) {
+		*error = RDEUNSUPP;
+		goto error;
+	}
+
+#ifdef _WIN32
+	if(!strcmp(filename,"-"))
+		_setmode(_fileno(stdin), _O_BINARY);
+#endif
+
+	rdimage->reader_ctx = rdimage->reader->open(filename,width,height,error);
+	if(*error)
+		goto error;
+
+	if(resdet_dims_exceed_limit(*width,*height,1,float)) {
+		*error = RDETOOBIG;
+		goto error;
+	}
+
+	rdimage->width = *width;
+	rdimage->height = *height;
+
+	if(imagebuf && !(*imagebuf = malloc(*width * *height * sizeof(**imagebuf)))) {
+		*error = RDENOMEM;
+		goto error;
+	}
+
+	*error = RDEOK;
+
+	return rdimage;
+
+error:
+	resdet_close_image(rdimage);
+
+	return NULL;
+}
+
 RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype, size_t* width, size_t* height, float** imagebuf, RDError* error) {
 	if(imagebuf)
 		*imagebuf = NULL;
@@ -58,17 +102,12 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 
 	if(!(width && height)) {
 		e = RDEPARAM;
-		goto error;
+		goto end;
 	}
 
 	if(!filename) {
 		e = RDEPARAM;
-		goto error;
-	}
-
-	if(!(rdimage = malloc(sizeof(*rdimage)))) {
-		e = RDENOMEM;
-		goto error;
+		goto end;
 	}
 
 	const char* ext;
@@ -79,53 +118,60 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 		ext = ext ? ext+1 : "";
 	}
 
-	rdimage->reader = NULL;
+	const struct image_reader* reader = NULL;
 	const struct image_reader** image_readers = resdet_image_readers();
 	for(size_t i = 0; image_readers[i]; i++)
 		if(image_readers[i]->supports_ext(ext)) {
-			rdimage->reader = image_readers[i];
+			reader = image_readers[i];
 			break;
 		}
 
-	if(!rdimage->reader) {
-		e = RDEUNSUPP;
-		goto error;
-	}
+	rdimage = open_image(reader,filename,width,height,imagebuf,&e);
 
-#ifdef _WIN32
-	if(!strcmp(filename,"-"))
-		_setmode(_fileno(stdin), _O_BINARY);
-#endif
-
-	rdimage->reader_ctx = rdimage->reader->open(filename,width,height,&e);
-	if(e)
-		goto error;
-
-	if(resdet_dims_exceed_limit(*width,*height,1,float)) {
-		e = RDETOOBIG;
-		goto error;
-	}
-
-	rdimage->width = *width;
-	rdimage->height = *height;
-
-	if(imagebuf && !(*imagebuf = malloc(*width * *height * sizeof(**imagebuf)))) {
-		e = RDENOMEM;
-		goto error;
-	}
-
-	if(error)
-		*error = RDEOK;
-
-	return rdimage;
-
-error:
-	resdet_close_image(rdimage);
-
+end:
 	if(error)
 		*error = e;
 
-	return NULL;
+	return rdimage;
+}
+
+RESDET_API RDImage* resdet_open_image_with_reader(const char* filename, const char* image_reader_name, size_t* width, size_t* height, float** imagebuf, RDError* error) {
+	if(imagebuf)
+		*imagebuf = NULL;
+
+	RDError e = RDEOK;
+	RDImage* rdimage = NULL;
+
+	if(width)
+		*width = 0;
+	if(height)
+		*height = 0;
+
+	if(!(width && height)) {
+		e = RDEPARAM;
+		goto end;
+	}
+
+	if(!(filename && image_reader_name)) {
+		e = RDEPARAM;
+		goto end;
+	}
+
+	const struct image_reader* reader = NULL;
+	const char* const* image_reader_names = resdet_list_image_readers();
+	for(size_t i = 0; image_reader_names[i]; i++)
+		if(resdet_strieq(image_reader_names[i],image_reader_name)) {
+			reader = resdet_image_readers()[i];
+			break;
+		}
+
+	rdimage = open_image(reader,filename,width,height,imagebuf,&e);
+
+end:
+	if(error)
+		*error = e;
+
+	return rdimage;
 }
 
 RESDET_API bool resdet_read_image_frame(RDImage* rdimage, float* image, RDError* error) {

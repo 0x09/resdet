@@ -23,6 +23,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_default_range](#resdet_default_range)
   * [Image Reading](#image-reading)
     * [resdet_open_image](#resdet_open_image)
+    * [resdet_open_image_with_reader](#resdet_open_image_with_reader)
     * [resdet_read_image_frame](#resdet_read_image_frame)
     * [resdet_seek_frame](#resdet_seek_frame)
     * [resdet_close_image](#resdet_close_image)
@@ -265,6 +266,26 @@ If an error occurs the returned pointer will be `NULL` and the error pointer upd
 
 * filename - Path of the image, or "-" for standard input.
 * filetype - Optional type of the image for choosing an image reader. May be either an extension or MIME type. If `NULL` the file's extension will be used.
+* width, height - Out parameters containing the bitmap dimensions.
+* imagebuf - If not `NULL`, on output points to an allocated buffer large enough to pass to [`resdet_read_image_frame`](#resdet_read_image_frame), or `NULL` on error. Its contents are uninitialized. Must be freed by the caller.
+* error - Out parameter containing the error if any, or `RDEOK`.
+
+---
+<a name="resdet_open_image_with_reader"></a>
+
+```C
+RDImage* resdet_open_image_with_reader(const char* filename, const char* image_reader, size_t* width, size_t* height, float** imagebuf, RDError* error);
+```
+
+Open an image for reading with [`resdet_read_image_frame`](#resdet_read_image_frame).
+The returned RDImage pointer should be passed to [`resdet_close_image`](#resdet_close_image) when finished.
+If an error occurs the returned pointer will be `NULL` and the error pointer updated to indicate what went wrong. 
+
+Unlike [`resdet_open_image`](#resdet_open_image) this function allows for exact control over which image reader will be used.
+e.g. both the libpng reader and the MagickWand reader can open PNG files. [`resdet_open_image`](#resdet_open_image) gives precedence to the more specific reader. This can be used to override that choice.
+
+* filename - Path of the image, or "-" for standard input.
+* image_reader - Name of a specific image reader to use. Use [`resdet_list_image_readers`](#resdet_list_image_readers) for a list of possible names.
 * width, height - Out parameters containing the bitmap dimensions.
 * imagebuf - If not `NULL`, on output points to an allocated buffer large enough to pass to [`resdet_read_image_frame`](#resdet_read_image_frame), or `NULL` on error. Its contents are uninitialized. Must be freed by the caller.
 * error - Out parameter containing the error if any, or `RDEOK`.

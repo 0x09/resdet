@@ -152,6 +152,44 @@ void test_opens_image_by_mimetype(void** state) {
 	assert_non_null(ctx->image);
 }
 
+// teardown: teardown_rdimage_tests
+void test_opens_image_by_image_reader(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	RDError err;
+
+	ctx->image = resdet_open_image_with_reader("test/files/checkerboard","PFM",&width,&height,NULL,&err);
+
+	assert_false(err);
+	assert_non_null(ctx->image);
+}
+
+void test_open_image_fails_with_wrong_reader(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	RDError err;
+
+	RDImage* image = resdet_open_image_with_reader("test/files/checkerboard","PGM",&width,&height,NULL,&err);
+
+	assert_int_equal(err,RDEINVAL);
+	assert_null(image);
+	assert_uint_equal(width,0);
+	assert_uint_equal(height,0);
+}
+
+void test_open_image_by_reader_requires_an_image_reader(void** state) {
+	struct image_reader_ctx* ctx = *state;
+	size_t width, height;
+	RDError err;
+
+	RDImage* image = resdet_open_image_with_reader("test/files/checkerboard.pfm",NULL,&width,&height,NULL,&err);
+
+	assert_int_equal(err,RDEPARAM);
+	assert_null(image);
+	assert_uint_equal(width,0);
+	assert_uint_equal(height,0);
+}
+
 void test_open_image_errors_on_nonexistent_file(void** state) {
 	size_t width, height;
 	RDError err;

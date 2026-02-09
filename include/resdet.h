@@ -68,6 +68,7 @@ RESDET_API RDError resdet_parameters_set_threshold(RDParameters*, float threshol
 
 
 RESDET_API RDImage* resdet_open_image(const char* filename, const char* type, size_t* width, size_t* height, float** imagebuf, RDError* error);
+RESDET_API RDImage* resdet_open_image_with_reader(const char* filename, const char* image_reader_name, size_t* width, size_t* height, float** imagebuf, RDError* error);
 
 RESDET_API bool resdet_read_image_frame(RDImage*, float* image, RDError* error);
 
