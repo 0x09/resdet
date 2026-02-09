@@ -105,6 +105,8 @@ void test_open_image_with_no_filename_returns_error(void** state) {
 
 	assert_null(image);
 	assert_int_equal(err,RDEPARAM);
+	assert_uint_equal(width,0);
+	assert_uint_equal(height,0);
 }
 
 void test_open_image_with_no_width_or_height_returns_error(void** state) {
@@ -117,11 +119,13 @@ void test_open_image_with_no_width_or_height_returns_error(void** state) {
 
 	assert_null(image);
 	assert_int_equal(err,RDEPARAM);
+	assert_uint_equal(height,0);
 
 	image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,NULL,NULL,&err);
 
 	assert_null(image);
 	assert_int_equal(err,RDEPARAM);
+	assert_uint_equal(width,0);
 }
 
 // teardown: teardown_rdimage_tests
@@ -156,6 +160,8 @@ void test_open_image_errors_on_nonexistent_file(void** state) {
 
 	assert_true(err < 0);
 	assert_null(image);
+	assert_uint_equal(width,0);
+	assert_uint_equal(height,0);
 }
 
 // setup: setup_image_reader_tests
