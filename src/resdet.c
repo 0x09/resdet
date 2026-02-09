@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	const char* method = NULL,* type = NULL,* image_reader = NULL;
 	const char* range_opt = NULL,* threshold_opt = NULL;
 	uint64_t offset = 0, nframes = 0;
-	bool progress = false;
+	bool progress = false, found_reader = false;
 	char* endptr;
 	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:R:hV")) != -1) {
 		switch(c) {
@@ -72,10 +72,17 @@ int main(int argc, char* argv[]) {
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
 			case 'R':
-				if(!strcmp(optarg,"list")) {
+				for(const char* const* image_reader = resdet_list_image_readers(); *image_reader; image_reader++)
+					if(!strcmp(*image_reader,optarg)) {
+						found_reader = true;
+						break;
+					}
+				if(!found_reader) {
+					if(strcmp(optarg,"list"))
+						fprintf(stderr,"No image reader \"%s\", use one of:\n",optarg);
 					for(const char* const* image_reader = resdet_list_image_readers(); *image_reader; image_reader++)
 						puts(*image_reader);
-					return 0;
+					return !!strcmp(optarg,"list");
 				}
 				image_reader = optarg;
 				break;
