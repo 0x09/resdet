@@ -24,7 +24,7 @@ void seek_progress(void* ctx, uint64_t offset) {
 }
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -R <image_reader> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n",self);
 	exit(1);
 }
 
