@@ -51,12 +51,15 @@ RESDET_API RDImage* resdet_open_image(const char* filename, const char* filetype
 	RDError e = RDEOK;
 	RDImage* rdimage = NULL;
 
+	if(width)
+		*width = 0;
+	if(height)
+		*height = 0;
+
 	if(!(width && height)) {
 		e = RDEPARAM;
 		goto error;
 	}
-
-	*width = *height = 0;
 
 	if(!filename) {
 		e = RDEPARAM;
