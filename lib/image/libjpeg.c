@@ -110,8 +110,8 @@ end:
 static bool libjpeg_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
 	*error = RDEOK;
 	struct libjpeg_context* ctx = reader_ctx;
-	bool ret = !(ctx->eof || offset > 1);
-	if(offset)
+	bool ret = !offset || !(ctx->eof || offset > 1);
+	if(offset && !ctx->eof)
 		ctx->eof = true;
 	return ret;
 }
