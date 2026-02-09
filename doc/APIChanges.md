@@ -1,3 +1,5 @@
+**2026-02-09**
+* `resdet_seek_frame` with an `offset` of 0 now always succeeds. Previously this was dependent on the specific image reader. (2183936)
 
 **2026-02-08**
 * `resdet_open_image` now returns an `RDEPARAM` error if the width or height out params are `NULL`. Previously the behavior in this case was undefined. (4cfd17c)
