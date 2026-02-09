@@ -90,8 +90,11 @@ static bool pgm_reader_read_frame(void* reader_ctx, float* image, size_t width, 
 static bool pgm_reader_seek_frame(void* reader_ctx, uint64_t offset, void(*progress)(void*,uint64_t), void* progress_ctx, size_t width, size_t height, RDError* error) {
 	struct pgm_context* ctx = reader_ctx;
 	bool ret = !offset || !(ctx->eof || offset > 1);
-	if(offset && !ctx->eof)
+	if(offset && !ctx->eof) {
+		if(progress)
+			progress(progress_ctx,1);
 		ctx->eof = true;
+	}
 	return ret;
 }
 
