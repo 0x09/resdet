@@ -65,6 +65,14 @@ libresdet.resdet_open_image.argtypes = [
     ctypes.POINTER(ctypes.c_int)
 ]
 
+libresdet.resdet_open_image_with_reader.restype = ctypes.POINTER(RDImage)
+libresdet.resdet_open_image_with_reader.argtypes = [
+    ctypes.c_char_p, ctypes.c_char_p,
+    ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(ctypes.c_size_t),
+    ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
+    ctypes.POINTER(ctypes.c_int)
+]
+
 libresdet.resdet_list_image_readers.restype = ctypes.POINTER(ctypes.c_char_p)
 libresdet.resdet_list_image_readers.argtypes = []
 

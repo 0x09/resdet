@@ -7,9 +7,9 @@ import ctypes
 from typing import Optional
 
 class Image(resdet.Image):
-    def __init__(self, filename: str | os.PathLike, type: Optional[str] = None) -> None:
+    def __init__(self, filename: str | os.PathLike, type: Optional[str] = None, image_reader: Optional[str] = None) -> None:
         self.buffer = resdet.ImageBuffer()
-        super().__init__(filename, type, self.buffer)
+        super().__init__(filename, type, image_reader, self.buffer)
 
     def read_image_frame_as_ndarray(self) -> Optional[numpy.ndarray]:
         if self.read_image_frame(self.buffer):

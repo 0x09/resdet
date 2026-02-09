@@ -133,6 +133,16 @@ class TestResdet:
 
         assert frames == [1, 2]
 
+    def test_opens_image_by_type(self):
+        resdet.Image("test/files/checkerboard",type = "pfm")
+
+    def test_opens_image_with_reader(self):
+        resdet.Image("test/files/checkerboard",image_reader = "PFM")
+
+    def test_wrong_image_reader_raises(self):
+         with pytest.raises(resdet.InvalidImageError):
+            resdet.Image("test/files/checkerboard",image_reader = "PGM")
+
     def test_reads_image(self, test_file_frames):
         buffer = resdet.read_image(test_file)
 

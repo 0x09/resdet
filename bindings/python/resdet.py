@@ -141,13 +141,16 @@ class Image:
     width: int
     height: int
 
-    def __init__(self, filename: str | os.PathLike, type: Optional[str] = None, buffer: Optional[ImageBuffer] = None) -> None:
+    def __init__(self, filename: str | os.PathLike, type: Optional[str] = None, image_reader: Optional[str] = None, buffer: Optional[ImageBuffer] = None) -> None:
         type_arg = type.encode("utf-8") if type else None
         width = ctypes.c_size_t()
         height = ctypes.c_size_t()
         err = ctypes.c_int()
         buf = ctypes.byref(buffer.data) if buffer else None
-        self._rdimage = libresdet.resdet_open_image(str(filename).encode("utf-8"), type_arg, width, height, buf, err)
+        if image_reader:
+            self._rdimage = libresdet.resdet_open_image_with_reader(str(filename).encode("utf-8"), image_reader.encode("utf-8"), width, height, buf, err)
+        else:
+            self._rdimage = libresdet.resdet_open_image(str(filename).encode("utf-8"), type_arg, width, height, buf, err)
         if not self._rdimage:
             raise _rderror_to_exception(err)
 
