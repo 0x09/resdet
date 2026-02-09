@@ -7,7 +7,7 @@ struct image_ctx {
 int setup_resdetect_group(void** state) {
 	float* image;
 	size_t width, height, nimages;
-	int err = resdet_read_image("test/files/blue_marble_2012_resized.pfm",NULL,&image,&nimages,&width,&height);
+	RDError err = resdet_read_image("test/files/blue_marble_2012_resized.pfm",NULL,&image,&nimages,&width,&height);
 
 	*state = image;
 
@@ -26,7 +26,7 @@ void test_resdetect_detects_resolutions(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_false(err);
 
@@ -38,7 +38,7 @@ void test_resdetect_returns_error_and_nullifies_outputs_with_no_dimensions(void*
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect(image,1,0,0,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect(image,1,0,0,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_int_equal(err,RDEINVAL);
 
@@ -54,7 +54,7 @@ void test_resdetect_returns_error_and_nullifies_outputs_with_no_images(void** st
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect(image,0,768,768,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect(image,0,768,768,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_int_equal(err,RDENOIMG);
 
@@ -74,7 +74,7 @@ static void run_method_tests(void** state, const char* methodname, size_t detect
 
 	assert_non_null(method);
 
-	int err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,method,NULL);
+	RDError err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,method,NULL);
 
 	assert_false(err);
 
@@ -107,7 +107,7 @@ void test_zero_threshold_returns_all_analyzed_resolutions(void** state) {
 	assert_non_null(params);
 
 	resdet_parameters_set_threshold(params,0);
-	int err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,params);
+	RDError err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,params);
 	free(params);
 
 	assert_false(err);
@@ -126,7 +126,7 @@ void test_lower_range_gives_more_results(void** state) {
 	assert_non_null(params);
 
 	resdet_parameters_set_range(params,8);
-	int err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,params);
+	RDError err = resdetect(image,1,768,768,&resw,&countw,&resh,&counth,NULL,params);
 	free(params);
 
 	assert_false(err);

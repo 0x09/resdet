@@ -11,7 +11,7 @@ int setup_multi_frame_analysis_group(void** state) {
 		return 1;
 
 	size_t width, height, nimages;
-	int err = resdet_read_image("test/files/rotating_blue_marble_resized.y4m",NULL,&ctx->image,&nimages,&width,&height);
+	RDError err = resdet_read_image("test/files/rotating_blue_marble_resized.y4m",NULL,&ctx->image,&nimages,&width,&height);
 	if(err)
 		return 1;
 
@@ -35,7 +35,7 @@ void test_resdetect_detects_with_multiple_frames(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect(ctx->image,2,1920,1080,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect(ctx->image,2,1920,1080,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_false(err);
 
@@ -56,7 +56,7 @@ void test_analyze_image_with_multiple_frames_narrows_down_results(void** state) 
 	struct multi_frame_analysis_ctx* ctx = *state;
 	RDResolution* resw1,* resw2;
 	size_t countw1, countw2;
-	int err;
+	RDError err;
 
 	err = resdet_analyze_image(ctx->analysis,ctx->image);
 

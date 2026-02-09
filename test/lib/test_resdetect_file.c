@@ -5,7 +5,7 @@ void test_resdetect_file_detects_resolutions(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect_file("test/files/blue_marble_2012_resized.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect_file("test/files/blue_marble_2012_resized.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_false(err);
 
@@ -17,7 +17,7 @@ void test_images_smaller_than_range_return_only_their_input_dimensions(void** st
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect_file("test/files/checkerboard.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect_file("test/files/checkerboard.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_false(err);
 
@@ -36,7 +36,7 @@ void test_resdetect_file_nullifies_outputs_on_error(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
-	int err = resdetect_file("test/files/doesntexist.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
+	RDError err = resdetect_file("test/files/doesntexist.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
 
 	assert_true(err < 0);
 

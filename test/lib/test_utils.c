@@ -64,7 +64,7 @@ int teardown_rdparameter_tests(void** state) {
 // setup: setup_rdparameter_tests
 // teardown: teardown_rdparameter_tests
 void test_sets_range(void** state) {
-	int err = resdet_parameters_set_range(*state,10);
+	RDError err = resdet_parameters_set_range(*state,10);
 
 	assert_false(err);
 }
@@ -72,7 +72,7 @@ void test_sets_range(void** state) {
 // setup: setup_rdparameter_tests
 // teardown: teardown_rdparameter_tests
 void test_sets_threshold(void** state) {
-	int err = resdet_parameters_set_threshold(*state,0);
+	RDError err = resdet_parameters_set_threshold(*state,0);
 
 	assert_false(err);
 }
@@ -80,7 +80,7 @@ void test_sets_threshold(void** state) {
 // setup: setup_rdparameter_tests
 // teardown: teardown_rdparameter_tests
 void test_zero_range_returns_error(void** state) {
-	int err = resdet_parameters_set_range(*state,0);
+	RDError err = resdet_parameters_set_range(*state,0);
 
 	assert_int_equal(err,RDEPARAM);
 }
@@ -88,19 +88,19 @@ void test_zero_range_returns_error(void** state) {
 // setup: setup_rdparameter_tests
 // teardown: teardown_rdparameter_tests
 void test_negative_threshold_returns_error(void** state) {
-	int err = resdet_parameters_set_threshold(*state,-1);
+	RDError err = resdet_parameters_set_threshold(*state,-1);
 
 	assert_int_equal(err,RDEPARAM);
 }
 
 void test_setting_threshold_with_no_params_returns_error(void** state) {
-	int err = resdet_parameters_set_threshold(NULL,0);
+	RDError err = resdet_parameters_set_threshold(NULL,0);
 
 	assert_int_equal(err,RDEPARAM);
 }
 
 void test_setting_range_with_no_params_returns_error(void** state) {
-	int err = resdet_parameters_set_range(NULL,10);
+	RDError err = resdet_parameters_set_range(NULL,10);
 
 	assert_int_equal(err,RDEPARAM);
 }

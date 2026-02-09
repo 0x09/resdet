@@ -73,7 +73,7 @@ void test_lists_image_readers(void** state) {
 void test_opens_image(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,&err);
 
@@ -88,7 +88,7 @@ void test_opens_image(void** state) {
 void test_imagebuf_can_be_null(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,NULL,&err);
 
@@ -99,7 +99,7 @@ void test_imagebuf_can_be_null(void** state) {
 void test_open_image_with_no_filename_returns_error(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	RDImage* image = resdet_open_image(NULL,NULL,&width,&height,NULL,&err);
 
@@ -110,7 +110,7 @@ void test_open_image_with_no_filename_returns_error(void** state) {
 void test_open_image_with_no_width_or_height_returns_error(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 	RDImage* image;
 
 	image = resdet_open_image("test/files/checkerboard.pfm",NULL,NULL,&height,NULL,&err);
@@ -128,7 +128,7 @@ void test_open_image_with_no_width_or_height_returns_error(void** state) {
 void test_opens_image_by_extension(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/checkerboard","pfm",&width,&height,NULL,&err);
 
@@ -140,7 +140,7 @@ void test_opens_image_by_extension(void** state) {
 void test_opens_image_by_mimetype(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/checkerboard","image/x-portable-float-map",&width,&height,NULL,&err);
 
@@ -150,7 +150,7 @@ void test_opens_image_by_mimetype(void** state) {
 
 void test_open_image_errors_on_nonexistent_file(void** state) {
 	size_t width, height;
-	int err;
+	RDError err;
 
 	RDImage* image = resdet_open_image("test/files/doesntexist.pfm",NULL,&width,&height,NULL,&err);
 
@@ -162,7 +162,7 @@ void test_open_image_errors_on_nonexistent_file(void** state) {
 // teardown: teardown_image_reader_tests
 void test_reads_image_frames(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 	bool ret;
 
 	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
@@ -186,7 +186,7 @@ static void progress(void* ctx, uint64_t frameno) {
 // teardown: teardown_image_reader_tests
 void test_seeks_frame_with_progress(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 	uint64_t counter = 0;
 
 	bool ret = resdet_seek_frame(ctx->image,2,progress,&counter,&err);
@@ -200,7 +200,7 @@ void test_seeks_frame_with_progress(void** state) {
 // teardown: teardown_image_reader_tests
 void test_seeking_past_end_of_file_returns_false(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 
 	bool ret = resdet_seek_frame(ctx->image,3,NULL,NULL,&err);
 
@@ -212,7 +212,7 @@ void test_seeking_past_end_of_file_returns_false(void** state) {
 // teardown: teardown_image_reader_tests
 void test_reading_past_end_of_file_returns_false(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 	bool ret;
 
 	ret = resdet_seek_frame(ctx->image,2,NULL,NULL,&err);
@@ -229,7 +229,7 @@ void test_reading_past_end_of_file_returns_false(void** state) {
 // setup: setup_image_reader_tests
 void test_reading_with_null_rdimage_returns_error(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 
 	bool ret = resdet_read_image_frame(NULL,ctx->imagebuf,&err);
 
@@ -241,7 +241,7 @@ void test_reading_with_null_rdimage_returns_error(void** state) {
 // teardown: teardown_rdimage_tests
 void test_reading_with_null_image_buffer_returns_error(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 
 	bool ret = resdet_read_image_frame(ctx->image,NULL,&err);
 
@@ -253,7 +253,7 @@ static void run_image_reader_test(void** state, const char* filename, size_t num
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height, nimages;
 
-	int err = resdet_read_image(filename,NULL,&ctx->imagebuf,&nimages,&width,&height);
+	RDError err = resdet_read_image(filename,NULL,&ctx->imagebuf,&nimages,&width,&height);
 
 	assert_false(err);
 	assert_non_null(ctx->imagebuf);
@@ -311,7 +311,7 @@ void test_reads_avi(void** state) {
 
 void run_seek_frame_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 	bool ret;
 
 	ret = resdet_seek_frame(ctx->image,1,NULL,NULL,&err);
@@ -391,7 +391,7 @@ void test_seeks_frame_avi(void** state) {
 
 void test_open_image_errors_on_corrupt_y4m_header(void** state) {
 	size_t width, height;
-	int err;
+	RDError err;
 
 	RDImage* image = resdet_open_image("test/files/corrupt_header.y4m",NULL,&width,&height,NULL,&err);
 
@@ -401,7 +401,7 @@ void test_open_image_errors_on_corrupt_y4m_header(void** state) {
 
 void test_open_image_errors_on_corrupt_pgm_header(void** state) {
 	size_t width, height;
-	int err;
+	RDError err;
 
 	RDImage* image = resdet_open_image("test/files/corrupt_header.pgm",NULL,&width,&height,NULL,&err);
 
@@ -411,7 +411,7 @@ void test_open_image_errors_on_corrupt_pgm_header(void** state) {
 
 void test_open_image_errors_on_corrupt_pfm_header(void** state) {
 	size_t width, height;
-	int err;
+	RDError err;
 
 	RDImage* image = resdet_open_image("test/files/corrupt_header.pfm",NULL,&width,&height,NULL,&err);
 
@@ -429,7 +429,7 @@ int setup_partial_y4m_data_test(void** state) {
 
 static void read_frame_errors_on_partial_data(void** state) {
 	struct image_reader_ctx* ctx = *state;
-	int err;
+	RDError err;
 
 	bool ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
 
@@ -475,7 +475,7 @@ void test_read_frame_errors_on_partial_pfm_data(void** state) {
 void test_can_open_pgm_files_with_comments(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/with_comment.pgm",NULL,&width,&height,NULL,&err);
 
@@ -487,7 +487,7 @@ void test_can_open_pgm_files_with_comments(void** state) {
 void test_can_open_pfm_files_with_comments(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	int err;
+	RDError err;
 
 	ctx->image = resdet_open_image("test/files/with_comment.pfm",NULL,&width,&height,NULL,&err);
 
