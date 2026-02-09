@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <string.h>
 
 #include "resdet.h"
 
@@ -39,6 +40,8 @@ void help(const char* self) {
 		"                  2 - All detected widths and heights in confidence order.\n"
 		"                  3 - -v2 plus the floating point confidence value.\n"
 		" -t   filetype: Override the input type. May be an extension or MIME type.\n"
+		" -R   image reader: Select a specific image reader to read the file. Mutually exclusive with -t.\n"
+		"                    Use -R list to see available image readers.\n"
 		" -r   range: Number of neighboring values to search (%zu).\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
 		" -p   Show progress in number of frames analyzed so far.\n"
@@ -58,16 +61,24 @@ void help(const char* self) {
 int main(int argc, char* argv[]) {
 	int c;
 	int verbosity = -1;
-	const char* method = NULL,* type = NULL;
+	const char* method = NULL,* type = NULL,* image_reader = NULL;
 	const char* range_opt = NULL,* threshold_opt = NULL;
 	uint64_t offset = 0, nframes = 0;
 	bool progress = false;
 	char* endptr;
-	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:hV")) != -1) {
+	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:R:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
 			case 't': type = optarg; break;
+			case 'R':
+				if(!strcmp(optarg,"list")) {
+					for(const char* const* image_reader = resdet_list_image_readers(); *image_reader; image_reader++)
+						puts(*image_reader);
+					return 0;
+				}
+				image_reader = optarg;
+				break;
 			case 'x': threshold_opt = optarg; break;
 			case 'r': range_opt = optarg; break;
 			case 'o':
@@ -129,6 +140,10 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
+	if(type && image_reader) {
+		fputs("Type option (-t) cannot be used with an image reader (-R)",stderr);
+		return 1;
+	}
 
 	RDResolution* rw = NULL,* rh = NULL;
 	size_t cw, ch;
@@ -138,7 +153,11 @@ int main(int argc, char* argv[]) {
 	RDError e;
 	int ret = 0;
 	RDAnalysis* analysis = NULL;
-	RDImage* rdimage = resdet_open_image(input,type,&width,&height,&image,&e);
+	RDImage* rdimage;
+	if(image_reader)
+		rdimage = resdet_open_image_with_reader(input,image_reader,&width,&height,&image,&e);
+	else
+		rdimage = resdet_open_image(input,type,&width,&height,&image,&e);
 	if(e)
 		goto end;
 

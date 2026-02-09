@@ -23,6 +23,16 @@ Built with image readers: .*$"
 	assert_matches "$output" "$(resdet -V)"
 }
 
+test_prints_image_readers() {
+	output="\
+PGM$CR
+PFM$CR
+Y4M$CR
+.*$"
+
+	assert_matches "$output" "$(resdet -R list)"
+}
+
 test_verbosity_level_0() {
 	assert "resdet -v0 ../files/blue_marble_2012_resized.pfm"
 }
@@ -85,6 +95,11 @@ test_filetype_option_with_extension() {
 
 test_filetype_option_with_mimetype() {
 	assert_equals "2 2" "$(resdet -v1 -t image/x-portable-float-map ../files/checkerboard)"
+}
+
+test_image_reader_option() {
+	assert_equals "2 2" "$(resdet -v1 -R PFM ../files/checkerboard)"
+	assert_equals "Invalid image" "$(resdet -v1 -R PGM ../files/checkerboard 2>&1)"
 }
 
 test_detects_from_stdin_with_filetype_option() {
