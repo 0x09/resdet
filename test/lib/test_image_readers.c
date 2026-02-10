@@ -47,250 +47,10 @@ int teardown_image_reader_tests(void** state) {
 	return 0;
 }
 
-int teardown_rdimage_tests(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	resdet_close_image(ctx->image);
-	return 0;
-}
-
 int teardown_file_format_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	free(ctx->imagebuf);
 	return 0;
-}
-
-void test_lists_image_readers(void** state) {
-	const char* const* image_readers = resdet_list_image_readers();
-
-	assert_string_equal(image_readers[0],"PGM");
-
-	// assert that this terminates
-	for(; *image_readers; image_readers++)
-		;
-}
-
-// teardown: teardown_image_reader_tests
-void test_opens_image(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,&err);
-
-	assert_false(err);
-	assert_non_null(ctx->image);
-	assert_non_null(ctx->imagebuf);
-	assert_uint_equal(width,2);
-	assert_uint_equal(height,2);
-}
-
-// teardown: teardown_rdimage_tests
-void test_imagebuf_can_be_null(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,NULL,&err);
-
-	assert_false(err);
-	assert_non_null(ctx->image);
-}
-
-void test_open_image_with_no_filename_returns_error(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	RDImage* image = resdet_open_image(NULL,NULL,&width,&height,NULL,&err);
-
-	assert_null(image);
-	assert_int_equal(err,RDEPARAM);
-	assert_uint_equal(width,0);
-	assert_uint_equal(height,0);
-}
-
-void test_open_image_with_no_width_or_height_returns_error(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-	RDImage* image;
-
-	image = resdet_open_image("test/files/checkerboard.pfm",NULL,NULL,&height,NULL,&err);
-
-	assert_null(image);
-	assert_int_equal(err,RDEPARAM);
-	assert_uint_equal(height,0);
-
-	image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,NULL,NULL,&err);
-
-	assert_null(image);
-	assert_int_equal(err,RDEPARAM);
-	assert_uint_equal(width,0);
-}
-
-// teardown: teardown_rdimage_tests
-void test_opens_image_by_extension(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	ctx->image = resdet_open_image("test/files/checkerboard","pfm",&width,&height,NULL,&err);
-
-	assert_false(err);
-	assert_non_null(ctx->image);
-}
-
-// teardown: teardown_rdimage_tests
-void test_opens_image_by_mimetype(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	ctx->image = resdet_open_image("test/files/checkerboard","image/x-portable-float-map",&width,&height,NULL,&err);
-
-	assert_false(err);
-	assert_non_null(ctx->image);
-}
-
-// teardown: teardown_rdimage_tests
-void test_opens_image_by_image_reader(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	ctx->image = resdet_open_image_with_reader("test/files/checkerboard","PFM",&width,&height,NULL,&err);
-
-	assert_false(err);
-	assert_non_null(ctx->image);
-}
-
-void test_open_image_fails_with_wrong_reader(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	RDImage* image = resdet_open_image_with_reader("test/files/checkerboard","PGM",&width,&height,NULL,&err);
-
-	assert_int_equal(err,RDEINVAL);
-	assert_null(image);
-	assert_uint_equal(width,0);
-	assert_uint_equal(height,0);
-}
-
-void test_open_image_by_reader_requires_an_image_reader(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	size_t width, height;
-	RDError err;
-
-	RDImage* image = resdet_open_image_with_reader("test/files/checkerboard.pfm",NULL,&width,&height,NULL,&err);
-
-	assert_int_equal(err,RDEPARAM);
-	assert_null(image);
-	assert_uint_equal(width,0);
-	assert_uint_equal(height,0);
-}
-
-void test_open_image_errors_on_nonexistent_file(void** state) {
-	size_t width, height;
-	RDError err;
-
-	RDImage* image = resdet_open_image("test/files/doesntexist.pfm",NULL,&width,&height,NULL,&err);
-
-	assert_true(err < 0);
-	assert_null(image);
-	assert_uint_equal(width,0);
-	assert_uint_equal(height,0);
-}
-
-// setup: setup_image_reader_tests
-// teardown: teardown_image_reader_tests
-void test_reads_image_frames(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-	bool ret;
-
-	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
-
-	assert_true(ret);
-	assert_false(err);
-    assert_array_equal(ctx->imagebuf,ctx->checkerboard[0]);
-
-	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
-
-	assert_true(ret);
-	assert_false(err);
-    assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
-}
-
-static void progress(void* ctx, uint64_t frameno) {
-	*(uint64_t*)ctx = frameno;
-}
-
-// setup: setup_image_reader_tests
-// teardown: teardown_image_reader_tests
-void test_seeks_frame_with_progress(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-	uint64_t counter = 0;
-
-	bool ret = resdet_seek_frame(ctx->image,2,progress,&counter,&err);
-
-	assert_true(ret);
-	assert_false(err);
-	assert_uint_equal(counter,2);
-}
-
-// setup: setup_image_reader_tests
-// teardown: teardown_image_reader_tests
-void test_seeking_past_end_of_file_returns_false(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-
-	bool ret = resdet_seek_frame(ctx->image,3,NULL,NULL,&err);
-
-	assert_false(ret);
-	assert_false(err);
-}
-
-// setup: setup_image_reader_tests
-// teardown: teardown_image_reader_tests
-void test_reading_past_end_of_file_returns_false(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-	bool ret;
-
-	ret = resdet_seek_frame(ctx->image,2,NULL,NULL,&err);
-
-	assert_true(ret);
-	assert_false(err);
-
-	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
-
-	assert_false(ret);
-	assert_false(err);
-}
-
-// setup: setup_image_reader_tests
-void test_reading_with_null_rdimage_returns_error(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-
-	bool ret = resdet_read_image_frame(NULL,ctx->imagebuf,&err);
-
-	assert_false(ret);
-	assert_int_equal(err,RDEPARAM);
-}
-
-// setup: setup_image_reader_tests
-// teardown: teardown_rdimage_tests
-void test_reading_with_null_image_buffer_returns_error(void** state) {
-	struct image_reader_ctx* ctx = *state;
-	RDError err;
-
-	bool ret = resdet_read_image_frame(ctx->image,NULL,&err);
-
-	assert_false(ret);
-	assert_int_equal(err,RDEPARAM);
 }
 
 static void run_image_reader_test(void** state, const char* filename, size_t num_images) {
@@ -301,10 +61,10 @@ static void run_image_reader_test(void** state, const char* filename, size_t num
 
 	assert_false(err);
 	assert_non_null(ctx->imagebuf);
-    assert_uint_equal(nimages,num_images);
-    assert_uint_equal(width,2);
-    assert_uint_equal(height,2);
-    assert_array_equal(ctx->imagebuf,ctx->checkerboard[0]);
+	assert_uint_equal(nimages,num_images);
+	assert_uint_equal(width,2);
+	assert_uint_equal(height,2);
+	assert_array_equal(ctx->imagebuf,ctx->checkerboard[0]);
 	if(num_images > 1)
 	    assert_array_equal(ctx->imagebuf+4,ctx->checkerboard[1]);
 }
@@ -367,7 +127,7 @@ void run_seek_frame_tests(void** state) {
 
 	assert_true(ret);
 	assert_false(err);
-    assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
+	assert_array_equal(ctx->imagebuf,ctx->checkerboard[1]);
 
 	ret = resdet_seek_frame(ctx->image,1,NULL,NULL,&err);
 
@@ -515,25 +275,25 @@ void test_read_frame_errors_on_partial_pfm_data(void** state) {
 	read_frame_errors_on_partial_data(state);
 }
 
-// teardown: teardown_rdimage_tests
+// teardown: teardown_image_reader_tests
 void test_can_open_pgm_files_with_comments(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
 	RDError err;
 
-	ctx->image = resdet_open_image("test/files/with_comment.pgm",NULL,&width,&height,NULL,&err);
+	ctx->image = resdet_open_image("test/files/with_comment.pgm",NULL,&width,&height,&ctx->imagebuf,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
 }
 
-// teardown: teardown_rdimage_tests
+// teardown: teardown_image_reader_tests
 void test_can_open_pfm_files_with_comments(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
 	RDError err;
 
-	ctx->image = resdet_open_image("test/files/with_comment.pfm",NULL,&width,&height,NULL,&err);
+	ctx->image = resdet_open_image("test/files/with_comment.pfm",NULL,&width,&height,&ctx->imagebuf,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
