@@ -83,6 +83,7 @@ static RDImage* open_image(const struct image_reader* image_reader, const char* 
 	return rdimage;
 
 error:
+	*width = *height = 0;
 	resdet_close_image(rdimage);
 
 	return NULL;
