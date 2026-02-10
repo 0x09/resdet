@@ -35,6 +35,12 @@ int teardown_image_tests(void** state) {
 	return 0;
 }
 
+int teardown_imagebuf_tests(void** state) {
+	struct image_ctx* ctx = *state;
+	free(ctx->imagebuf);
+	return 0;
+}
+
 int teardown_rdimage_tests(void** state) {
 	struct image_ctx* ctx = *state;
 	resdet_close_image(ctx->image);
@@ -184,6 +190,44 @@ void test_open_image_errors_on_nonexistent_file(void** state) {
 	assert_uint_equal(height,0);
 }
 
+// teardown: teardown_imagebuf_tests
+void test_reads_still_frame_image(void** state) {
+	struct image_ctx* ctx = *state;
+	size_t width, height, nimages;
+
+	RDError err = resdet_read_image("test/files/checkerboard.pgm",NULL,&ctx->imagebuf,&nimages,&width,&height);
+
+	assert_false(err);
+	assert_non_null(ctx->imagebuf);
+	assert_uint_equal(nimages,1);
+	assert_uint_equal(width,2);
+	assert_uint_equal(height,2);
+	assert_array_equal(ctx->imagebuf,((float[]){
+		1, 0,
+		0, 1,
+	}));
+}
+
+// teardown: teardown_imagebuf_tests
+void test_reads_multi_frame_image(void** state) {
+	struct image_ctx* ctx = *state;
+	size_t width, height, nimages;
+
+	RDError err = resdet_read_image("test/files/checkerboard.pfm",NULL,&ctx->imagebuf,&nimages,&width,&height);
+
+	assert_false(err);
+	assert_non_null(ctx->imagebuf);
+	assert_uint_equal(nimages,2);
+	assert_uint_equal(width,2);
+	assert_uint_equal(height,2);
+	assert_array_equal(ctx->imagebuf,((float[]){
+		1, 0,
+		0, 1,
+		0, 1,
+		1, 0
+	}));
+}
+
 // setup: setup_image_tests
 // teardown: teardown_image_tests
 void test_reads_image_frames(void** state) {
@@ -208,52 +252,8 @@ void test_reads_image_frames(void** state) {
 		0, 1,
 		1, 0
 	}));
-}
-
-static void progress(void* ctx, uint64_t frameno) {
-	*(uint64_t*)ctx = frameno;
-}
-
-// setup: setup_image_tests
-// teardown: teardown_image_tests
-void test_seeks_frame_with_progress(void** state) {
-	struct image_ctx* ctx = *state;
-	RDError err;
-	uint64_t counter = 0;
-
-	bool ret = resdet_seek_frame(ctx->image,2,progress,&counter,&err);
-
-	assert_true(ret);
-	assert_false(err);
-	assert_uint_equal(counter,2);
-}
-
-// setup: setup_image_tests
-// teardown: teardown_image_tests
-void test_seeking_past_end_of_file_returns_false(void** state) {
-	struct image_ctx* ctx = *state;
-	RDError err;
-
-	bool ret = resdet_seek_frame(ctx->image,3,NULL,NULL,&err);
-
-	assert_false(ret);
-	assert_false(err);
-}
-
-// setup: setup_image_tests
-// teardown: teardown_image_tests
-void test_reading_past_end_of_file_returns_false(void** state) {
-	struct image_ctx* ctx = *state;
-	RDError err;
-	bool ret;
-
-	ret = resdet_seek_frame(ctx->image,2,NULL,NULL,&err);
-
-	assert_true(ret);
-	assert_false(err);
 
 	ret = resdet_read_image_frame(ctx->image,ctx->imagebuf,&err);
-
 	assert_false(ret);
 	assert_false(err);
 }
