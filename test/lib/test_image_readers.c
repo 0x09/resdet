@@ -39,12 +39,12 @@ int teardown_image_reader_tests(void** state) {
 	return 0;
 }
 
-static void run_opens_test(void** state, const char* filename) {
+static void run_opens_test(void** state, const char* filename, const char* reader) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
 	RDError err;
 
-	ctx->image = resdet_open_image(filename,NULL,&width,&height,&ctx->imagebuf,&err);
+	ctx->image = resdet_open_image_with_reader(filename,reader,&width,&height,&ctx->imagebuf,&err);
 
 	assert_false(err);
 	assert_non_null(ctx->image);
@@ -53,11 +53,11 @@ static void run_opens_test(void** state, const char* filename) {
 	assert_uint_equal(height,2);
 }
 
-static void run_open_image_errors_on_nonexistent_file_test(void** state, const char* filename) {
+static void run_open_image_errors_on_nonexistent_file_test(void** state, const char* filename, const char* reader) {
 	size_t width, height;
 	RDError err;
 
-	RDImage* image = resdet_open_image(filename,NULL,&width,&height,NULL,&err);
+	RDImage* image = resdet_open_image_with_reader(filename,reader,&width,&height,NULL,&err);
 
 	assert_true(err < 0);
 	assert_null(image);
@@ -282,11 +282,11 @@ static void run_read_frame_errors_on_partial_data_test(void** state) {
 	assert_int_equal(err,RDEINVAL);
 }
 
-static void run_open_image_errors_on_corrupt_header_test(void** state, const char* filename) {
+static void run_open_image_errors_on_corrupt_header_test(void** state, const char* filename, const char* reader) {
 	size_t width, height;
 	RDError err;
 
-	RDImage* image = resdet_open_image(filename,NULL,&width,&height,NULL,&err);
+	RDImage* image = resdet_open_image_with_reader(filename,reader,&width,&height,NULL,&err);
 
 	assert_null(image);
 	assert_int_equal(err,RDEINVAL);
@@ -297,25 +297,25 @@ static void run_open_image_errors_on_corrupt_header_test(void** state, const cha
 int setup_pgm_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.pgm",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.pgm","PGM",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 // teardown: teardown_image_reader_tests
 void test_opens_pgm(void** state) {
-	run_opens_test(state,"test/files/checkerboard.pgm");
+	run_opens_test(state,"test/files/checkerboard.pgm","PGM");
 }
 
 
 void test_open_image_errors_on_nonexistent_pgm(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.pgm");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.pgm","PGM");
 }
 
 int setup_png_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.png",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.png","libpng",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
@@ -323,19 +323,19 @@ int setup_png_tests(void** state) {
 // teardown: teardown_image_reader_tests
 // guard: HAVE_LIBPNG
 void test_opens_png(void** state) {
-	run_opens_test(state,"test/files/checkerboard.png");
+	run_opens_test(state,"test/files/checkerboard.png","libpng");
 }
 
 
 // guard: HAVE_LIBPNG
 void test_open_image_errors_on_nonexistent_png(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.png");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.png","libpng");
 }
 
 int setup_jpg_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.jpg",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.jpg","libjpeg",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
@@ -343,55 +343,55 @@ int setup_jpg_tests(void** state) {
 // teardown: teardown_image_reader_tests
 // guard: HAVE_LIBJPEG
 void test_opens_jpg(void** state) {
-	run_opens_test(state,"test/files/checkerboard.jpg");
+	run_opens_test(state,"test/files/checkerboard.jpg","libjpeg");
 }
 
 
 // guard: HAVE_LIBJPEG
 void test_open_image_errors_on_nonexistent_jpg(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.jpg");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.jpg","libjpeg");
 }
 
 int setup_pfm_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.pfm",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.pfm","PFM",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 // teardown: teardown_image_reader_tests
 void test_opens_pfm(void** state) {
-	run_opens_test(state,"test/files/checkerboard.pfm");
+	run_opens_test(state,"test/files/checkerboard.pfm","PFM");
 }
 
 
 void test_open_image_errors_on_nonexistent_pfm(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.pfm");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.pfm","PFM");
 }
 
 int setup_y4m_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.y4m",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.y4m","Y4M",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 // teardown: teardown_image_reader_tests
 void test_opens_y4m(void** state) {
-	run_opens_test(state,"test/files/checkerboard.y4m");
+	run_opens_test(state,"test/files/checkerboard.y4m","Y4M");
 }
 
 
 void test_open_image_errors_on_nonexistent_y4m(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.y4m");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.y4m","Y4M");
 }
 
 int setup_avi_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.avi",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.avi","FFmpeg",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
@@ -399,19 +399,19 @@ int setup_avi_tests(void** state) {
 // teardown: teardown_image_reader_tests
 // guard: HAVE_FFMPEG
 void test_opens_avi(void** state) {
-	run_opens_test(state,"test/files/checkerboard.avi");
+	run_opens_test(state,"test/files/checkerboard.avi","FFmpeg");
 }
 
 
 // guard: HAVE_FFMPEG
 void test_open_image_errors_on_nonexistent_avi(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.avi");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.avi","FFmpeg");
 }
 
 int setup_miff_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/checkerboard.miff",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/checkerboard.miff","magickwand",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
@@ -419,13 +419,13 @@ int setup_miff_tests(void** state) {
 // teardown: teardown_image_reader_tests
 // guard: HAVE_MAGICKWAND
 void test_opens_miff(void** state) {
-	run_opens_test(state,"test/files/checkerboard.miff");
+	run_opens_test(state,"test/files/checkerboard.miff","magickwand");
 }
 
 
 // guard: HAVE_MAGICKWAND
 void test_open_image_errors_on_nonexistent_miff(void** state) {
-	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.miff");
+	run_open_image_errors_on_nonexistent_file_test(state,"test/files/doesntexist.miff","magickwand");
 }
 
 // setup: setup_pgm_tests
@@ -707,13 +707,13 @@ void test_seeks_with_progress_miff(void** state) {
 int setup_partial_pgm_data_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/partial_data.pgm",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/partial_data.pgm","PGM",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 void test_open_image_errors_on_corrupt_header_pgm(void** state) {
-	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.pgm");
+	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.pgm","PGM");
 }
 
 // setup: setup_partial_pgm_data_tests
@@ -725,13 +725,13 @@ void test_read_frame_errors_on_partial_data_pgm(void** state) {
 int setup_partial_pfm_data_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/partial_data.pfm",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/partial_data.pfm","PFM",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 void test_open_image_errors_on_corrupt_header_pfm(void** state) {
-	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.pfm");
+	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.pfm","PFM");
 }
 
 // setup: setup_partial_pfm_data_tests
@@ -743,13 +743,13 @@ void test_read_frame_errors_on_partial_data_pfm(void** state) {
 int setup_partial_y4m_data_tests(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	size_t width, height;
-	if(!(ctx->image = resdet_open_image("test/files/partial_data.y4m",NULL,&width,&height,&ctx->imagebuf,NULL)))
+	if(!(ctx->image = resdet_open_image_with_reader("test/files/partial_data.y4m","Y4M",&width,&height,&ctx->imagebuf,NULL)))
 		return 1;
 	return 0;
 }
 
 void test_open_image_errors_on_corrupt_header_y4m(void** state) {
-	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.y4m");
+	run_open_image_errors_on_corrupt_header_test(state,"test/files/corrupt_header.y4m","Y4M");
 }
 
 // setup: setup_partial_y4m_data_tests
