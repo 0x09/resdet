@@ -34,21 +34,26 @@ static void* magickwand_reader_open(const char* filename, size_t* width, size_t*
 	if(MagickReadImage(ctx->wand,filename) == MagickFalse) {
 		ExceptionType ex;
 		char* exception = MagickGetException(ctx->wand,&ex);
-		if(ex == MissingDelegateError) {
-			if(!strcmp(filename,"-"))
-				*error = RDEUNSUPP;
-			else {
-				FILE* tmp = fopen(filename,"r");
-				if(tmp) {
+		switch(ex) {
+			case BlobError:
+			case FileOpenError: *error = -errno; break;
+			case ResourceLimitError:
+			case ResourceLimitFatalError: *error = RDENOMEM; break;
+			case MissingDelegateError:
+				if(!strcmp(filename,"-"))
 					*error = RDEUNSUPP;
-					fclose(tmp);
+				else {
+					FILE* tmp = fopen(filename,"r");
+					if(tmp) {
+						*error = RDEUNSUPP;
+						fclose(tmp);
+					}
+					else
+						*error = -errno;
 				}
-				else
-					*error = -errno;
-			}
+				break;
+			default: *error = RDEINVAL;
 		}
-		else
-			*error = RDEINVAL;
         RelinquishMagickMemory(exception);
 		goto error;
 	}
