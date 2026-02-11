@@ -8,7 +8,13 @@
 #if HAVE_MAGICKWAND > 6
 #include <MagickWand/MagickWand.h>
 #else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 #include <wand/MagickWand.h>
+#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 struct magickwand_context {
