@@ -2,6 +2,8 @@ resdet - Detect source resolution of upscaled images and videos.
 
 resdet is a command-line tool and C library which attempts to detect upscaling in images or videos and identify the original resolution upscaled from.
 
+resdet has an online version at http://0x09.net/resdet.
+
 # Dependencies
 
 resdet bundles [KISS FFT](https://github.com/mborgerding/kissfft) as its FFT implementation (permissively licensed) but can use [FFTW](https://fftw.org) (GPL, potentially faster) if available.  
