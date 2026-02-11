@@ -166,6 +166,14 @@ echo
 rm -f config.mak
 
 target_triple=$($CC -dumpmachine)
+tuning_flags='-march=native -mtune=native'
+if [[ "$target_triple" == aarch64-* && "$($CC -v 2>&1 | tail -n1)" == *'gcc version'* ]]; then
+	tuning_flags='-mcpu=native'
+fi
+
+CFLAGS_LIB="$tuning_flags $CFLAGS_LIB"
+CFLAGS_CLI="$tuning_flags $CFLAGS_CLI"
+
 if $sharedlib; then
 	CFLAGS_LIB+=' -fPIC -fvisibility=hidden'
 	case "$target_triple" in
