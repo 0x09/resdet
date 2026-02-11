@@ -98,7 +98,7 @@ function resDetect(array, width, height, method = null, parameters = {}) {
 	if(!(countwp && counthp && reswp && reshp))
 		throw new OutOfMemoryError();
 
-	const err = resdetect(buf,1,width,height,reswp,countwp,reshp,counthp,method.rdmethod,params);
+	const err = resdetect(buf, 1, width, height, reswp, countwp, reshp, counthp, method?.rdmethod, params);
 	Module._free(params);
 	Module._free(buf);
 	if(err) {
