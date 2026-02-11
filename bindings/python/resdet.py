@@ -67,13 +67,13 @@ class NoImagesError(Exception):
 class Method:
     name: str
     threshold: float
-    _c_method: RDMethodPtr
+    _rdmethod: RDMethodPtr
 
-    def __init__(self, name: str, threshold: float, c_method: RDMethodPtr) -> None:
+    def __init__(self, name: str, threshold: float, rdmethod: RDMethodPtr) -> None:
         self.name = name
         self.threshold = threshold
-        self._c_method = c_method
-        self._as_parameter_ = self._c_method
+        self._rdmethod = rdmethod
+        self._as_parameter_ = self._rdmethod
 
 @dataclass
 class Resolution:
@@ -313,7 +313,7 @@ def methods() -> dict:
     method = libresdet.resdet_methods()
     while method.contents.name:
         name_str = method.contents.name.decode("utf-8")
-        methods[name_str] = Method(name=name_str, threshold=method.contents.threshold, c_method=method)
+        methods[name_str] = Method(name=name_str, threshold=method.contents.threshold, rdmethod=method)
         method = ctypes.cast(ctypes.c_void_p(ctypes.addressof(method.contents) + ctypes.sizeof(RDMethod)), ctypes.POINTER(RDMethod))
     return methods
 
