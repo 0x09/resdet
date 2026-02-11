@@ -1,0 +1,11 @@
+_malloc
+_free
+_resdetect
+_resdet_get_method
+_resdet_methods
+_resdet_default_range
+_resdet_alloc_default_parameters
+_resdet_parameters_set_range
+_resdet_parameters_set_threshold
+_resdet_libversion
+_resdet_error_str

@@ -169,6 +169,8 @@ target_triple=$($CC -dumpmachine)
 tuning_flags='-march=native -mtune=native'
 if [[ "$target_triple" == aarch64-* && "$($CC -v 2>&1 | tail -n1)" == *'gcc version'* ]]; then
 	tuning_flags='-mcpu=native'
+elif [[ "$target_triple" == wasm32-* ]]; then
+	tuning_flags=
 fi
 
 CFLAGS_LIB="$tuning_flags $CFLAGS_LIB"

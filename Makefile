@@ -173,8 +173,11 @@ check_python_bindings: .testvenv $(SHAREDLIB)
 
 check: check_lib check_resdet check_python_bindings
 
+libresdet.mjs: $(LIB)
+	emcc -o $@ $^ -s ALLOW_MEMORY_GROWTH=1 -s "EXPORTED_FUNCTIONS=@$$PWD/bindings/emscripten/exported_functions.txt" -s EXPORTED_RUNTIME_METHODS=cwrap,HEAPF32,getValue,UTF8ToString
+
 clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS)
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS) libresdet.mjs libresdet.wasm
 
 .PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check_python_bindings check clean
 
