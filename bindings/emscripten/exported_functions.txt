@@ -9,3 +9,7 @@ _resdet_parameters_set_range
 _resdet_parameters_set_threshold
 _resdet_libversion
 _resdet_error_str
+_resdet_create_analysis
+_resdet_analyze_image
+_resdet_analysis_results
+_resdet_destroy_analysis
