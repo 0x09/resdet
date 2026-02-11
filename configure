@@ -5,7 +5,7 @@ set -e
 CC="${CC:-cc}"
 AR="${AR:-ar}"
 PREFIX="${PREFIX:-/usr/local}"
-CFLAGS="-O3 -march=native -mtune=native -Wall -Werror -DRESDET_EXPORT $CFLAGS"
+CFLAGS="-O3 -Wall -Werror -DRESDET_EXPORT $CFLAGS"
 CFLAGS_LIB="-std=c99 -pedantic $CFLAGS"
 CFLAGS_CLI="-std=gnu99 $CFLAGS"
 
@@ -165,9 +165,10 @@ echo
 
 rm -f config.mak
 
+target_triple=$($CC -dumpmachine)
 if $sharedlib; then
 	CFLAGS_LIB+=' -fPIC -fvisibility=hidden'
-	case "$($CC -v 2>&1 | grep -F 'Target:')" in
+	case "$target_triple" in
 		*mingw32*) SOEXT=dll;;
 		*windows*) SOEXT=dll;;
 		*darwin*) SOEXT=dylib;;
@@ -256,7 +257,7 @@ if [ -n "$PCDEPS" ]; then
 fi
 
 TOOLS=(resdet stat imgread)
-if ! $CC -v 2>&1 | grep -Fq 'Target: x86_64-w64-mingw32'; then
+if [[ "$target_triple" != x86_64-w64-* ]]; then
 	TOOLS+=(profile)
 fi
 
