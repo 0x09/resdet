@@ -171,6 +171,9 @@ check_python_bindings: .testvenv $(SHAREDLIB)
 	@echo "Testing Python bindings"
 	@. .testvenv/bin/activate; LD_LIBRARY_PATH=. PYTHONPATH="$$PWD/bindings/python" pytest -v
 
+check_emscripten_bindings: libresdet.mjs
+	@cd test/bindings/emscripten; CI=true npm run test
+
 check: check_lib check_resdet check_python_bindings
 
 vpath libresdet.mjs bindings/emscripten/
