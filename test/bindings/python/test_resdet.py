@@ -59,9 +59,7 @@ class TestResdet:
 
     def test_methods(self):
         methodnames = ["sign","mag","orig","zerox"]
-
-        assert list(resdet.methods().keys()) == methodnames
-        assert [method.name for method in resdet.methods().values()] == methodnames
+        assert [method.name for method in resdet.methods()] == methodnames
 
     def test_sets_parameters(self, test_file_frames):
         resolutions = resdet.resdetect([0,1,0,1], 1, 4, 1)

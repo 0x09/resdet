@@ -313,12 +313,11 @@ def _resolution_list_from_rdresolutions(rdresolution: RDResolutionPtr, count: ct
 def libversion() -> str:
     return libresdet.resdet_libversion().decode("utf-8")
 
-def methods() -> dict:
-    methods = {}
+def methods() -> list:
+    methods = []
     method = libresdet.resdet_methods()
     while method.contents.name:
-        name_str = method.contents.name.decode("utf-8")
-        methods[name_str] = Method(name=name_str, threshold=method.contents.threshold, rdmethod=method)
+        methods.append(Method.from_rdmethod(method))
         method = ctypes.cast(ctypes.c_void_p(ctypes.addressof(method.contents) + ctypes.sizeof(RDMethod)), ctypes.POINTER(RDMethod))
     return methods
 
