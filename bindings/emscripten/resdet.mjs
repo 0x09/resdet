@@ -213,4 +213,4 @@ function resDetect(float32Array, nimages, width, height, method = null, paramete
 	return { 'widths': resw, 'heights': resh };
 }
 
-export { RDError, Method, Resolution, Analysis, libVersion, defaultRange, methods, getMethod, resDetect };
+export { RDError, Method, Resolution, Analysis, libVersion, defaultRange, methods, resDetect };
