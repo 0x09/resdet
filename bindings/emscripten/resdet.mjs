@@ -13,7 +13,6 @@ const resdet_analyze_image = Module.cwrap('resdet_analyze_image', 'number', ['nu
 const resdet_analysis_results = Module.cwrap('resdet_analysis_results', 'number', ['number', 'number', 'number', 'number', 'number']);
 const resdet_destroy_analysis = Module.cwrap('resdet_destroy_analysis', null, ['number']);
 
-
 const libVersion = Module.cwrap('resdet_libversion', 'string', []);
 const defaultRange = Module.cwrap('resdet_default_range', 'number', []);
 
@@ -61,6 +60,8 @@ class Analysis {
 	constructor(width, height, method = null, parameters = {}) {
 		const params = parametersFromObj(parameters)
 		const errp = Module._malloc(4);
+		if(!errp)
+			throw new OutOfMemoryError();
 
 		this.rdanalysis = resdet_create_analysis(method?.rdmethod, width, height, params, errp);
 
