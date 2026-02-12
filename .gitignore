@@ -72,3 +72,4 @@ __pycache__
 /test/lib/tests_main.c
 libresdet.mjs
 libresdet.wasm
+.testvenv
