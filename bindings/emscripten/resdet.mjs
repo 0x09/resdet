@@ -144,17 +144,14 @@ function parametersFromObj(parameters) {
 		params = resdet_alloc_default_parameters();
 		if(!params)
 			throw new OutOfMemoryError();
-		if('range' in parameters) {
-			const err = resdet_parameters_set_range(params,parameters['range']);
-			if(err)
-				throw new RangeError(resdet_error_str(err));
-		}
 
-		if('threshold' in parameters) {
-			const err = resdet_parameters_set_threshold(params,parameters['threshold']);
-			if(err)
-				throw new RangeError(resdet_error_str(err));
-		}
+		let err;
+		if('range' in parameters)
+			err = resdet_parameters_set_range(params,parameters['range']);
+		if('threshold' in parameters)
+			err = resdet_parameters_set_threshold(params,parameters['threshold']);
+		if(err)
+			throw new RangeError(resdet_error_str(err));
 	}
 	return params;
 }
