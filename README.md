@@ -46,6 +46,8 @@ A pkg-config file is included; linker flags can be gotten via `pkg-config --libs
 API documentation is available in the [doc](doc) subdirectory.  
 Though the supplied build script is meant for Unix-likes, libresdet is written in standard C and should be usable on any platform with a C99 libc.
 
+libresdet also has bindings for [Python](bindings/python) and [JavaScript](bindings/emscripten) (via [Emscripten](https://emscripten.org/)).
+
 # FAQ
 This utility takes an image or frames of video which may have been upscaled and attempts to exactly identify the original resolution.
 
