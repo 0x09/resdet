@@ -22,6 +22,13 @@ class OutOfMemoryError extends Error {
 	}
 }
 
+class RDError extends Error {
+	constructor(rderror) {
+		super(resdet_error_str(rderror));
+		this.rderror = rderror;
+	}
+}
+
 class Method {
 	constructor(name, threshold, rdmethod) {
 		this.name = name;
@@ -69,7 +76,7 @@ class Analysis {
 		const err = Module.getValue(errp,'i32');
 		Module._free(errp);
 		if(err)
-			throw new Error(resdet_error_str(err));
+			throw new RDError(err);
 
 		analysisFinalizationRegistry.register(this,this.rdanalysis)
 	}
@@ -84,7 +91,7 @@ class Analysis {
 
 		Module._free(buf);
 		if(err)
-			throw new Error(resdet_error_str(err));
+			throw new RDError(err);
 	}
 
 	analysisResults() {
@@ -102,7 +109,7 @@ class Analysis {
 			Module._free(reshp);
 			Module._free(countwp);
 			Module._free(counthp);
-			throw new Error(resdet_error_str(err));
+			throw new RDError(err);
 		}
 
 		const countw = Module.getValue(countwp,'i32');
@@ -152,7 +159,7 @@ function parametersFromObj(parameters) {
 	if('threshold' in parameters)
 		err = resdet_parameters_set_threshold(params,parameters['threshold']);
 	if(err)
-		throw new RangeError(resdet_error_str(err));
+		throw new RDError(err);
 
 	return params;
 }
@@ -180,7 +187,7 @@ function resDetect(float32Array, nimages, width, height, method = null, paramete
 		Module._free(reshp);
 		Module._free(countwp);
 		Module._free(counthp);
-		throw new Error(resdet_error_str(err));
+		throw new RDError(err);
 	}
 
 	const countw = Module.getValue(countwp,'i32');
@@ -201,4 +208,4 @@ function resDetect(float32Array, nimages, width, height, method = null, paramete
 	return { 'widths': resw, 'heights': resh };
 }
 
-export { Method, Resolution, Analysis, libVersion, defaultRange, methods, getMethod, resDetect };
+export { RDError, Method, Resolution, Analysis, libVersion, defaultRange, methods, getMethod, resDetect };
