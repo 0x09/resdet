@@ -70,3 +70,5 @@ __pycache__
 /stat
 /test_libresdet
 /test/lib/tests_main.c
+libresdet.mjs
+libresdet.wasm
