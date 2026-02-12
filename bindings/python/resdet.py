@@ -75,6 +75,10 @@ class Method:
         self._rdmethod = rdmethod
         self._as_parameter_ = self._rdmethod
 
+    @classmethod
+    def from_rdmethod(cls, rdmethod: RDMethodPtr) -> 'Method':
+        return cls(rdmethod.contents.name.decode("utf-8"), rdmethod.contents.threshold, rdmethod)
+
 @dataclass
 class Resolution:
     index: int
@@ -319,7 +323,7 @@ def methods() -> dict:
 
 def get_method(methodname: str) -> Optional[Method]:
     method = libresdet.resdet_get_method(methodname.encode("utf-8"))
-    return Method(method.contents.name.decode("utf-8"), method.contents.threshold, method) if method else None
+    return Method.from_rdmethod(method) if method else None
 
 def default_range() -> int:
     return libresdet.resdet_default_range()
