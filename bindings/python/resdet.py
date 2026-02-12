@@ -79,6 +79,11 @@ class Method:
     def from_rdmethod(cls, rdmethod: RDMethodPtr) -> 'Method':
         return cls(rdmethod.contents.name.decode("utf-8"), rdmethod.contents.threshold, rdmethod)
 
+    @classmethod
+    def get(cls, methodname: str) -> Optional['Method']:
+        method = libresdet.resdet_get_method(methodname.encode("utf-8"))
+        return cls.from_rdmethod(method) if method else None
+
 @dataclass
 class Resolution:
     index: int
@@ -320,10 +325,6 @@ def methods() -> list:
         methods.append(Method.from_rdmethod(method))
         method = ctypes.cast(ctypes.c_void_p(ctypes.addressof(method.contents) + ctypes.sizeof(RDMethod)), ctypes.POINTER(RDMethod))
     return methods
-
-def get_method(methodname: str) -> Optional[Method]:
-    method = libresdet.resdet_get_method(methodname.encode("utf-8"))
-    return Method.from_rdmethod(method) if method else None
 
 def default_range() -> int:
     return libresdet.resdet_default_range()

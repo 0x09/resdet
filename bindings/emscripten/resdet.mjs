@@ -43,6 +43,13 @@ class Method {
 			rdmethod
 		)
 	}
+
+	static get(name) {
+		const rdmethod = resdet_get_method(name)
+		if(!rdmethod)
+			return undefined;
+		return Method.fromRDMethod(rdmethod)
+	}
 }
 
 class Resolution {
@@ -138,12 +145,6 @@ function methods() {
 	return methodArray;
 }
 
-function getMethod(name) {
-	const rdmethod = resdet_get_method(name)
-	if(!rdmethod)
-		return undefined;
-	return Method.fromRDMethod(rdmethod)
-}
 
 function parametersFromObj(parameters) {
 	if(Object.keys(parameters).length === 0)

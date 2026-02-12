@@ -54,7 +54,7 @@ class TestResdet:
         assert re.match(r"\d+\.\d+\.\d+(\+[a-f0-9]+)?", version) is not None
 
     def test_get_method(self):
-        method = resdet.get_method("zerox")
+        method = resdet.Method.get("zerox")
         assert method.name == "zerox"
 
     def test_methods(self):
