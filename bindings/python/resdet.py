@@ -317,9 +317,9 @@ def methods() -> dict:
         method = ctypes.cast(ctypes.c_void_p(ctypes.addressof(method.contents) + ctypes.sizeof(RDMethod)), ctypes.POINTER(RDMethod))
     return methods
 
-def get_method(methodname: str) -> Method:
+def get_method(methodname: str) -> Optional[Method]:
     method = libresdet.resdet_get_method(methodname.encode("utf-8"))
-    return Method(method.contents.name.decode("utf-8"), method.contents.threshold, method)
+    return Method(method.contents.name.decode("utf-8"), method.contents.threshold, method) if method else None
 
 def default_range() -> int:
     return libresdet.resdet_default_range()
