@@ -139,20 +139,21 @@ function getMethod(name) {
 }
 
 function parametersFromObj(parameters) {
-	let params = null;
-	if(Object.keys(parameters).length !== 0) {
-		params = resdet_alloc_default_parameters();
-		if(!params)
-			throw new OutOfMemoryError();
+	if(Object.keys(parameters).length === 0)
+		return null;
 
-		let err;
-		if('range' in parameters)
-			err = resdet_parameters_set_range(params,parameters['range']);
-		if('threshold' in parameters)
-			err = resdet_parameters_set_threshold(params,parameters['threshold']);
-		if(err)
-			throw new RangeError(resdet_error_str(err));
-	}
+	const params = resdet_alloc_default_parameters();
+	if(!params)
+		throw new OutOfMemoryError();
+
+	let err;
+	if('range' in parameters)
+		err = resdet_parameters_set_range(params,parameters['range']);
+	if('threshold' in parameters)
+		err = resdet_parameters_set_threshold(params,parameters['threshold']);
+	if(err)
+		throw new RangeError(resdet_error_str(err));
+
 	return params;
 }
 

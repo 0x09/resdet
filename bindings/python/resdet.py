@@ -286,18 +286,19 @@ def _rderror_to_exception(err: ctypes.c_int | int) -> Exception:
             return Exception(msg)
 
 def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
-    if parameters:
-        extra_keys = set(parameters.keys()) - set(["range", "threshold"])
-        if extra_keys:
-            raise Exception(f"Unrecognized parameters {", ".join(extra_keys)}")
+    if not parameters:
+        return None
 
-        rdparameters = libresdet.resdet_alloc_default_parameters()
-        if "range" in parameters:
-            libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
-        if "threshold" in parameters:
-            libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"])
-    else:
-        rdparameters = None
+    extra_keys = set(parameters.keys()) - set(["range", "threshold"])
+    if extra_keys:
+        raise Exception(f"Unrecognized parameters {", ".join(extra_keys)}")
+
+    rdparameters = libresdet.resdet_alloc_default_parameters()
+    if "range" in parameters:
+        libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
+    if "threshold" in parameters:
+        libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"])
+
     return rdparameters
 
 def _resolution_list_from_rdresolutions(rdresolution: RDResolutionPtr, count: ctypes.c_size_t) -> list:
