@@ -74,11 +74,11 @@ class Analysis {
 		analysisFinalizationRegistry.register(this,this.rdanalysis)
 	}
 
-	analyzeImage(array) {
-		const buf = Module._malloc(array.length*4);
+	analyzeImage(float32Array) {
+		const buf = Module._malloc(float32Array.length*4);
 		if(!buf)
 			throw new OutOfMemoryError();
-		Module.HEAPF32.set(array,buf/4);
+		Module.HEAPF32.set(float32Array,buf/4);
 
 		const err = resdet_analyze_image(this.rdanalysis, buf);
 
@@ -159,13 +159,13 @@ function parametersFromObj(parameters) {
 	return params;
 }
 
-function resDetect(array, width, height, method = null, parameters = {}) {
+function resDetect(float32Array, width, height, method = null, parameters = {}) {
 	const params = parametersFromObj(parameters)
 
-	const buf = Module._malloc(array.length*4);
+	const buf = Module._malloc(float32Array.length*4);
 	if(!buf)
 		throw new OutOfMemoryError();
-	Module.HEAPF32.set(array,buf/4);
+	Module.HEAPF32.set(float32Array,buf/4);
 
 	const countwp = Module._malloc(4);
 	const counthp = Module._malloc(4);
