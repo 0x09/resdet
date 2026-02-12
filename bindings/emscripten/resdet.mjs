@@ -149,6 +149,10 @@ function parametersFromObj(parameters) {
 	if(Object.keys(parameters).length === 0)
 		return null;
 
+	const unrecognized = Object.keys(parameters).filter(key => !['range', 'threshold'].includes(key));
+	if(unrecognized.length)
+		throw new Error(`Unrecognized parameters: ${unrecognized}`);
+
 	const params = resdet_alloc_default_parameters();
 	if(!params)
 		throw new OutOfMemoryError();
