@@ -296,7 +296,7 @@ def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
 
     extra_keys = set(parameters.keys()) - set(["range", "threshold"])
     if extra_keys:
-        raise Exception(f"Unrecognized parameters {", ".join(extra_keys)}")
+        raise Exception(f"Unrecognized parameters {', '.join(extra_keys)}")
 
     rdparameters = libresdet.resdet_alloc_default_parameters()
     if "range" in parameters:
