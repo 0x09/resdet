@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	if(range_opt) {
-		size_t range = strtol(range_opt,&endptr,10);
+		size_t range = strtoull(range_opt,&endptr,10);
 		if(range_opt == endptr || resdet_parameters_set_range(params,range)) {
 			fprintf(stderr,"Invalid range value %s\n",range_opt);
 			free(params);
