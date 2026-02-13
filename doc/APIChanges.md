@@ -1,3 +1,7 @@
+**2026-02-13**
+* Addition of the `resdet_parameters_set_compression_filter` function to set a factor for filtering likely compression artifacts from the results. (5ce0e1c)
+  * The Python and JS bindings now accept "compression_filter" as a key in their parameter dictionaries.
+
 **2026-02-09**
 * `resdet_seek_frame` with an `offset` of 0 now always succeeds. Previously this was dependent on the specific image reader. (2183936)
 * The `progress` callback to `resdet_seek_frame` will now be called when seeking in still-frame images. (fd94962)
