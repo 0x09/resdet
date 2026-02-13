@@ -2,7 +2,7 @@
   "scripts": {
     "test": "vitest"
   },
-  "dependencies": {
+  "devDependencies": {
     "vitest": "^4.0.18"
   }
 }
