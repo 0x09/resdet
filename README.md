@@ -83,7 +83,7 @@ Or, if resdet is built with FFmpeg support it can do this directly. Note that th
 Better results should be possible by analyzing multiple frames together. resdet supports this with the PFM, Y4M, MagickWand, and FFmpeg image loaders. To obtain multiple frames in the examples above, simply replace the argument to `-vframes` for FFmpeg `--frames` for mpv, or `-n` for resdet with the desired number of frames.
 
 ### JPEG
-Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet currently doesn't filter/penalize such results, although this can be mitigated somewhat by applying a deblocking filter to the image before analysis.
+Moderate to heavily compressed JPEG sources tend to produce false positives at multiples of 1/8 the input resolution, generally with more appearing and in higher ranks as the quality decreases. resdet has an option `-f` to filter these results out, but be aware that this may also filter out the correct original resolution. These false positive results can also be mitigated somewhat by applying a deblocking filter to the image before analysis.
 
 Deblocking example with FFmpeg: `ffmpeg -i source.jpg -vf pp=ha/va image.png`
 

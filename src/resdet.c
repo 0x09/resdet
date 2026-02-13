@@ -24,12 +24,12 @@ void seek_progress(void* ctx, uint64_t offset) {
 }
 
 void usage(const char* self) {
-	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -R <image_reader> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n",self);
+	fprintf(stderr,"Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -R <image_reader> -r <range> -x <threshold> -f <value> -p -o <offset> -n <nframes>] image\n",self);
 	exit(1);
 }
 
 void help(const char* self) {
-	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -p -o <offset> -n <nframes>] image\n"
+	printf("Usage: %s [-h -V -m <method> -v <verbosity> -t <filetype> -r <range> -x <threshold> -f <value> -p -o <offset> -n <nframes>] image\n"
 		" -h   This help text.\n"
 		" -V   Show the resdet CLI and library version.\n"
 		"\n"
@@ -44,6 +44,7 @@ void help(const char* self) {
 		"                    Use -R list to see available image readers.\n"
 		" -r   range: Number of neighboring values to search (%zu).\n"
 		" -x   threshold: Print all detection results above this method-specific confidence level (0-100).\n"
+		" -f   Filter out possible compression artifacts. Value: an integer filter value or \"auto\" to set one based on the file type."
 		" -p   Show progress in number of frames analyzed so far.\n"
 		" -o   offset: Seek to this frame number before starting detection.\n"
 		" -n   nframes: Limit detection to this number of frames.\n"
@@ -62,11 +63,11 @@ int main(int argc, char* argv[]) {
 	int c;
 	int verbosity = -1;
 	const char* method = NULL,* type = NULL,* image_reader = NULL;
-	const char* range_opt = NULL,* threshold_opt = NULL;
+	const char* range_opt = NULL,* threshold_opt = NULL,* filter_opt = NULL;
 	uint64_t offset = 0, nframes = 0;
 	bool progress = false, found_reader = false;
 	char* endptr;
-	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:R:hV")) != -1) {
+	while((c = getopt(argc,argv,"v:m:t:x:r:pn:o:R:f:hV")) != -1) {
 		switch(c) {
 			case 'v': verbosity = strtol(optarg,NULL,10); break;
 			case 'm': method = optarg; break;
@@ -88,6 +89,7 @@ int main(int argc, char* argv[]) {
 				break;
 			case 'x': threshold_opt = optarg; break;
 			case 'r': range_opt = optarg; break;
+			case 'f': filter_opt = optarg; break;
 			case 'o':
 				offset = strtoull(optarg,&endptr,10);
 				if(optarg == endptr) {
@@ -147,6 +149,14 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
+	if(filter_opt && strcmp(filter_opt,"auto")) {
+		unsigned long value = strtoul(filter_opt,&endptr,10);
+		if(filter_opt == endptr || value > UINT8_MAX || resdet_parameters_set_compression_filter(params,value)) {
+			fprintf(stderr,"Invalid filter value %s\n",filter_opt);
+			free(params);
+			return 1;
+		}
+	}
 	if(type && image_reader) {
 		fputs("Type option (-t) cannot be used with an image reader (-R)",stderr);
 		return 1;
@@ -179,6 +189,19 @@ int main(int argc, char* argv[]) {
 		}
 		if(progress)
 			fputs("\n",stderr);
+	}
+
+	const char* ext;
+	if(filter_opt && !strcmp(filter_opt,"auto") && (ext = strrchr(input,'.'))) {
+		uint8_t factor = 0;
+		if(!strcasecmp(ext,".jpeg") || !strcasecmp(ext,".jpg") || !strcasecmp(ext,".mp4") || !strcasecmp(ext,".mkv"))
+			factor = 3;
+		if(!strcasecmp(ext,".webp") || !strcasecmp(ext,".webm"))
+			factor = 2;
+		if(!strcasecmp(ext,".avif") || !strcasecmp(ext,".heic"))
+			factor = 5;
+
+		resdet_parameters_set_compression_filter(params,factor);
 	}
 
 	analysis = resdet_create_analysis(m,width,height,params,&e);
