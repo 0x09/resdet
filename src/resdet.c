@@ -15,7 +15,7 @@
 #define VERSION_SUFFIX
 #endif
 
-#define RESDET_VERSION_STRING "2.3.1" VERSION_SUFFIX
+#define RESDET_VERSION_STRING "2.4.0" VERSION_SUFFIX
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 

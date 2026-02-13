@@ -6,7 +6,7 @@ libname=resdet
 
 Name: resdet
 Description: Detect source resolution of upscaled images.
-Version: 3.0.1${version_suffix}
+Version: 3.1.0${version_suffix}
 URL: http://github.com/0x09/resdet
 
 Cflags: -I\\${includedir}

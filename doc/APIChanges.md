@@ -1,3 +1,10 @@
+
+---
+
+**libresdet 3.1.0 released here**
+
+---
+
 **2026-02-13**
 * Addition of the `resdet_parameters_set_compression_filter` function to set a factor for filtering likely compression artifacts from the results. (5ce0e1c)
   * The Python and JS bindings now accept "compression_filter" as a key in their parameter dictionaries.

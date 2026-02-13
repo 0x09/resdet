@@ -21,7 +21,7 @@
 #define VERSION_SUFFIX
 #endif
 
-#define RESDET_LIBVERSION_STRING "3.0.1" VERSION_SUFFIX
+#define RESDET_LIBVERSION_STRING "3.1.0" VERSION_SUFFIX
 
 #if USE_BUILTIN_SIGNBIT
 #define coeff_signbit(x) __builtin_signbit((x))
