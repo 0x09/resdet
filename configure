@@ -301,5 +301,9 @@ else
 	echo "Note: Python is required for make check."
 fi
 
-echo "TEST_CFLAGS=$(pkg-config --cflags cmocka)" >> config.mak
-echo "TEST_LIBS=$(pkg-config --libs cmocka)" >> config.mak
+if ! pkg-config --exists cmocka; then
+	echo "Note: cmocka is required for make check."
+else
+	echo "TEST_CFLAGS=$(pkg-config --cflags cmocka)" >> config.mak
+	echo "TEST_LIBS=$(pkg-config --libs cmocka)" >> config.mak
+fi
