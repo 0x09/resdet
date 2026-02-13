@@ -33,6 +33,9 @@ test('sets parameters', () => {
 
 	resolutions = resdet.resDetect(image, 1, 4, 1, null, { 'range': 1, 'threshold': 0 });
 	expect(resolutions['widths'].length).toBe(3);
+
+	resolutions = resdet.resDetect(image, 1, 4, 1, null, { 'range': 1, 'threshold': 0, 'compression_filter': 4 });
+	expect(resolutions['widths'].length).toBe(2);
 })
 
 test('raises invalid image error', () => {

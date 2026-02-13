@@ -68,6 +68,9 @@ class TestResdet:
         resolutions = resdet.resdetect([0,1,0,1], 1, 4, 1, parameters = { "range": 1, "threshold": 0 })
         assert len(resolutions["widths"]) == 3
 
+        resolutions = resdet.resdetect([0,1,0,1], 1, 4, 1, parameters = { "range": 1, "threshold": 0, "compression_filter": 2 })
+        assert len(resolutions["widths"]) == 2
+
     def test_raises_invalid_image_error(self):
         with pytest.raises(resdet.InvalidImageError):
             resdet.resdetect([1],1,0,0)

@@ -20,6 +20,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_alloc_default_parameters](#resdet_alloc_default_parameters)
     * [resdet_parameters_set_range](#resdet_parameters_set_range)
     * [resdet_parameters_set_threshold](#resdet_parameters_set_threshold)
+    * [resdet_parameters_set_compression_filter](#resdet_parameters_set_compression_filter)
     * [resdet_default_range](#resdet_default_range)
   * [Image Reading](#image-reading)
     * [resdet_open_image](#resdet_open_image)
@@ -235,6 +236,18 @@ This function returns an `RDEPARAM` error for values below zero or `NaN`.
 
 * params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
 * threshold - A threshold value between 0 and 1.
+
+---
+<a name="resdet_parameters_set_compression_filter"></a>
+
+```C
+RDError resdet_parameters_set_compression_filter(RDParameters* params, uint8_t value);
+```
+Set a factor for filtering possible compression artifacts from the result set. Specifically, this removes results at intervals of the image size / 2^value.
+
+* params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
+* value - A filtering factor between 0 and 31. Higher values filter out more results. Realistic values are between 2 and 5.
+  A value of 0 disables filtering and is the default.
 
 ---
 <a name="resdet_default_range"></a>

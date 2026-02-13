@@ -294,7 +294,7 @@ def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
     if not parameters:
         return None
 
-    extra_keys = set(parameters.keys()) - set(["range", "threshold"])
+    extra_keys = set(parameters.keys()) - set(["range", "threshold", "compression_filter"])
     if extra_keys:
         raise Exception(f"Unrecognized parameters {', '.join(extra_keys)}")
 
@@ -303,6 +303,8 @@ def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
         libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
     if "threshold" in parameters:
         libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"])
+    if "compression_filter" in parameters:
+        libresdet.resdet_parameters_set_compression_filter(rdparameters, parameters["compression_filter"])
 
     return rdparameters
 

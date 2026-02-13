@@ -129,9 +129,14 @@ end:
 static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, rdint_index bounds[2], intermediate* result, RDResolution** res, size_t* count) {
 	size_t nresults = 1;
 
+	float filter_interval = 0;
+	if(analysis->params.compression_filter)
+		filter_interval = length/(float)(1u << analysis->params.compression_filter);
+
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/analysis->nimages >= analysis->params.threshold)
+			if(result[i]/analysis->nimages >= analysis->params.threshold &&
+			  !(filter_interval && round(round(i*filter_interval/length)*length/filter_interval) != i))
 				nresults++;
 
 	if(!(*res = malloc(nresults*sizeof(**res))))
@@ -141,7 +146,8 @@ static RDError generate_dimension_results(RDAnalysis* analysis, size_t length, r
 
 	if(result)
 		for(rdint_index i = 0; i < bounds[1]-bounds[0]; i++)
-			if(result[i]/analysis->nimages >= analysis->params.threshold)
+			if(result[i]/analysis->nimages >= analysis->params.threshold &&
+			  !(filter_interval && round(round(i*filter_interval/length)*length/filter_interval) != i))
 				(*res)[(*count)++] = (RDResolution){i+bounds[0],result[i]/analysis->nimages};
 
 	qsort(*res,*count,sizeof(**res),sortres);

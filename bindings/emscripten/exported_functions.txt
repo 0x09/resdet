@@ -7,6 +7,7 @@ _resdet_default_range
 _resdet_alloc_default_parameters
 _resdet_parameters_set_range
 _resdet_parameters_set_threshold
+_resdet_parameters_set_compression_filter
 _resdet_libversion
 _resdet_error_str
 _resdet_create_analysis

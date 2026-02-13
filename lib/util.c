@@ -39,6 +39,14 @@ RESDET_API RDError resdet_parameters_set_threshold(RDParameters* params, float t
 	return RDEOK;
 }
 
+RESDET_API RDError resdet_parameters_set_compression_filter(RDParameters* params, uint8_t value) {
+	if(!params || value > sizeof(unsigned int)*CHAR_BIT-1)
+		return RDEPARAM;
+
+	params->compression_filter = value;
+	return RDEOK;
+}
+
 
 RESDET_API size_t resdet_default_range(void) {
 	return DEFAULT_RANGE;

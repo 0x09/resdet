@@ -7,6 +7,7 @@ const resdet_get_method = Module.cwrap('resdet_get_method', 'number', ['string']
 const resdet_alloc_default_parameters = Module.cwrap('resdet_alloc_default_parameters', 'number', ['string']);
 const resdet_parameters_set_range = Module.cwrap('resdet_parameters_set_range', 'number', ['number', 'number']);
 const resdet_parameters_set_threshold = Module.cwrap('resdet_parameters_set_threshold', 'number', ['number', 'number']);
+const resdet_parameters_set_compression_filter = Module.cwrap('resdet_parameters_set_compression_filter', 'number', ['number', 'number']);
 const resdetect = Module.cwrap('resdetect', 'number', ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number']);
 const resdet_create_analysis = Module.cwrap('resdet_create_analysis', 'number', ['number', 'number', 'number', 'number','number']);
 const resdet_analyze_image = Module.cwrap('resdet_analyze_image', 'number', ['number', 'number']);
@@ -150,7 +151,7 @@ function parametersFromObj(parameters) {
 	if(Object.keys(parameters).length === 0)
 		return null;
 
-	const unrecognized = Object.keys(parameters).filter(key => !['range', 'threshold'].includes(key));
+	const unrecognized = Object.keys(parameters).filter(key => !['range', 'threshold', 'compression_filter'].includes(key));
 	if(unrecognized.length)
 		throw new Error(`Unrecognized parameters: ${unrecognized}`);
 
@@ -163,6 +164,8 @@ function parametersFromObj(parameters) {
 		err = resdet_parameters_set_range(params,parameters['range']);
 	if('threshold' in parameters)
 		err = resdet_parameters_set_threshold(params,parameters['threshold']);
+	if('compression_filter' in parameters)
+		err = resdet_parameters_set_compression_filter(params,parameters['compression_filter']);
 	if(err)
 		throw new RDError(err);
 

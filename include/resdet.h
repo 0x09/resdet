@@ -65,6 +65,7 @@ RESDET_API RDParameters* resdet_alloc_default_parameters(void);
 
 RESDET_API RDError resdet_parameters_set_range(RDParameters*, size_t range);
 RESDET_API RDError resdet_parameters_set_threshold(RDParameters*, float threshold);
+RESDET_API RDError resdet_parameters_set_compression_filter(RDParameters*, uint8_t value);
 
 
 RESDET_API RDImage* resdet_open_image(const char* filename, const char* type, size_t* width, size_t* height, float** imagebuf, RDError* error);

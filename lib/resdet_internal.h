@@ -62,6 +62,7 @@ typedef struct resdet_plan resdet_plan;
 struct RDParameters {
 	size_t range;
 	float threshold;
+	uint8_t compression_filter;
 };
 
 struct RDAnalysis {
