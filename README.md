@@ -91,7 +91,7 @@ Deblocking example with FFmpeg: `ffmpeg -i source.jpg -vf pp=ha/va image.png`
 resdet works well on images resampled with traditional methods, but will not work with newer AI/neural network-based resizers like DLSS.
 These work by effectively adding information to the upscaled image rather than simply resampling, which makes the results indistinguishable from a non-upscaled image to resdet.
 
-If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
+If you think something might be upsampled but you aren't getting a good result with resdet, install [spec](https://github.com/0x09/dspfun/tree/master/spec) or try [the online version](https://0x09.net/spec) and have a look at an absolute value spectrum – it's usually possible to identify by sight. Our example earlier looks like this:
 
 ![Upscaled Blue Marble spectrum](https://0x09.net/i/g/blue_marble_2012_upscaled.png)
 
