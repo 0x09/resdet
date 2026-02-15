@@ -12,7 +12,7 @@ const resdetect = Module.cwrap('resdetect', 'number', ['number', 'number', 'numb
 const resdet_create_analysis = Module.cwrap('resdet_create_analysis', 'number', ['number', 'number', 'number', 'number','number']);
 const resdet_analyze_image = Module.cwrap('resdet_analyze_image', 'number', ['number', 'number']);
 const resdet_analysis_results = Module.cwrap('resdet_analysis_results', 'number', ['number', 'number', 'number', 'number', 'number']);
-const resdet_destroy_analysis = Module.cwrap('resdet_destroy_analysis', null, ['number']);
+const resdet_destroy_analysis = Module.cwrap('resdet_destroy_analysis', undefined, ['number']);
 
 const libVersion = Module.cwrap('resdet_libversion', 'string', []);
 const defaultRange = Module.cwrap('resdet_default_range', 'number', []);
@@ -24,20 +24,26 @@ class OutOfMemoryError extends Error {
 }
 
 class RDError extends Error {
-	constructor(rderror) {
+	rderror: number
+
+	constructor(rderror: number) {
 		super(resdet_error_str(rderror));
 		this.rderror = rderror;
 	}
 }
 
 class Method {
-	constructor(name, threshold, rdmethod) {
+	name: string
+	threshold: number
+	rdmethod: number
+
+	constructor(name: string, threshold: number, rdmethod: number) {
 		this.name = name;
 		this.threshold = threshold;
 		this.rdmethod = rdmethod;
 	}
 
-	static fromRDMethod(rdmethod) {
+	static fromRDMethod(rdmethod: number) {
 		return new Method(
 			Module.UTF8ToString(Module.getValue(rdmethod,'i8*')),
 			Module.getValue(rdmethod+8,'float'),
@@ -45,7 +51,7 @@ class Method {
 		)
 	}
 
-	static get(name) {
+	static get(name: string) {
 		const rdmethod = resdet_get_method(name)
 		if(!rdmethod)
 			return undefined;
@@ -54,12 +60,15 @@ class Method {
 }
 
 class Resolution {
-	constructor(index, confidence) {
+	index: number
+	confidence: number
+
+	constructor(index: number, confidence: number) {
 		this.index = index;
 		this.confidence = confidence;
 	}
 
-	static fromRDResolution(rdresolution) {
+	static fromRDResolution(rdresolution: number) {
 		return new Resolution(
 			Module.getValue(rdresolution,'i32'),
 			Module.getValue(rdresolution+4,'float')
@@ -67,12 +76,25 @@ class Resolution {
 	}
 }
 
-const analysisFinalizationRegistry = new FinalizationRegistry((rdanalysis) => {
+interface Parameters {
+	threshold: number;
+	range: number;
+	compression_filter: number;
+};
+
+interface Resolutions {
+	widths: Resolution[];
+	heights: Resolution[];
+}
+
+const analysisFinalizationRegistry = new FinalizationRegistry((rdanalysis: number) => {
 	resdet_destroy_analysis(rdanalysis);
 })
 
 class Analysis {
-	constructor(width, height, method = null, parameters = {}) {
+	rdanalysis: number
+
+	constructor(width: number, height: number, method: Method | null = null, parameters: Partial<Parameters> = {}) {
 		const params = parametersFromObj(parameters)
 		const errp = Module._malloc(4);
 		if(!errp)
@@ -89,7 +111,7 @@ class Analysis {
 		analysisFinalizationRegistry.register(this,this.rdanalysis)
 	}
 
-	analyzeImage(float32Array) {
+	analyzeImage(float32Array: Float32Array) {
 		const buf = Module._malloc(float32Array.length*4);
 		if(!buf)
 			throw new OutOfMemoryError();
@@ -102,7 +124,7 @@ class Analysis {
 			throw new RDError(err);
 	}
 
-	analysisResults() {
+	analysisResults(): Resolutions {
 		const countwp = Module._malloc(4);
 		const counthp = Module._malloc(4);
 		const reswp = Module._malloc(4);
@@ -139,7 +161,7 @@ class Analysis {
 	}
 }
 
-function methods() {
+function methods(): Method[] {
 	const methodArray = [];
 	for(let rdmethod = resdet_methods(); Module.getValue(rdmethod,'*'); rdmethod += 12)
 		methodArray.push(Method.fromRDMethod(rdmethod));
@@ -147,7 +169,7 @@ function methods() {
 }
 
 
-function parametersFromObj(parameters) {
+function parametersFromObj(parameters: Partial<Parameters>) {
 	if(Object.keys(parameters).length === 0)
 		return null;
 
@@ -172,7 +194,7 @@ function parametersFromObj(parameters) {
 	return params;
 }
 
-function resDetect(float32Array, nimages, width, height, method = null, parameters = {}) {
+function resDetect(float32Array: Float32Array, nimages: number, width: number, height: number, method: Method | null = null, parameters: Partial<Parameters> = {}) {
 	const params = parametersFromObj(parameters)
 
 	const buf = Module._malloc(float32Array.length*4);

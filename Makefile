@@ -171,18 +171,22 @@ check_python_bindings: .testvenv $(SHAREDLIB)
 	@echo "Testing Python bindings"
 	@. .testvenv/bin/activate; LD_LIBRARY_PATH=. PYTHONPATH="$$PWD/bindings/python" pytest -v
 
-check_emscripten_bindings: libresdet.mjs
+check_emscripten_bindings: libresdet.mjs resdet.mjs
 	@cd test/bindings/emscripten; CI=true npm run test
 
 check: check_lib check_resdet check_python_bindings
 
 vpath libresdet.mjs bindings/emscripten/
+vpath resdet.mjs bindings/emscripten/
 
 libresdet.mjs: $(LIB)
-	emcc -o bindings/emscripten/$@ $^ -s ALLOW_MEMORY_GROWTH=1 -s "EXPORTED_FUNCTIONS=@$$PWD/bindings/emscripten/exported_functions.txt" -s EXPORTED_RUNTIME_METHODS=cwrap,HEAPF32,getValue,UTF8ToString
+	emcc -o bindings/emscripten/$@ --emit-tsd libresdet.d.mts $^ -s ALLOW_MEMORY_GROWTH=1 -s "EXPORTED_FUNCTIONS=@$$PWD/bindings/emscripten/exported_functions.txt" -s EXPORTED_RUNTIME_METHODS=cwrap,HEAPF32,getValue,UTF8ToString
+
+resdet.mjs: libresdet.mjs
+	cd bindings/emscripten; npx tsc
 
 clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS) bindings/emscripten/libresdet.{mjs,wasm}
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS) bindings/emscripten/libresdet.{mjs,wasm} bindings/emscripten/resdet.mjs
 
 .PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check_python_bindings check clean
 

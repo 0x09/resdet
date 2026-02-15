@@ -73,4 +73,6 @@ __pycache__
 libresdet.mjs
 libresdet.wasm
 .testvenv
+bindings/emscripten/node_modules
 test/bindings/emscripten/node_modules
+*.d.mts

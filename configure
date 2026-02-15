@@ -307,3 +307,7 @@ else
 	echo "TEST_CFLAGS=$(pkg-config --cflags cmocka)" >> config.mak
 	echo "TEST_LIBS=$(pkg-config --libs cmocka)" >> config.mak
 fi
+
+if ! command -v emcc > /dev/null || ! command -v npm > /dev/null; then
+	echo "Note: Emspricpten and npm are required for building and testing the Emscripten bindings"
+fi
