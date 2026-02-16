@@ -24,6 +24,7 @@ __pycache__
 /test_libresdet
 /test/lib/tests_main.c
 /.testvenv
+/.pytest_cache
 /bindings/emscripten/libresdet.mjs
 /bindings/emscripten/libresdet.wasm
 /bindings/emscripten/node_modules
