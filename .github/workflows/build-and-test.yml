@@ -118,12 +118,6 @@ jobs:
         run: |
           brew update
           brew install emscripten
-          cd bindings/emscripten
-          npm ci
-      - name: Install test dependencies
-        run: |
-            cd test/bindings/emscripten
-            npm ci
       - name: Configure resdet
         run: ./configure --cc=emcc --ar=emar --disable-everything --omit-pgm-reader --omit-pfm-reader --omit-y4m-reader
       - name: Build resdet.mjs

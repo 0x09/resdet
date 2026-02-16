@@ -171,7 +171,7 @@ check_python_bindings: .testvenv $(SHAREDLIB)
 	@echo "Testing Python bindings"
 	@. .testvenv/bin/activate; LD_LIBRARY_PATH=. PYTHONPATH="$$PWD/bindings/python" pytest -v
 
-check_emscripten_bindings: libresdet.mjs resdet.mjs
+check_emscripten_bindings: libresdet.mjs resdet.mjs test/bindings/emscripten/node_modules
 	@cd test/bindings/emscripten; CI=true npm run test
 
 check: check_lib check_resdet check_python_bindings
@@ -179,10 +179,16 @@ check: check_lib check_resdet check_python_bindings
 vpath libresdet.mjs bindings/emscripten/
 vpath resdet.mjs bindings/emscripten/
 
+test/bindings/emscripten/node_modules: test/bindings/emscripten/package-lock.json
+	cd test/bindings/emscripten; npm ci
+
+bindings/emscripten/node_modules: bindings/emscripten/package-lock.json
+	cd bindings/emscripten; npm ci
+
 libresdet.mjs: $(LIB)
 	emcc -o bindings/emscripten/$@ --emit-tsd libresdet.d.mts $^ -s ALLOW_MEMORY_GROWTH=1 -s "EXPORTED_FUNCTIONS=@$$PWD/bindings/emscripten/exported_functions.txt" -s EXPORTED_RUNTIME_METHODS=cwrap,HEAPF32,getValue,UTF8ToString
 
-resdet.mjs: libresdet.mjs
+resdet.mjs: libresdet.mjs bindings/emscripten/node_modules
 	cd bindings/emscripten; npx tsc
 
 clean:
