@@ -1,5 +1,5 @@
 iniconfig==2.3.0
-numpy==2.4.2
+numpy==2.4.3
 packaging==26.0
 pillow==12.1.1
 pluggy==1.6.0
