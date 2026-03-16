@@ -11,6 +11,7 @@
 *.d.mts
 *.mts.map
 *.mjs.map
+*.wasm
 
 compile_commands.json
 __pycache__
@@ -28,7 +29,6 @@ __pycache__
 /.testvenv
 /.pytest_cache
 /bindings/emscripten/libresdet.mjs
-/bindings/emscripten/libresdet.wasm
 /bindings/emscripten/resdet.mjs
 /bindings/emscripten/node_modules
 /test/bindings/emscripten/node_modules
