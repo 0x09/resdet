@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 			case 't': type = optarg; break;
 			case 'R':
 				for(const char* const* image_reader = resdet_list_image_readers(); *image_reader; image_reader++)
-					if(!strcmp(*image_reader,optarg)) {
+					if(!strcasecmp(*image_reader,optarg)) {
 						found_reader = true;
 						break;
 					}
