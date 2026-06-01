@@ -392,7 +392,7 @@ If an error occurs the returned pointer will be `NULL` and the error pointer upd
 
 * method - A detection method returned by [`resdet_methods`](#resdet_methods) or [`resdet_get_method`](#resdet_get_method). May be `NULL` to use the library default method.
 * width, height - Dimensions of the image which will be passed to [`resdet_analyze_image`](#resdet_analyze_image).
-* params - Optional pointer to an [`RDParameters`](#rdparameters) struct for controlling detection behavior, or `NULL` to use the library default parameters.
+* params - Optional pointer to an [`RDParameters`](#rdparameters) struct for controlling detection behavior, or `NULL` to use the library default parameters. Parameters are copied internally, the argument is unused by the library after this call.
 * error - Out parameter containing the error if any, or `RDEOK`.
 
 ---
