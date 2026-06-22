@@ -8,7 +8,7 @@ jobs:
          transform: [fftw, kiss_fft]
          cc: [gcc, clang]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -42,7 +42,7 @@ jobs:
          transform: [fftw, kiss_fft]
          cc: [gcc-15, clang]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           brew update
@@ -79,7 +79,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -112,7 +112,7 @@ jobs:
   build-and-test-js-bindings:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
       - name: Install dependencies
         run: |
