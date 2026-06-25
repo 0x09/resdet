@@ -37,7 +37,7 @@ for resolution in resolutions["heights"]:
     print(f"{resolution.index} {resolution.confidence}")
 ```
 
-resdet's detection parameters can be controlled by calling resdetect or the Analysis constructor with `parameters = { "threshold": the_threshold, "range": the_range }`  
+resdet's detection parameters can be controlled by calling resdetect or the Analysis constructor with `parameters = { "threshold": the_threshold, "range": the_range, "compression_filter": the_compression_filter }`
 A detection method can be provided with `method = the_method`. Methods can be obtained as a list using `resdetect.methods()`.
 
 ---
