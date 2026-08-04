@@ -65,7 +65,7 @@ lib/transform/fftw.o:   CFLAGS := $(CFLAGS_FFTW) $(CFLAGS_LIB)
 lib/image/libjpeg.o:    CFLAGS := $(CFLAGS_libjpeg) $(CFLAGS_LIB)
 lib/image/libpng.o:     CFLAGS := $(CFLAGS_libpng) $(CFLAGS_LIB)
 lib/image/magickwand.o: CFLAGS := $(CFLAGS_MagickWand) $(CFLAGS_LIB)
-lib/image/ffmpeg.o:     CFLAGS := $(CFLAGS_ffmpeg) $(CFLAGS_LIB)
+lib/image/ffmpeg.o:     CFLAGS := $(CFLAGS_ffmpeg) $(CFLAGS_LIB) -std=c11
 
 $(LIB): CFLAGS := $(CFLAGS_LIB)
 $(LIB): $(OBJS)
