@@ -211,7 +211,7 @@ static void run_multi_frame_seeking_past_end_of_file_returns_false_test(void** s
 }
 
 
-void run_still_frame_reading_past_end_of_file_returns_false_test(void** state) {
+static void run_still_frame_reading_past_end_of_file_returns_false_test(void** state) {
 	struct image_reader_ctx* ctx = *state;
 	RDError err;
 	bool ret;
