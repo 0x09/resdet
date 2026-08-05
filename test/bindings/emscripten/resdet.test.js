@@ -39,19 +39,19 @@ test('sets parameters', () => {
 })
 
 test('raises invalid image error', () => {
-	expect(() => resdet.resDetect(new Float32Array([1]),1, 0, 0)).toThrowError(expect.objectContaining({
+	expect(() => resdet.resDetect(new Float32Array([1]),1, 0, 0)).toThrow(expect.objectContaining({
 		message: 'Invalid image',
 	}));
 })
 
 test('raises no images error', () => {
-	expect(() => resdet.resDetect(new Float32Array([1]), 0, 1, 1)).toThrowError(expect.objectContaining({
+	expect(() => resdet.resDetect(new Float32Array([1]), 0, 1, 1)).toThrow(expect.objectContaining({
 		message: 'No images were analyzed',
 	}));
 })
 
 test('raises with unrecognized parameter', () => {
-	expect(() => resdet.resDetect(new Float32Array([1]), 1, 1, 1, null, { 'unrecognized': 1 })).toThrowError(expect.objectContaining({
+	expect(() => resdet.resDetect(new Float32Array([1]), 1, 1, 1, null, { 'unrecognized': 1 })).toThrow(expect.objectContaining({
 		message: 'Unrecognized parameters: unrecognized',
 	}));
 })
