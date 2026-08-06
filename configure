@@ -226,7 +226,7 @@ fi
 for dep in libjpeg libpng MagickWand; do
 	check=with_$dep
 	if ${!check} && testpc $dep; then
-		name="$(tr '[a-z]' '[A-Z]' <<< $dep)"
+		name="$(tr 'a-z' 'A-Z' <<< $dep)"
 		ver="$(pcver $dep)"
 		echo "HAVE_$name=$ver" >> config.mak
 		DEFS+=" -DHAVE_$name=$ver"
@@ -248,7 +248,7 @@ testlib m && LIBS+=" -lm"
 for type in pgm pfm y4m; do
 	check=omit_${type}_reader
 	if ${!check}; then
-		macro="OMIT_$(tr '[a-z]' '[A-Z]' <<< $type)_READER"
+		macro="OMIT_$(tr 'a-z' 'A-Z' <<< $type)_READER"
 		DEFS+=" -D$macro"
 		echo "$macro=1" >> config.mak
 	fi
