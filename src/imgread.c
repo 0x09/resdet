@@ -46,4 +46,6 @@ end:
 	if(out)
 		fclose(out);
 	free(image);
+
+	return !!e;
 }
