@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
 	FILE* out = NULL;
 
-	float* image;
+	float* image = NULL;
 	size_t width, height;
 	RDError e;
 	RDImage* rdimage = resdet_open_image(argv[1],NULL,&width,&height,&image,&e);
