@@ -52,6 +52,10 @@ RESDET_API size_t resdet_default_range(void) {
 	return DEFAULT_RANGE;
 }
 
+RESDET_API void resdet_free(void* ptr) {
+	free(ptr);
+}
+
 RESDET_API const char* resdet_libversion(void) {
 	return RESDET_LIBVERSION_STRING;
 }

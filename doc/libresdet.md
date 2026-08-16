@@ -22,6 +22,7 @@ libresdet is a library for analyzing potential original resolutions in an image.
     * [resdet_parameters_set_threshold](#resdet_parameters_set_threshold)
     * [resdet_parameters_set_compression_filter](#resdet_parameters_set_compression_filter)
     * [resdet_default_range](#resdet_default_range)
+    * [resdet_free](#resdet_free)
   * [Image Reading](#image-reading)
     * [resdet_open_image](#resdet_open_image)
     * [resdet_open_image_with_reader](#resdet_open_image_with_reader)
@@ -261,6 +262,18 @@ Returns the library default search range, as used when not explicitly specifying
 Most detection methods use this value to determine how many neighboring values to consider when detecting a given resolution.
 
 Higher values are more accurate up to a point, while lower values are faster.
+
+---
+<a name="resdet_free"></a>
+
+```C
+void resdet_free(void* ptr);
+```
+
+Free memory allocated by libresdet.  
+Its use is not required over `free`, but is recommended when using libresdet as a shared library in case libresdet is linked to a different libc than the calling application.
+
+* ptr - Pointer to the memory to deallocate. May be `NULL`.
 
 ## Image Reading
 
