@@ -73,6 +73,8 @@ puts("Heights:")
 for(size_t i = 0; i < num_heights; i++)
     printf("%zu\n", heights[i].index);
 
+resdet_free(widths);
+resdet_free(heights);
 ```
 
 # Types
