@@ -48,5 +48,5 @@ end:
 	free(rw);
 	free(rh);
 	if(e) fprintf(stderr,"%s\n",resdet_error_str(e));
-	return e;
+	return !!e;
 }
