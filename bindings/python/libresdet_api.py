@@ -60,6 +60,9 @@ libresdet.resdet_parameters_set_threshold.argtypes = [ctypes.POINTER(RDParameter
 libresdet.resdet_parameters_set_compression_filter.restype = ctypes.c_int
 libresdet.resdet_parameters_set_compression_filter.argtypes = [ctypes.POINTER(RDParameters), ctypes.c_uint8]
 
+libresdet.resdet_free.restype = None
+libresdet.resdet_free.argtypes = [ctypes.c_void_p]
+
 libresdet.resdet_open_image.restype = ctypes.POINTER(RDImage)
 libresdet.resdet_open_image.argtypes = [
     ctypes.c_char_p, ctypes.c_char_p,

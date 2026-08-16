@@ -94,9 +94,15 @@ class ImageBuffer:
     width: int
     height: int
     nimages: int
+    resdet_allocated: bool
 
     def __init__(self, buffer: Optional[c_float_ptr] = None) -> None:
-        self.data = buffer if buffer else ctypes.POINTER(ctypes.c_float)()
+        if buffer:
+            self.data = buffer
+            self.resdet_allocated = False
+        else:
+            self.data = ctypes.POINTER(ctypes.c_float)()
+            self.resdet_allocated = True
         self._as_parameter_ = self.data
 
     @classmethod
@@ -105,6 +111,7 @@ class ImageBuffer:
         imagebuffer.width = width
         imagebuffer.height = height
         imagebuffer.nimages = nimages
+        imagebuffer.resdet_allocated = False
         return imagebuffer
 
     def shape(self):
@@ -133,7 +140,10 @@ class ImageBuffer:
         return self.data[index]
 
     def close(self) -> None:
-        libc.free(self.data)
+        if self.resdet_allocated:
+            libresdet.resdet_free(self.data)
+        else:
+            libc.free(self.data)
         self.data = ctypes.POINTER(ctypes.c_float)()
 
     def __enter__(self) -> "ImageBuffer":
@@ -209,7 +219,7 @@ class Analysis:
         params_arg = _dict_to_rdparameters(parameters)
         err = ctypes.c_int()
         self._rdanalysis = libresdet.resdet_create_analysis(method, width, height, params_arg, err)
-        libc.free(params_arg)
+        libresdet.resdet_free(params_arg)
 
         if not self._rdanalysis:
             raise _rderror_to_exception(err)
@@ -245,9 +255,9 @@ class Analysis:
             raise _rderror_to_exception(err)
 
         widths = _resolution_list_from_rdresolutions(resw, countw)
-        libc.free(resw)
+        libresdet.resdet_free(resw)
         heights = _resolution_list_from_rdresolutions(resh, counth)
-        libc.free(resh)
+        libresdet.resdet_free(resh)
 
         return {"widths": widths, "heights": heights}
 
@@ -364,15 +374,15 @@ def resdetect(image, nimages: int, width: int, height: int, method: Optional[Met
 
     err = libresdet.resdetect(image, nimages, width, height, resw, countw, resh, counth, method, params_arg)
 
-    libc.free(params_arg)
+    libresdet.resdet_free(params_arg)
 
     if err:
         raise _rderror_to_exception(err)
 
     widths = _resolution_list_from_rdresolutions(resw, countw)
-    libc.free(resw)
+    libresdet.resdet_free(resw)
     heights = _resolution_list_from_rdresolutions(resh, counth)
-    libc.free(resh)
+    libresdet.resdet_free(resh)
 
     return {"widths": widths, "heights": heights}
 
@@ -402,14 +412,14 @@ def resdetect_file(filename: str | os.PathLike, type: Optional[str] = None, meth
 
     err = libresdet.resdetect_file(str(filename).encode("utf-8"), type_arg, resw, countw, resh, counth, method, params_arg)
 
-    libc.free(params_arg)
+    libresdet.resdet_free(params_arg)
 
     if err:
         raise _rderror_to_exception(err)
 
     widths = _resolution_list_from_rdresolutions(resw, countw)
-    libc.free(resw)
+    libresdet.resdet_free(resw)
     heights = _resolution_list_from_rdresolutions(resh, counth)
-    libc.free(resh)
+    libresdet.resdet_free(resh)
 
     return {"widths": widths, "heights": heights}
