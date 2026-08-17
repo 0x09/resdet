@@ -94,15 +94,15 @@ class ImageBuffer:
     width: int
     height: int
     nimages: int
-    resdet_allocated: bool
+    __resdet_allocated: bool
 
     def __init__(self, buffer: Optional[c_float_ptr] = None) -> None:
         if buffer:
             self.data = buffer
-            self.resdet_allocated = False
+            self.__resdet_allocated = False
         else:
             self.data = ctypes.POINTER(ctypes.c_float)()
-            self.resdet_allocated = True
+            self.__resdet_allocated = True
         self._as_parameter_ = self.data
 
     @classmethod
@@ -111,7 +111,7 @@ class ImageBuffer:
         imagebuffer.width = width
         imagebuffer.height = height
         imagebuffer.nimages = nimages
-        imagebuffer.resdet_allocated = False
+        imagebuffer.__resdet_allocated = False
         return imagebuffer
 
     def shape(self):
@@ -140,7 +140,7 @@ class ImageBuffer:
         return self.data[index]
 
     def close(self) -> None:
-        if self.resdet_allocated:
+        if self.__resdet_allocated:
             libresdet.resdet_free(self.data)
         else:
             libc.free(self.data)
