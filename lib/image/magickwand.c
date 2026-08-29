@@ -82,7 +82,11 @@ static bool magickwand_reader_read_frame(void* reader_ctx, float* image, size_t 
 	if(MagickNextImage(ctx->wand) == MagickFalse)
 		return false;
 
-	MagickExportImagePixels(ctx->wand,0,0,width,height,"I",FloatPixel,image);
+	if(MagickExportImagePixels(ctx->wand,0,0,width,height,"I",FloatPixel,image) == MagickFalse) {
+		*error = RDEINVAL;
+		return false;
+	}
+
 	return true;
 }
 
