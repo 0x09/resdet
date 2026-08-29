@@ -1,3 +1,10 @@
+
+---
+
+**libresdet 3.2.0 released here**
+
+---
+
 **2026-08-16**
 * Addition of the `resdet_free` function for safely freeing memory when libresdet is used as a shared library (3712443)
 
