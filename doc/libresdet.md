@@ -445,9 +445,9 @@ Typically called after all images in a sequence have been analyzed with [`resdet
 void resdet_destroy_analysis(RDAnalysis* analysis);
 ```
 
-Destroy an analysis. Should match all calls to the [`resdet_create_analysis`](#resdet_create_analysis) functions.
+Destroy an analysis. Should match all calls to [`resdet_create_analysis`](#resdet_create_analysis).
 
-* analysis - An [`RDAnalysis`](#rdanalysis) returned from the [`resdet_create_analysis`](#resdet_create_analysis) functions. May be `NULL`.
+* analysis - An [`RDAnalysis`](#rdanalysis) returned from [`resdet_create_analysis`](#resdet_create_analysis). May be `NULL`.
 
 ## High Level Detection Functions
 
