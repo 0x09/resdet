@@ -594,10 +594,10 @@ In all other cases no extra preparation is needed.
 Steps to prepare each of these for threaded execution are:
 
 * FFTW
- * Include `fftw.h`
- * Call [`fftw_make_planner_thread_safe()`](http://www.fftw.org/fftw3_doc/Thread-safety.html#Thread-safety)
- * Link with a threaded version of the FFTW library
- * Link with the system's threading library if necessary
+  * Include `fftw.h`
+  * Call [`fftw_make_planner_thread_safe()`](http://www.fftw.org/fftw3_doc/Thread-safety.html#Thread-safety)
+  * Link with a threaded version of the FFTW library
+  * Link with the system's threading library if necessary
 * MagickWand
- * Include `MagickWand.h`
- * Call [`MagickWandGenesis()`](https://www.imagemagick.org/api/magick-wand.php#MagickWandGenesis)
+  * Include `MagickWand.h`
+  * Call [`MagickWandGenesis()`](https://www.imagemagick.org/api/magick-wand.php#MagickWandGenesis)
