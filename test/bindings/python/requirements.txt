@@ -1,7 +1,7 @@
 iniconfig==2.3.0
-numpy==2.5.2
+numpy==2.5.3
 packaging==26.3
 pillow==12.3.0
 pluggy==1.6.0
-Pygments==2.20.0
+Pygments==2.21.0
 pytest==9.1.1
