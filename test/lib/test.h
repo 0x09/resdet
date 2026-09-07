@@ -31,8 +31,8 @@ static void run_sample_image_assertions(RDResolution* resw, RDResolution* resh, 
 	assert_uint_equal(resw[0].index,512);
 	assert_uint_equal(resh[0].index,512);
 
-	assert_float_in_range(resw[0].confidence,0.99,1.0,0);
-	assert_float_in_range(resh[0].confidence,0.99,1.0,0);
+	assert_float_in_range(resw[0].confidence,0.99f,1.0f,0);
+	assert_float_in_range(resh[0].confidence,0.99f,1.0f,0);
 
 	assert_uint_equal(resw[countw-1].index,768);
 	assert_uint_equal(resh[counth-1].index,768);
