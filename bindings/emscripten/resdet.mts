@@ -182,14 +182,21 @@ function parametersFromObj(parameters: Partial<Parameters>) {
 		throw new OutOfMemoryError();
 
 	let err;
-	if('range' in parameters)
+	if('range' in parameters) {
 		err = resdet_parameters_set_range(params,parameters['range']);
-	if('threshold' in parameters)
+		if(err)
+			throw new RDError(err);
+	}
+	if('threshold' in parameters) {
 		err = resdet_parameters_set_threshold(params,parameters['threshold']);
-	if('compression_filter' in parameters)
+		if(err)
+			throw new RDError(err);
+	}
+	if('compression_filter' in parameters) {
 		err = resdet_parameters_set_compression_filter(params,parameters['compression_filter']);
-	if(err)
-		throw new RDError(err);
+		if(err)
+			throw new RDError(err);
+	}
 
 	return params;
 }
