@@ -310,11 +310,17 @@ def _dict_to_rdparameters(parameters: dict) -> RDParametersPtr:
 
     rdparameters = libresdet.resdet_alloc_default_parameters()
     if "range" in parameters:
-        libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
+        err = libresdet.resdet_parameters_set_range(rdparameters, parameters["range"])
+        if err:
+            raise _rderror_to_exception(err)
     if "threshold" in parameters:
-        libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"])
+        err = libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"])
+        if err:
+            raise _rderror_to_exception(err)
     if "compression_filter" in parameters:
-        libresdet.resdet_parameters_set_compression_filter(rdparameters, parameters["compression_filter"])
+        err = libresdet.resdet_parameters_set_compression_filter(rdparameters, parameters["compression_filter"])
+        if err:
+            raise _rderror_to_exception(err)
 
     return rdparameters
 
