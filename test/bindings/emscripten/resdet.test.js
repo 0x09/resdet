@@ -26,6 +26,10 @@ test('detects resolutions', () => {
 	expect(resolutions).toStrictEqual(test_resolution_dict);
 })
 
+test('finds invalid parameters', () => {
+	expect(resdet.invalidParameters({'range': 0, 'threshold': 0})).toStrictEqual(['range']);
+})
+
 test('sets parameters', () => {
 	const image = new Float32Array([0,1,0,1])
 	let resolutions = resdet.resDetect(image, 1, 4, 1);

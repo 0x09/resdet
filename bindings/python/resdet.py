@@ -372,6 +372,23 @@ def read_image(filename: str | os.PathLike, type: Optional[str] = None) -> Image
     buf.nimages = nimages.value
     return buf
 
+def invalid_parameters(parameters: dict) -> list:
+    rdparameters = libresdet.resdet_alloc_default_parameters()
+    if not rdparameters:
+        raise MemoryError()
+
+    invalid_params = []
+    if "range" in parameters and libresdet.resdet_parameters_set_range(rdparameters, parameters["range"]) != Error.OK:
+        invalid_params.append("range")
+    if "threshold" in parameters and libresdet.resdet_parameters_set_threshold(rdparameters, parameters["threshold"]) != Error.OK:
+        invalid_params.append("threshold")
+    if "compression_filter" in parameters and libresdet.resdet_parameters_set_compression_filter(rdparameters, parameters["compression_filter"]) != Error.OK:
+        invalid_params.append("compression_filter")
+
+    libresdet.resdet_free(rdparameters)
+
+    return invalid_params
+
 @singledispatch
 def resdetect(image, nimages: int, width: int, height: int, method: Optional[Method] = None, parameters: dict = {}) -> dict:
     params_arg = _dict_to_rdparameters(parameters)

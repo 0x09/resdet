@@ -201,6 +201,24 @@ function parametersFromObj(parameters: Partial<Parameters>) {
 	return params;
 }
 
+function invalidParameters(parameters: Partial<Parameters>): string[] {
+	const params = resdet_alloc_default_parameters();
+	if(!params)
+		throw new OutOfMemoryError();
+
+	let invalid_params: string[] = [];
+	if('range' in parameters && resdet_parameters_set_range(params,parameters['range']))
+		invalid_params.push("range")
+	if('threshold' in parameters && resdet_parameters_set_threshold(params,parameters['threshold']))
+		invalid_params.push("threshold")
+	if('compression_filter' in parameters && resdet_parameters_set_compression_filter(params,parameters['compression_filter']))
+		invalid_params.push("compression_filter")
+
+	Module._free(params);
+
+	return invalid_params;
+}
+
 function resDetect(float32Array: Float32Array, nimages: number, width: number, height: number, method: Method | null = null, parameters: Partial<Parameters> = {}) {
 	const params = parametersFromObj(parameters)
 
@@ -245,4 +263,4 @@ function resDetect(float32Array: Float32Array, nimages: number, width: number, h
 	return { 'widths': resw, 'heights': resh };
 }
 
-export { RDError, Method, Resolution, Analysis, libVersion, defaultRange, methods, resDetect };
+export { RDError, Method, Resolution, Analysis, libVersion, defaultRange, methods, invalidParameters, resDetect };
