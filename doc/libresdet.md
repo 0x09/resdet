@@ -223,7 +223,7 @@ Returns `NULL` if the system is out of memory.
 RDError resdet_parameters_set_range(RDParameters* params, size_t range);
 ```
 Set the range of coefficients to consider when looking for inversions. Lower values are faster, but may return many more misidentified results. Reasonable values are between 8 and 32. The library default can be obtained by calling [`resdet_default_range`](#resdet_default_range).
-This function returns an `RDEPARAM` error if the value is zero.
+This function returns an `RDEPARAM` error if the value is zero, `RDEOK` otherwise.
 
 * params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
 * range - The range value.
@@ -235,7 +235,7 @@ This function returns an `RDEPARAM` error if the value is zero.
 RDError resdet_parameters_set_threshold(RDParameters* params, float threshold);
 ```
 Set the method-specific value under which detected resolutions won't be considered meaningful. A value of 0 will return an [`RDResolution`](#rdresolution) result for every single line/column. The method-specific default can be obtained from ([`RDMethod->threshold`](#rdmethod)).
-This function returns an `RDEPARAM` error for values below zero or `NaN`.
+This function returns an `RDEPARAM` error for values below 0, above 1, or `NaN`. Returns `RDEOK` otherwise.
 
 * params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
 * threshold - A threshold value between 0 and 1.
@@ -247,6 +247,7 @@ This function returns an `RDEPARAM` error for values below zero or `NaN`.
 RDError resdet_parameters_set_compression_filter(RDParameters* params, uint8_t value);
 ```
 Set a factor for filtering possible compression artifacts from the result set. Specifically, this removes results at intervals of the image size / 2^value.
+This function returns an `RDEPARAM` error for values above 31, `RDEOK` otherwise.
 
 * params - An [`RDParameters`](#rdparameters) returned from [`resdet_alloc_default_parameters`](#resdet_alloc_default_parameters).
 * value - A filtering factor between 0 and 31. Higher values filter out more results. Realistic values are between 2 and 5.
