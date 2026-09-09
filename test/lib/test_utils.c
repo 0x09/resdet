@@ -79,6 +79,14 @@ void test_sets_threshold(void** state) {
 
 // setup: setup_rdparameter_tests
 // teardown: teardown_rdparameter_tests
+void test_sets_compression_filter(void** state) {
+	RDError err = resdet_parameters_set_compression_filter(*state,4);
+
+	assert_false(err);
+}
+
+// setup: setup_rdparameter_tests
+// teardown: teardown_rdparameter_tests
 void test_zero_range_returns_error(void** state) {
 	RDError err = resdet_parameters_set_range(*state,0);
 
@@ -93,6 +101,14 @@ void test_negative_threshold_returns_error(void** state) {
 	assert_int_equal(err,RDEPARAM);
 }
 
+// setup: setup_rdparameter_tests
+// teardown: teardown_rdparameter_tests
+void test_large_compression_filter_returns_error(void** state) {
+	RDError err = resdet_parameters_set_compression_filter(*state,100);
+
+	assert_int_equal(err,RDEPARAM);
+}
+
 void test_setting_threshold_with_no_params_returns_error(void** state) {
 	RDError err = resdet_parameters_set_threshold(NULL,0);
 
@@ -101,6 +117,12 @@ void test_setting_threshold_with_no_params_returns_error(void** state) {
 
 void test_setting_range_with_no_params_returns_error(void** state) {
 	RDError err = resdet_parameters_set_range(NULL,10);
+
+	assert_int_equal(err,RDEPARAM);
+}
+
+void test_setting_compression_filter_with_no_params_returns_error(void** state) {
+	RDError err = resdet_parameters_set_compression_filter(NULL,4);
 
 	assert_int_equal(err,RDEPARAM);
 }
