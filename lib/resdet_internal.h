@@ -78,7 +78,8 @@ struct RDAnalysis {
 
 static const RDParameters default_params = {
 	.range = DEFAULT_RANGE,
-	.threshold = -1
+	.threshold = -1,
+	.compression_filter = 0
 };
 
 typedef RDError(*RDetectFunc)(const coeff* restrict,size_t,size_t,size_t,size_t,size_t,intermediate* restrict,rdint_index* restrict,rdint_index* restrict);
