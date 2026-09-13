@@ -51,8 +51,8 @@ static RDError detect_method_original(const coeff* restrict f, size_t length, si
 	if(maxrange*2 >= length)
 		return RDEOK; //can't do anything
 
-	intermediate* sum = NULL;
-	if(!(sum = calloc(length,sizeof(*sum))))
+	intermediate* sum = calloc(length,sizeof(*sum));
+	if(!sum)
 		return RDENOMEM;
 
 	*start = maxrange;
