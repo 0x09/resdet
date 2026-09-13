@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
 		}
 
 		for(RDMethod* m = methods; m->name; m++) {
-			RDResolution* rw = NULL,* rh = NULL;
-			size_t cw = 0, ch = 0;
+			RDResolution* rw,* rh;
+			size_t cw, ch;
 			struct rusage rusage;
 			getrusage(RUSAGE_SELF,&rusage);
 			struct timeval before = rusage.ru_utime;
