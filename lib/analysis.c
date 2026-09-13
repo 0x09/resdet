@@ -7,6 +7,17 @@
 
 #include "resdet_internal.h"
 
+struct RDAnalysis {
+	RDMethod* method;
+	size_t width, height;
+	size_t nimages;
+	RDParameters params;
+	coeff* f;
+	resdet_plan* p;
+	intermediate* xresult,* yresult;
+	rdint_index xbound[2], ybound[2];
+};
+
 static int sortres(const void* left, const void* right) {
 	float left_confidence = ((const RDResolution*)left)->confidence,
 	      right_confidence = ((const RDResolution*)right)->confidence;

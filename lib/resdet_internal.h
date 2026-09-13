@@ -65,17 +65,6 @@ struct RDParameters {
 	uint8_t compression_filter;
 };
 
-struct RDAnalysis {
-	RDMethod* method;
-	size_t width, height;
-	size_t nimages;
-	RDParameters params;
-	coeff* f;
-	resdet_plan* p;
-	intermediate* xresult,* yresult;
-	rdint_index xbound[2], ybound[2];
-};
-
 static const RDParameters default_params = {
 	.range = DEFAULT_RANGE,
 	.threshold = -1,
