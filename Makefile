@@ -192,7 +192,7 @@ resdet.mjs: libresdet.mjs bindings/emscripten/node_modules
 	cd bindings/emscripten; npx tsc
 
 clean:
-	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS) bindings/emscripten/libresdet.{mjs,wasm} bindings/emscripten/resdet.mjs
+	$(RM) src/*.o $(OBJS) $(LIB) $(TOOLS) $(addsuffix .exe,$(TOOLS)) $(DEPS) $(SHAREDLIB) test_libresdet test/lib/tests.o test/lib/tests_main.c $(TESTOBJS) bindings/emscripten/libresdet.{mjs,wasm} bindings/emscripten/resdet.mjs
 
 .PHONY: all lib install install-lib uninstall-lib uninstall check_lib check_resdet check_python_bindings check clean
 
