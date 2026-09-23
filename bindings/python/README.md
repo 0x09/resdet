@@ -24,10 +24,10 @@ These examples assume `image_path` has been set to the path of an image. Paths m
 ---
 Run resdet and print each detected width and height:
 ```python
-from resdet import resdetect
+from resdet import resdetect_file, RDError
 
 try:
-    resolutions = resdetect(image_path)
+    resolutions = resdetect_file(image_path)
 except RDError as e:
     # handle error
 
