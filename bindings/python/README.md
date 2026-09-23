@@ -26,7 +26,10 @@ Run resdet and print each detected width and height:
 ```python
 from resdet import resdetect
 
-resolutions = resdetect(image_path)
+try:
+    resolutions = resdetect(image_path)
+except RDError as e:
+    # handle error
 
 print("widths:")
 for resolution in resolutions["widths"]:

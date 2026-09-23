@@ -19,7 +19,13 @@ const image = // the image data as a Float32Array
 const width = // the image width
 const height = // the image height
 
-const resolutions = resdet.resDetect(image,1,width,height)
+let resolutions;
+try {
+    resolutions = resdet.resDetect(image,1,width,height)
+}
+catch (error) {
+    //handle error
+}
 
 const widths = resolutions['widths'];
 const heights = resolutions['heights'];
