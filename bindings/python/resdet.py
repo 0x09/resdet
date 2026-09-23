@@ -44,24 +44,27 @@ class Error(IntEnum):
     PARAM    = 6
     NOIMG    = 7
 
+class RDError(Exception):
+    pass
+
 # for NOMEM we use MemoryError()
 
-class InternalError(Exception):
+class InternalError(RDError):
     pass
 
-class InvalidImageError(Exception):
+class InvalidImageError(RDError):
     pass
 
-class UnsupportedFormatError(Exception):
+class UnsupportedFormatError(RDError):
     pass
 
-class ImageTooBigErrror(Exception):
+class ImageTooBigErrror(RDError):
     pass
 
-class ParameterError(Exception):
+class ParameterError(RDError):
     pass
 
-class NoImagesError(Exception):
+class NoImagesError(RDError):
     pass
 
 class Method:
