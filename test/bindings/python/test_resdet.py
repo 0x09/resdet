@@ -92,6 +92,10 @@ class TestResdet:
         with pytest.raises(Exception):
             resdet.resdetect([1], 1, 1, 1, parameters = { "unrecognized": 1 })
 
+    def test_resdetect_file(self, test_file_resolution_dict):
+        resolutions = resdet.resdetect_file(test_file)
+        assert resolutions == test_file_resolution_dict
+
     def test_resdetect_image_buffer(self, image_buffer, rdimage, test_file_resolution_dict):
         assert rdimage.read_image_frame(image_buffer)
         resolutions = resdet.resdetect(image_buffer)
