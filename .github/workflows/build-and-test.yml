@@ -23,6 +23,7 @@ jobs:
         run: ./configure --enable-shared --disable-fftw
         env:
             CC: ${{matrix.cc}}
+            CFLAGS: -Wno-invalid-feature-combination
       - name: Build resdet
         run: make
       - name: Install resdet
