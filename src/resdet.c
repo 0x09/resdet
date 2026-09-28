@@ -184,7 +184,6 @@ int main(int argc, char* argv[]) {
 			if(!e) {
 				fprintf(stderr,"Passed end of file while seeking to frame %" PRIu64 "\n",offset);
 				ret = 1;
-				goto end;
 			}
 			goto end;
 		}
