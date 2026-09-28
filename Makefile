@@ -13,7 +13,7 @@ ifdef HAVE_FFTW
 else
 	OBJS += transform/kiss_fft.o
 	CFLAGS_LIB += -Ilib/kissfft
-	OBJS += $(addprefix kissfft/, kiss_fft.o kiss_fftnd.o kiss_fftndr.o kiss_fftr.o)
+	OBJS += $(addprefix kissfft/, kiss_fft.o kiss_fftr.o)
 endif
 
 ifdef DEFAULT_RANGE
