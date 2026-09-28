@@ -159,6 +159,7 @@ int main(int argc, char* argv[]) {
 	}
 	if(type && image_reader) {
 		fputs("Type option (-t) cannot be used with an image reader (-R)",stderr);
+		free(params);
 		return 1;
 	}
 
