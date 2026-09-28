@@ -56,10 +56,11 @@ resdet_plan* resdet_create_plan(coeff* f, size_t width, size_t height, RDError* 
 		p->shift[0][x].r = mi(cos)(-pi*x/(2*width));
 		p->shift[0][x].i = mi(sin)(-pi*x/(2*width));
 	}
-	for(size_t y = 0; width != height && y < height; y++) {
-		p->shift[1][y].r = mi(cos)(-pi*y/(2*height));
-		p->shift[1][y].i = mi(sin)(-pi*y/(2*height));
-	}
+	if(width != height)
+		for(size_t y = 0; y < height; y++) {
+			p->shift[1][y].r = mi(cos)(-pi*y/(2*height));
+			p->shift[1][y].i = mi(sin)(-pi*y/(2*height));
+		}
 
 	*error = RDEOK;
 	return p;
