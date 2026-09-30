@@ -90,7 +90,7 @@ static void* libpng_reader_open(const char* filename, size_t* width, size_t* hei
 	if(color == PNG_COLOR_TYPE_PALETTE)
 		png_set_palette_to_rgb(ctx->png_ptr);
 	if(bit_depth == 16)
-		png_set_strip_16(ctx->png_ptr);
+		png_set_scale_16(ctx->png_ptr);
 	else if(bit_depth < 8)
 		png_set_expand_gray_1_2_4_to_8(ctx->png_ptr);
 
