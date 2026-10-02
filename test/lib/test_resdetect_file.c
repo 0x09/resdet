@@ -1,7 +1,6 @@
 #include "test.h"
 
 void test_resdetect_file_detects_resolutions(void** state) {
-	struct analysis_ctx* ctx = *state;
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
@@ -13,7 +12,6 @@ void test_resdetect_file_detects_resolutions(void** state) {
 }
 
 void test_images_smaller_than_range_return_only_their_input_dimensions(void** state) {
-	struct analysis_ctx* ctx = *state;
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
@@ -32,7 +30,6 @@ void test_images_smaller_than_range_return_only_their_input_dimensions(void** st
 }
 
 void test_resdetect_file_nullifies_outputs_on_error(void** state) {
-	struct analysis_ctx* ctx = *state;
 	RDResolution* resw,* resh;
 	size_t countw, counth;
 
