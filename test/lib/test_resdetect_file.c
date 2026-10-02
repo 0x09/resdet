@@ -11,6 +11,25 @@ void test_resdetect_file_detects_resolutions(void** state) {
 	run_sample_image_assertions(resw,resh,countw,counth,2,2);
 }
 
+void test_detects_resolutions_with_different_input_width_and_height(void** state) {
+	RDResolution* resw,* resh;
+	size_t countw, counth;
+
+	RDError err = resdetect_file("test/files/blue_marble_2012_resized_oblong.pfm",NULL,&resw,&countw,&resh,&counth,NULL,NULL);
+
+	assert_false(err);
+
+	assert_non_null(resw);
+	assert_non_null(resh);
+
+	assert_uint_equal(countw,2);
+	assert_uint_equal(counth,2);
+
+	assert_uint_equal(resw[0].index,512);
+	assert_uint_equal(resh[0].index,512);
+}
+
+
 void test_images_smaller_than_range_return_only_their_input_dimensions(void** state) {
 	RDResolution* resw,* resh;
 	size_t countw, counth;
