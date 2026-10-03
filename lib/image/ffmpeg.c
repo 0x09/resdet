@@ -26,7 +26,7 @@ static RDError rderror_from_averror(int averr) {
 
 	// try to find out if this is an errno code
 	if(!strcmp(av_err2str(averr),strerror(AVUNERROR(averr))))
-		return -AVUNERROR(averr);
+		return averr;
 
 	return RDEINVAL;
 }

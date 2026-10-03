@@ -57,6 +57,12 @@ typedef size_t rdint_storage;
 #error "DEFAULT_RANGE must be greater than 0"
 #endif
 
+#if ERANGE < 0
+#define RDERRNO(e) (e)
+#else
+#define RDERRNO(e) -(e)
+#endif
+
 typedef struct resdet_plan resdet_plan;
 
 struct RDParameters {

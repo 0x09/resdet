@@ -42,7 +42,7 @@ static void* libpng_reader_open(const char* filename, size_t* width, size_t* hei
 
 	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!ctx->f) {
-		*error = -errno;
+		*error = RDERRNO(errno);
 		free(ctx);
 		return NULL;
 	}

@@ -42,7 +42,7 @@ static void* magickwand_reader_open(const char* filename, size_t* width, size_t*
 		char* exception = MagickGetException(ctx->wand,&ex);
 		switch(ex) {
 			case BlobError:
-			case FileOpenError: *error = -errno; break;
+			case FileOpenError: *error = RDERRNO(errno); break;
 			case ResourceLimitError:
 			case ResourceLimitFatalError: *error = RDENOMEM; break;
 			case MissingDelegateError:
@@ -55,7 +55,7 @@ static void* magickwand_reader_open(const char* filename, size_t* width, size_t*
 						fclose(tmp);
 					}
 					else
-						*error = -errno;
+						*error = RDERRNO(errno);
 				}
 				break;
 			default: *error = RDEINVAL;

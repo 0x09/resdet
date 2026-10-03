@@ -19,7 +19,7 @@ RDError resdet_fskip(FILE* f, uint64_t offset, void* buf) {
 			return RDEINVAL;
 	}
 	else if(fseek(f,offset,SEEK_CUR) < 0)
-		return -errno;
+		return RDERRNO(errno);
 	return RDEOK;
 }
 

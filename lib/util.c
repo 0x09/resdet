@@ -74,7 +74,7 @@ static const char* const RDErrStr[] = {
 RESDET_API const char* resdet_error_str(RDError e) {
 
 	if(e < 0)
-		return strerror(-e);
+		return strerror(RDERRNO(e));
 
 	if(e > resdet_get_max_error())
 		return NULL;

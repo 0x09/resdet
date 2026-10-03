@@ -46,7 +46,7 @@ static void* pgm_reader_open(const char* filename, size_t* width, size_t* height
 
 	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!ctx->f) {
-		*error = -errno;
+		*error = RDERRNO(errno);
 		goto error;
 	}
 

@@ -11,7 +11,11 @@ void test_resdet_error_str_returns_error_message(void** state) {
 }
 
 void test_resdet_error_str_returns_errno_message(void** state) {
-	const char* error = resdet_error_str(-ERANGE);
+	int e = ERANGE;
+#if ERANGE > 0
+	e = -e;
+#endif
+	const char* error = resdet_error_str(e);
 	const char* actual_erange = strerror(ERANGE);
 
 	assert_non_null(error);

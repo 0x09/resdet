@@ -42,7 +42,7 @@ static void* libjpeg_reader_open(const char* filename, size_t* width, size_t* he
 
 	ctx->f = strcmp(filename,"-") ? fopen(filename,"rb") : stdin;
 	if(!ctx->f) {
-		*error = -errno;
+		*error = RDERRNO(errno);
 		free(ctx);
 		return NULL;
 	}
