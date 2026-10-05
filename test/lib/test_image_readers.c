@@ -757,4 +757,3 @@ void test_open_image_errors_on_corrupt_header_y4m(void** state) {
 void test_read_frame_errors_on_partial_data_y4m(void** state) {
 	run_read_frame_errors_on_partial_data_test(state);
 }
-
