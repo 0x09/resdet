@@ -415,7 +415,7 @@ If an error occurs the returned pointer will be `NULL` and the error pointer upd
 <a name="resdet_analyze_image"></a>
 
 ```C
-RDError resdet_analyze_image(RDAnalysis* analysis, float* image);
+RDError resdet_analyze_image(RDAnalysis* analysis, const float* image);
 ```
 Analyze a single image. Call multiple times with the same [`RDAnalysis`](#rdanalysis) to include multiple frames of an image sequence in the analysis. 
 

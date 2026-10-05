@@ -107,7 +107,7 @@ error:
 	return NULL;
 }
 
-RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, float* image) {
+RESDET_API RDError resdet_analyze_image(RDAnalysis* analysis, const float* image) {
 	if(!(analysis && image))
 		return RDEPARAM;
 

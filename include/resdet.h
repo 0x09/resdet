@@ -86,7 +86,7 @@ RESDET_API const char* const* resdet_list_image_readers(void);
 
 RESDET_API RDAnalysis* resdet_create_analysis(RDMethod* method, size_t width, size_t height, const RDParameters* params, RDError* error);
 
-RESDET_API RDError resdet_analyze_image(RDAnalysis*, float* image);
+RESDET_API RDError resdet_analyze_image(RDAnalysis*, const float* image);
 
 RESDET_API RDError resdet_analysis_results(RDAnalysis*,
                                            RDResolution** restrict resw, size_t* restrict countw,
