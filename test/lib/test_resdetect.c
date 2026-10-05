@@ -1,9 +1,5 @@
 #include "test.h"
 
-struct image_ctx {
-	float* image;
-};
-
 int setup_resdetect_group(void** state) {
 	float* image;
 	size_t width, height, nimages;
