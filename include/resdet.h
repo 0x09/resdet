@@ -95,7 +95,7 @@ RESDET_API RDError resdet_analysis_results(RDAnalysis*,
 RESDET_API void resdet_destroy_analysis(RDAnalysis*);
 
 
-RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+RESDET_API RDError resdetect(const float* image, size_t nimages, size_t width, size_t height,
                              RDResolution** restrict resw, size_t* restrict countw,
                              RDResolution** restrict resh, size_t* restrict counth,
                              RDMethod* method, const RDParameters* params);

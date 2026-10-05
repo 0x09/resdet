@@ -475,7 +475,7 @@ RDError resdetect_file(const char* filename, const char* filetype,
 <a name="resdetect"></a>
 
 ```C
-RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+RDError resdetect(const float* image, size_t nimages, size_t width, size_t height,
                   RDResolution** restrict resw, size_t* restrict countw,
                   RDResolution** restrict resh, size_t* restrict counth,
                   RDMethod* method, const RDParameters* params);

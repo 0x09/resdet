@@ -5,7 +5,7 @@
 
 #include "resdet_internal.h"
 
-RESDET_API RDError resdetect(float* image, size_t nimages, size_t width, size_t height,
+RESDET_API RDError resdetect(const float* image, size_t nimages, size_t width, size_t height,
                              RDResolution** restrict rw, size_t* restrict cw,
                              RDResolution** restrict rh, size_t* restrict ch,
                              RDMethod* method, const RDParameters* params) {
