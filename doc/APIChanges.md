@@ -1,3 +1,5 @@
+**2026-10-04**
+* The `image` argument to `resdet_analyze_image` is now const. (6c8ec2f)
 
 ---
 
