@@ -12,7 +12,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-6.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl gawk libcmocka-dev
+          sudo apt-get install -y libpng-dev libjpeg-dev libmagickwand-7.q16-dev libfftw3-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev curl gawk libcmocka-dev
       - name: Configure resdet with FFTW
         if: matrix.transform == 'fftw'
         run: ./configure --enable-shared
