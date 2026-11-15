@@ -84,10 +84,10 @@ void resdet_transform(resdet_plan* p) {
 
 void resdet_free_plan(resdet_plan* p) {
 	if(p) {
-		free(p->cfg[0]);
+		kiss_fftr_free(p->cfg[0]);
 		free(p->shift[0]);
 		if(p->width != p->height) {
-			free(p->cfg[1]);
+			kiss_fftr_free(p->cfg[1]);
 			free(p->shift[1]);
 		}
 		free(p->mirror);
